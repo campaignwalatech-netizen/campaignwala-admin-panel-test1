@@ -8,15 +8,15 @@ const OverviewCards = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 px-6 mt-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 px-2 sm:px-4 lg:px-6 mt-4 sm:mt-6">
       {data.map((item, i) => (
         <div
           key={i}
-          className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md hover:shadow-lg transition border border-gray-100 dark:border-gray-700"
+          className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-md hover:shadow-lg transition border border-gray-100 dark:border-gray-700"
         >
-          <h2 className="text-gray-600 dark:text-gray-400 text-sm">{item.title}</h2>
-          <p className="text-2xl font-semibold mt-2 text-gray-900 dark:text-white">{item.value}</p>
-          <p className="text-sm text-green-600 dark:text-green-400 mt-1">{item.note}</p>
+          <h2 className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">{item.title}</h2>
+          <p className="text-xl sm:text-2xl font-semibold mt-2 text-gray-900 dark:text-white">{item.value}</p>
+          <p className="text-xs sm:text-sm text-green-600 dark:text-green-400 mt-1">{item.note}</p>
         </div>
       ))}
     </div>

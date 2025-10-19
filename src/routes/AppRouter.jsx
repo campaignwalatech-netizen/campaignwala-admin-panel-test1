@@ -22,7 +22,7 @@ import {
   ClosedLeads,
   Leaderboard
 } from "../userDashboard/pages/index.jsx";
-import UserPageWrapper from "../userDashboard/components/UserPageWrapper";
+import UserDashboardLayout from "../userDashboard/layouts/UserDashboardLayout";
 
 export default function AppRouter() {
   return (
@@ -37,24 +37,26 @@ export default function AppRouter() {
         <Route path="/admin/dashboard" element={<App />} />
         <Route path="/admin/*" element={<App />} />
         
-        {/* User Dashboard Routes - Direct Routes */}
-        <Route path="/user/dashboard" element={<UserPageWrapper><UserDashboard /></UserPageWrapper>} />
-        <Route path="/user/monthly-winners" element={<UserPageWrapper><MonthlyWinnerList /></UserPageWrapper>} />
-        <Route path="/user/announcements" element={<UserPageWrapper><Announcement /></UserPageWrapper>} />
-        <Route path="/user/attendance" element={<UserPageWrapper><Attendance /></UserPageWrapper>} />
-        <Route path="/user/todays-leads" element={<UserPageWrapper><TodaysLeads /></UserPageWrapper>} />
-        <Route path="/user/live-toppers" element={<UserPageWrapper><LiveToppersList /></UserPageWrapper>} />
-        <Route path="/user/account-link" element={<UserPageWrapper><AccountLink /></UserPageWrapper>} />
-        <Route path="/user/work-analytics" element={<UserPageWrapper><WorkAnalytics /></UserPageWrapper>} />
-        <Route path="/user/faq" element={<UserPageWrapper><FAQ /></UserPageWrapper>} />
-        <Route path="/user/pending-account" element={<UserPageWrapper><PendingAccount /></UserPageWrapper>} />
-        <Route path="/user/completed-account" element={<UserPageWrapper><CompletedAccount /></UserPageWrapper>} />
-        <Route path="/user/approved-account" element={<UserPageWrapper><ApprovedAccount /></UserPageWrapper>} />
-        <Route path="/user/profile" element={<UserPageWrapper><ProfileDetails /></UserPageWrapper>} />
-        <Route path="/user/salary" element={<UserPageWrapper><SalaryReceived /></UserPageWrapper>} />
-        <Route path="/user/previous-leads" element={<UserPageWrapper><PreviousLeads /></UserPageWrapper>} />
-        <Route path="/user/closed-leads" element={<UserPageWrapper><ClosedLeads /></UserPageWrapper>} />
-        <Route path="/user/leaderboard" element={<UserPageWrapper><Leaderboard /></UserPageWrapper>} />
+        {/* User Dashboard Routes - Using Layout */}
+        <Route path="/user/*" element={<UserDashboardLayout />}>
+          <Route path="dashboard" element={<UserDashboard />} />
+          <Route path="monthly-winners" element={<MonthlyWinnerList />} />
+          <Route path="announcements" element={<Announcement />} />
+          <Route path="attendance" element={<Attendance />} />
+          <Route path="todays-leads" element={<TodaysLeads />} />
+          <Route path="live-toppers" element={<LiveToppersList />} />
+          <Route path="account-link" element={<AccountLink />} />
+          <Route path="work-analytics" element={<WorkAnalytics />} />
+          <Route path="faq" element={<FAQ />} />
+          <Route path="pending-account" element={<PendingAccount />} />
+          <Route path="completed-account" element={<CompletedAccount />} />
+          <Route path="approved-account" element={<ApprovedAccount />} />
+          <Route path="profile" element={<ProfileDetails />} />
+          <Route path="salary" element={<SalaryReceived />} />
+          <Route path="previous-leads" element={<PreviousLeads />} />
+          <Route path="closed-leads" element={<ClosedLeads />} />
+          <Route path="leaderboard" element={<Leaderboard />} />
+        </Route>
         
         {/* Legacy Routes for backward compatibility */}
         <Route path="/dashboard" element={<App />} />
