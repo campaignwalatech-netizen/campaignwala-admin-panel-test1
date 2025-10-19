@@ -43,10 +43,10 @@ const FAQ = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <HelpCircle className="w-6 h-6 text-blue-500" />
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Frequently Asked Questions</h1>
+    <div className="p-4 sm:p-6">
+      <div className="flex items-center gap-3 mb-4 sm:mb-6">
+        <HelpCircle className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Frequently Asked Questions</h1>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md">
@@ -54,21 +54,21 @@ const FAQ = () => {
           <div key={faq.id} className={`${index !== faqs.length - 1 ? 'border-b border-gray-200 dark:border-gray-700' : ''}`}>
             <button
               onClick={() => toggleFAQ(faq.id)}
-              className="w-full text-left p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="w-full text-left p-4 sm:p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white pr-4">
+              <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white pr-4">
                 {faq.question}
               </h3>
               {expandedFAQ === faq.id ? (
-                <ChevronDown className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" />
               ) : (
-                <ChevronRight className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" />
               )}
             </button>
             
             {expandedFAQ === faq.id && (
-              <div className="px-6 pb-6">
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
                   {faq.answer}
                 </p>
               </div>
@@ -77,14 +77,14 @@ const FAQ = () => {
         ))}
       </div>
 
-      <div className="mt-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
+      <div className="mt-4 sm:mt-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
           Still have questions?
         </h3>
-        <p className="text-blue-700 dark:text-blue-200 mb-4">
+        <p className="text-sm sm:text-base text-blue-700 dark:text-blue-200 mb-4">
           If you can't find the answer you're looking for, feel free to contact our support team.
         </p>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+        <button className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base">
           Contact Support
         </button>
       </div>
