@@ -5,7 +5,7 @@ export default function AllProductsTable() {
   const [products, setProducts] = useState([
     { 
       id: 1, 
-      image: "campaign1.jpg", 
+      image: "https://picsum.photos/48/48?random=1", 
       date: "2024-10-15", 
       name: "Premium Digital Campaign", 
       latestStage: "Upload",
@@ -18,7 +18,7 @@ export default function AllProductsTable() {
     },
     { 
       id: 2, 
-      image: "campaign2.jpg", 
+      image: "https://picsum.photos/48/48?random=2", 
       date: "2024-10-14", 
       name: "Social Media Blast", 
       latestStage: "Number",
@@ -31,7 +31,7 @@ export default function AllProductsTable() {
     },
     { 
       id: 3, 
-      image: "campaign3.jpg", 
+      image: "https://picsum.photos/48/48?random=3", 
       date: "2024-10-13", 
       name: "Email Marketing Pro", 
       latestStage: "Upload",
@@ -44,7 +44,7 @@ export default function AllProductsTable() {
     },
     { 
       id: 4, 
-      image: "campaign4.jpg", 
+      image: "https://picsum.photos/48/48?random=4", 
       date: "2024-10-12", 
       name: "SEO Optimization Pack", 
       latestStage: "Number",
@@ -197,8 +197,13 @@ export default function AllProductsTable() {
             {filteredProducts.map((product) => (
               <tr key={product.id} className="hover:bg-muted/50">
                 <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm whitespace-nowrap">
-                  <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">IMG</span>
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold text-lg ${
+                    product.id === 1 ? 'bg-gradient-to-br from-blue-500 to-indigo-600' :
+                    product.id === 2 ? 'bg-gradient-to-br from-green-500 to-emerald-600' :
+                    product.id === 3 ? 'bg-gradient-to-br from-red-500 to-pink-600' :
+                    'bg-gradient-to-br from-purple-500 to-violet-600'
+                  }`}>
+                    {product.name.charAt(0)}
                   </div>
                 </td>
                 <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{product.date}</td>

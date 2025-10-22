@@ -1,44 +1,24 @@
 "use client";
 import { useState } from "react";
 import { Eye, EyeOff, LogIn } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function LoginPage() {
-  const navigate = useNavigate();
+  const { login, isLoading, error } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  // Demo credentials for both admin and user
-  const ADMIN_PHONE = "9876543210";
-  const ADMIN_PASSWORD = "admin123";
-  const USER_PHONE = "9876543211";
-  const USER_PASSWORD = "user123";
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
-
-    setTimeout(() => {
-      let userType = null;
-      
-      if (phoneNumber === ADMIN_PHONE && password === ADMIN_PASSWORD) {
-        userType = "admin";
-      } else if (phoneNumber === USER_PHONE && password === USER_PASSWORD) {
-        userType = "user";
-      }
-
-      if (userType) {
-        // Navigate to OTP verification with user type
-        navigate("/verify-otp", { state: { phone: phoneNumber, userType } });
-      } else {
-        setError("Invalid credentials. Try Admin: 9876543210/admin123 or User: 9876543211/user123");
-      }
-      setIsLoading(false);
-    }, 1000);
+    
+    try {
+      await login({ email, password });
+      // Navigation will be handled automatically by useAuth hook
+    } catch (error) {
+      // Error is handled by Redux state
+    }
   };
 
   return (
@@ -130,24 +110,24 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Phone */}
+            {/* Email */}
             <div>
               <label
-                htmlFor="phone"
+                htmlFor="email"
                 className="block text-sm font-medium text-foreground mb-2"
               >
-                Phone Number
+                Email Address
               </label>
               <input
-                id="phone"
-                type="tel"
-                placeholder="Enter your phone number"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition bg-background text-foreground font-medium placeholder:text-muted-foreground"
                 required
               />
-              <p className="text-xs text-muted-foreground mt-1">Admin: 9876543210 | User: 9876543211</p>
+              <p className="text-xs text-muted-foreground mt-1">Admin: admin@test.com | User: user@test.com</p>
             </div>
 
             {/* Password */}

@@ -1,15 +1,17 @@
 import { useState } from "react";
+import { AlertCircle } from "lucide-react";
 
 export default function AddProjectForm() {
   const [formData, setFormData] = useState({
     projectName: "",
     category: "",
-    budget: "",
     duration: "",
     description: "",
     startDate: "",
     clientName: "",
-    status: "pending"
+    status: "pending",
+    bonus: "",
+    commissionType: ""
   });
 
   const handleSubmit = (e) => {
@@ -25,6 +27,20 @@ export default function AddProjectForm() {
   return (
     <div className="h-full flex flex-col p-3 sm:p-4">
       <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Add New Project</h2>
+      
+      {/* Alert Message */}
+      <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+          <div className="text-sm">
+            <p className="font-semibold text-blue-800 dark:text-blue-200 mb-1">Bonus & Commission Information</p>
+            <p className="text-blue-700 dark:text-blue-300">
+              <span className="font-medium">Total Bonus: ₹500</span> | 
+              <span className="font-medium ml-2">Per Task: ₹100</span>
+            </p>
+          </div>
+        </div>
+      </div>
       
       <div className="flex-1 overflow-y-auto scrollbar-custom min-h-0">
       <form onSubmit={handleSubmit} className="bg-card rounded-lg border border-border p-4 sm:p-6 max-w-4xl">
@@ -74,16 +90,17 @@ export default function AddProjectForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Budget</label>
-            <input
-              type="text"
-              name="budget"
-              value={formData.budget}
+            <label className="block text-sm font-medium text-foreground mb-2">Commission Type</label>
+            <select
+              name="commissionType"
+              value={formData.commissionType}
               onChange={handleChange}
               className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="₹ 50,000"
               required
-            />
+            >
+              <option value="commission1">Commission 1 (10%)</option>
+              <option value="commission2">Commission 2 (15%)</option>
+            </select>
           </div>
 
           <div>
@@ -107,6 +124,19 @@ export default function AddProjectForm() {
               onChange={handleChange}
               className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="30"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">Bonus (₹)</label>
+            <input
+              type="number"
+              name="bonus"
+              value={formData.bonus}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="500"
               required
             />
           </div>

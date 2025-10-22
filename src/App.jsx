@@ -1,8 +1,15 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { 
+  selectIsAuthenticated, 
+  selectUserRole, 
+  updateLastActivity,
+  logoutUser
+} from "./redux/slices/authSlice";
+
+// Components
 import Sidebar from "./adminDashboard/components/Sidebar";
 import Header from "./adminDashboard/components/Header";
-import ProductsTable from "./adminDashboard/components/ProductsTable";
 import { DefaultView } from "./adminDashboard/components/DummyForms";
 
 // Manage Account
@@ -33,27 +40,46 @@ import ResetPasswordForm from "./adminDashboard/forms/ResetPasswordForm";
 import AdminLogsTable from "./adminDashboard/forms/AdminLogsTable";
 import UserQueriesTable from "./adminDashboard/forms/UserQueriesTable";
 
+/**
+ * Admin Dashboard Component
+ * Main application component for admin users with advanced state management
+ */
 export default function App() {
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
+  // Redux state
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const userRole = useSelector(selectUserRole);
+  
+  // Local state
+  const [currentView, setCurrentView] = useState("manage-account");
   const [isDark, setIsDark] = useState(() => {
-    // Load theme from localStorage, default to dark if not set
     const savedTheme = localStorage.getItem('theme');
     return savedTheme === 'light' ? false : true;
   });
-  const [currentView, setCurrentView] = useState("manage-account");
 
+  // Session management
   useEffect(() => {
-    // Check if user is logged in and is an admin
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    const userType = localStorage.getItem("userType");
-    
-    if (!isLoggedIn || userType !== "admin") {
-      navigate("/");
-    }
-  }, [navigate]);
+    // Update last activity on component mount and user interactions
+    const handleUserActivity = () => {
+      dispatch(updateLastActivity());
+    };
 
+    // Add event listeners for user activity
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    events.forEach(event => {
+      document.addEventListener(event, handleUserActivity, true);
+    });
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, handleUserActivity, true);
+      });
+    };
+  }, [dispatch]);
+
+  // Theme management
   useEffect(() => {
-    // Apply theme on initial load
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'light') {
       document.documentElement.classList.remove("dark");
@@ -63,7 +89,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Update theme and save to localStorage
     if (isDark) {
       document.documentElement.classList.add("dark");
       localStorage.setItem('theme', 'dark');
@@ -73,8 +98,29 @@ export default function App() {
     }
   }, [isDark]);
 
+  // Authorization check
+  if (!isAuthenticated || userRole !== 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-foreground mb-4">
+            Access Denied
+          </h2>
+          <p className="text-muted-foreground">
+            You don't have permission to access this admin dashboard.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const handleMenuSelect = (menuKey) => {
     setCurrentView(menuKey);
+    dispatch(updateLastActivity());
+  };
+
+  const handleThemeToggle = () => {
+    setIsDark(!isDark);
   };
 
   const renderContent = () => {
@@ -155,7 +201,7 @@ export default function App() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-background">
         <Header
           isDark={isDark}
-          onThemeToggle={() => setIsDark(!isDark)}
+          onThemeToggle={handleThemeToggle}
           currentView={currentView}
         />
         <main className="flex-1 overflow-auto scrollbar-hide bg-background">
