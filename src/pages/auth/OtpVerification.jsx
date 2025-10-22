@@ -93,7 +93,7 @@ export default function OtpVerification() {
         navigate("/admin/dashboard");
       } else if (userType === "user") {
         console.log("🚀 Navigating to /user/dashboard");
-        navigate("/user/dashboard");
+        navigate("/user");
       }
     }, 100);
   };

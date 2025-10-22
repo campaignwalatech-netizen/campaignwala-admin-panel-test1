@@ -1,36 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Outlet } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { selectIsAuthenticated, selectUserRole } from '../../redux/slices/authSlice';
 import Navbar from '../components/Navbar.jsx';
 import Sidebar from '../components/Sidebar.jsx';
 import Footer from '../components/Footer.jsx';
 
 const UserDashboardLayout = () => {
   const navigate = useNavigate();
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-  const userRole = useSelector(selectUserRole);
-  
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("theme") === "dark"
   );
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    // Check if user is authenticated and has user role
+    // Check if user is logged in and is a user type
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const userType = localStorage.getItem("userType");
+    
     console.log("UserDashboardLayout - Auth check:", {
-      isAuthenticated,
-      userRole,
+      isLoggedIn: isLoggedIn,
+      userType: userType,
       path: window.location.pathname
     });
     
-    if (!isAuthenticated || userRole !== "user") {
+    if (!isLoggedIn || userType !== "user") {
       console.log("UserDashboardLayout - Redirecting to login, auth failed");
-      navigate("/", { replace: true });
+      navigate("/");
     } else {
       console.log("UserDashboardLayout - Auth success, staying on page");
     }
-  }, [navigate, isAuthenticated, userRole]);
+  }, [navigate]);
 
   // Listen for theme changes
   useEffect(() => {
@@ -61,43 +59,33 @@ const UserDashboardLayout = () => {
   };
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
-      <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
-        {/* Sidebar */}
-        <Sidebar 
-          darkMode={darkMode} 
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
+    <div
+      className={`flex ${
+        darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+      }`}
+    >
+      <Sidebar
+        darkMode={darkMode}
+        isSidebarOpen={isSidebarOpen}
+        toggleSidebar={toggleSidebar}
+      />
+      <div
+        className={`flex-1 transition-all duration-300 ${
+          isSidebarOpen ? "ml-64" : "ml-16"
+        }`}
+      >
+        <Navbar
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          toggleSidebar={toggleSidebar}
         />
-        
-        {/* Overlay for mobile */}
-        {sidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-        
-        {/* Main Content */}
-        <div className="lg:ml-64 min-h-screen">
-          {/* Navbar */}
-          <Navbar 
-            darkMode={darkMode}
-            onMenuClick={() => setSidebarOpen(true)}
-            onThemeToggle={handleThemeToggle}
-          />
-          
-          {/* Page Content */}
-          <main className="pb-20 px-4 sm:px-6 lg:px-8">
-            <Outlet />
-          </main>
-          
-          {/* Footer */}
-          <Footer />
-        </div>
+        <main className="p-6 min-h-screen">
+          <Outlet /> {/* ✅ Always render Outlet - it handles all child routes including index */}
+        </main>
+        <Footer darkMode={darkMode} />
       </div>
     </div>
   );
-};
+}
 
 export default UserDashboardLayout;
