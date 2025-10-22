@@ -1,97 +1,121 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Menu } from "lucide-react";
+import React, { useState } from "react";
+import { Bell, Search, User, Menu, Sun, Moon } from "lucide-react";
 
-const Navbar = ({ darkMode, onMenuClick, onThemeToggle }) => {
-  const navigate = useNavigate();
-  const [theme, setTheme] = useState(
-    localStorage.getItem("theme") || "light"
-  );
-
-  // apply theme to <html> tag
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-      setTheme("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      setTheme("light");
-    }
-  }, [darkMode]);
-
-  const toggleTheme = () => {
-    if (onThemeToggle) {
-      onThemeToggle();
-    } else {
-      // Fallback if onThemeToggle is not provided
-      const newTheme = theme === "light" ? "dark" : "light";
-      setTheme(newTheme);
-      localStorage.setItem("theme", newTheme);
-      
-      if (newTheme === "dark") {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userPhone");
-    localStorage.removeItem("userType");
-    navigate("/");
-  };
+const Navbar = ({ darkMode, setDarkMode, toggleSidebar }) => {
+  const [showSearch, setShowSearch] = useState(false);
 
   return (
-    <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 py-4 bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors">
-      {/* Mobile menu button */}
-      <div className="flex items-center gap-4">
-        <button
-          onClick={onMenuClick}
-          className="lg:hidden p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
+    <header
+      className={`fixed top-0 right-0 z-40 w-full border-b transition-all duration-300 ${
+        darkMode
+          ? "bg-gray-800 border-gray-700"
+          : "bg-white border-gray-200"
+      } lg:ml-64`}
+    >
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
         
-        <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
-          Welcome Back, <span className="text-gray-700 dark:text-gray-300">#user!</span>
-        </h1>
-      </div>
+        {/* LEFT SECTION: Brand + Sidebar + Theme Toggle */}
+        <div className="flex items-center gap-3 sm:gap-6">
+          {/* Mobile Sidebar Toggle */}
+          <button
+            className="lg:hidden p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+            onClick={toggleSidebar}
+          >
+            <Menu className={`w-5 h-5 ${darkMode ? "text-gray-300" : "text-gray-700"}`} />
+          </button>
 
-      <div className="flex items-center gap-3">
-        {/* Toggle Switch */}
-        <button
-          onClick={toggleTheme}
-          className="relative w-12 sm:w-14 h-6 sm:h-7 flex items-center bg-gray-300 dark:bg-gray-600 rounded-full transition-all duration-300 focus:outline-none"
-        >
-          <span
-            className={`absolute left-1 top-1 w-4 h-4 sm:w-5 sm:h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-              darkMode ? "translate-x-6 sm:translate-x-7" : ""
+          {/* Brand Name */}
+          <h1
+            className={`text-lg sm:text-xl font-bold ${
+              darkMode ? "text-white" : "text-gray-800"
             }`}
-          ></span>
-          <span className="absolute left-1.5 sm:left-2 text-xs text-gray-700 dark:text-gray-400">
-            ☀️
-          </span>
-          <span className="absolute right-1.5 sm:right-2 text-xs text-gray-700 dark:text-gray-400">
-            🌙
-          </span>
-        </button>
+          >
+            Campaign Wala
+          </h1>
+          
+        </div>
 
-        {/* User Avatar with Logout */}
-        <div className="relative group">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gray-300 dark:bg-gray-500 cursor-pointer transition-colors"></div>
-          <div className="absolute right-0 top-10 hidden group-hover:block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-2 min-w-[120px] z-10">
-            <button
-              onClick={handleLogout}
-              className="w-full text-left px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition"
-            >
-              Logout
-            </button>
+        {/* RIGHT SECTION: Search + Icons */}
+        <div className="flex items-center gap-2 sm:gap-4">
+          {/* Search Input (Desktop/Tablet) */}
+          <div className="relative hidden md:block">
+            <input
+              type="text"
+              placeholder="Search offers, leads, or profile..."
+              className={`w-48 sm:w-64 lg:w-80 pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none transition-all ${
+                darkMode
+                  ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+              }`}
+            />
+            <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
           </div>
+
+          {/* Mobile Search Icon */}
+          <button
+            className="block md:hidden p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"
+            onClick={() => setShowSearch(!showSearch)}
+          >
+            <Search className={`w-5 h-5 ${darkMode ? "text-gray-300" : "text-gray-700"}`} />
+          </button>
+
+          {/* Theme Toggle (Icon-based for compact design) */}
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className={`p-2 rounded-md border transition-all ${
+              darkMode
+                ? "bg-gray-700 border-gray-600 text-yellow-400 hover:bg-gray-600"
+                : "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
+            }`}
+            title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
+
+          {/* Notifications */}
+          <button
+            className={`relative p-2 rounded-full transition-all ${
+              darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+            }`}
+            title="Notifications"
+          >
+            <Bell className={`w-5 h-5 ${darkMode ? "text-gray-300" : "text-gray-600"}`} />
+            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          </button>
+
+          {/* Profile Avatar */}
+          <div
+  className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-r from-orange-400 to-red-400 rounded-full flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
+  title="Logout"
+  onClick={() => {
+    // Example logout logic
+    localStorage.clear();
+    window.location.href = "/"; // Redirect to login page
+  }}
+>
+  <User className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+</div>
         </div>
       </div>
-    </div>
+
+      {/* MOBILE SEARCH BAR DROPDOWN */}
+      {showSearch && (
+        <div className="p-3 border-t md:hidden">
+          <div className="relative">
+            <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className={`w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none transition-all ${
+                darkMode
+                  ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+              }`}
+            />
+          </div>
+        </div>
+      )}
+    </header>
   );
 };
 
