@@ -1,44 +1,43 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function RegisterPage() {
-  const navigate = useNavigate();
+  const { register, isLoading, error } = useAuth();
   const [step, setStep] = useState("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [info, setInfo] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const DUMMY_OTP = "1234";
 
   const sendOtp = (e) => {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-      setInfo(`OTP sent to ${phone}`);
-      setStep("otp");
-    }, 1000);
+    setFormError("");
+    setInfo(`OTP sent to ${phone}`);
+    setStep("otp");
   };
 
-  const verifyOtp = (e) => {
+  const verifyOtp = async (e) => {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
+    setFormError("");
 
-    setTimeout(() => {
-      setIsLoading(false);
-      if (otp === DUMMY_OTP) {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userPhone", phone);
-        navigate("/dashboard");
-      } else {
-        setError("Invalid OTP. Try 1234.");
+    if (otp === DUMMY_OTP) {
+      try {
+        // Register user with phone number - will redirect to user dashboard
+        await register({
+          name: `User ${phone}`, // Generate name from phone
+          email: `${phone}@campaignwala.com`, // Generate email from phone
+          phone: phone,
+          password: "user123" // Default password for phone registrations
+        });
+      } catch (error) {
+        setFormError("Registration failed. Please try again.");
       }
-    }, 1000);
+    } else {
+      setFormError("Invalid OTP. Try 1234.");
+    }
   };
 
   return (
@@ -81,7 +80,11 @@ export default function RegisterPage() {
 
           {step === "phone" ? (
             <form onSubmit={sendOtp} className="bg-card rounded-lg shadow-lg p-8 space-y-6 border border-border">
-              {error && <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg text-sm">{error}</div>}
+              {(error || formError) && (
+                <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg text-sm">
+                  {error || formError}
+                </div>
+              )}
 
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-foreground mb-2">
@@ -102,7 +105,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-primary text-primary-foreground font-bold py-3 px-4 rounded-lg hover:opacity-90 transition"
+                className="w-full bg-primary text-primary-foreground font-bold py-3 px-4 rounded-lg hover:opacity-90 transition disabled:opacity-50"
               >
                 {isLoading ? "SENDING OTP..." : "SEND OTP"}
               </button>
@@ -118,7 +121,11 @@ export default function RegisterPage() {
             </form>
           ) : (
             <form onSubmit={verifyOtp} className="bg-card rounded-lg shadow-lg p-8 space-y-6 border border-border">
-              {error && <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg text-sm">{error}</div>}
+              {(error || formError) && (
+                <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg text-sm">
+                  {error || formError}
+                </div>
+              )}
 
               <div className="text-center">
                 <p className="font-semibold text-foreground mb-2">Enter your OTP</p>
@@ -139,19 +146,24 @@ export default function RegisterPage() {
                     />
                   ))}
                 </div>
+                <p className="text-xs text-muted-foreground mt-2">Use OTP: 1234</p>
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-primary text-primary-foreground font-bold py-3 px-4 rounded-lg hover:opacity-90 transition"
+                className="w-full bg-primary text-primary-foreground font-bold py-3 px-4 rounded-lg hover:opacity-90 transition disabled:opacity-50"
               >
                 {isLoading ? "VERIFYING..." : "VERIFY OTP"}
               </button>
 
               <p className="text-center text-sm text-muted-foreground">
                 Didn't get the OTP?{" "}
-                <button type="button" onClick={() => setInfo(`OTP re-sent to ${phone}`)} className="font-semibold text-primary hover:opacity-80 transition">
+                <button 
+                  type="button" 
+                  onClick={() => setInfo(`OTP re-sent to ${phone}`)} 
+                  className="font-semibold text-primary hover:opacity-80 transition"
+                >
                   Resend OTP
                 </button>
               </p>

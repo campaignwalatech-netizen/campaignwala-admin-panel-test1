@@ -1,34 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { selectIsAuthenticated, selectUserRole } from '../../redux/slices/authSlice';
 import Navbar from '../components/Navbar.jsx';
 import Sidebar from '../components/Sidebar.jsx';
 import Footer from '../components/Footer.jsx';
 
 const UserDashboardLayout = () => {
   const navigate = useNavigate();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const userRole = useSelector(selectUserRole);
+  
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("theme") === "dark"
   );
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    // Check if user is logged in and is a user type
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    const userType = localStorage.getItem("userType");
-    
+    // Check if user is authenticated and has user role
     console.log("UserDashboardLayout - Auth check:", {
-      isLoggedIn: isLoggedIn,
-      userType: userType,
+      isAuthenticated,
+      userRole,
       path: window.location.pathname
     });
     
-    if (!isLoggedIn || userType !== "user") {
+    if (!isAuthenticated || userRole !== "user") {
       console.log("UserDashboardLayout - Redirecting to login, auth failed");
-      navigate("/");
+      navigate("/", { replace: true });
     } else {
       console.log("UserDashboardLayout - Auth success, staying on page");
     }
-  }, [navigate]);
+  }, [navigate, isAuthenticated, userRole]);
 
   // Listen for theme changes
   useEffect(() => {

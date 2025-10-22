@@ -7,20 +7,92 @@ export default function LeadsTable({ status }) {
 
   const allLeads = {
     pending: [
-      { id: 1, name: "Rajesh Kumar", email: "rajesh@example.com", phone: "+91 9876543210", campaign: "Digital Marketing", date: "2024-10-15" },
-      { id: 2, name: "Priya Sharma", email: "priya@example.com", phone: "+91 9876543211", campaign: "SEO Campaign", date: "2024-10-16" },
-      { id: 3, name: "Amit Patel", email: "amit@example.com", phone: "+91 9876543212", campaign: "Social Media", date: "2024-10-17" },
+      { 
+        leadId: "LD001", 
+        date: "2024-10-15", 
+        category: "Digital Marketing", 
+        hrName: "Rajesh Kumar", 
+        hrContact: "+91 9876543210", 
+        customerName: "Amit Enterprises", 
+        customerContact: "+91 9876543220", 
+        status: "pending" 
+      },
+      { 
+        leadId: "LD002", 
+        date: "2024-10-16", 
+        category: "SEO Campaign", 
+        hrName: "Priya Sharma", 
+        hrContact: "+91 9876543211", 
+        customerName: "Tech Solutions Ltd", 
+        customerContact: "+91 9876543221", 
+        status: "pending" 
+      },
+      { 
+        leadId: "LD003", 
+        date: "2024-10-17", 
+        category: "Social Media", 
+        hrName: "Amit Patel", 
+        hrContact: "+91 9876543212", 
+        customerName: "Fashion Hub", 
+        customerContact: "+91 9876543222", 
+        status: "pending" 
+      },
     ],
     approved: [
-      { id: 4, name: "Sneha Reddy", email: "sneha@example.com", phone: "+91 9876543213", campaign: "Email Marketing", date: "2024-10-14" },
-      { id: 5, name: "Vikram Singh", email: "vikram@example.com", phone: "+91 9876543214", campaign: "Content Creation", date: "2024-10-13" },
+      { 
+        leadId: "LD004", 
+        date: "2024-10-14", 
+        category: "Email Marketing", 
+        hrName: "Sneha Reddy", 
+        hrContact: "+91 9876543213", 
+        customerName: "Global Corp", 
+        customerContact: "+91 9876543223", 
+        status: "approved" 
+      },
+      { 
+        leadId: "LD005", 
+        date: "2024-10-13", 
+        category: "Content Creation", 
+        hrName: "Vikram Singh", 
+        hrContact: "+91 9876543214", 
+        customerName: "StartUp Inc", 
+        customerContact: "+91 9876543224", 
+        status: "approved" 
+      },
     ],
     completed: [
-      { id: 6, name: "Anita Desai", email: "anita@example.com", phone: "+91 9876543215", campaign: "Brand Awareness", date: "2024-10-10" },
-      { id: 7, name: "Rohit Mehta", email: "rohit@example.com", phone: "+91 9876543216", campaign: "Product Launch", date: "2024-10-08" },
+      { 
+        leadId: "LD006", 
+        date: "2024-10-10", 
+        category: "Brand Awareness", 
+        hrName: "Anita Desai", 
+        hrContact: "+91 9876543215", 
+        customerName: "Retail Chain", 
+        customerContact: "+91 9876543225", 
+        status: "completed" 
+      },
+      { 
+        leadId: "LD007", 
+        date: "2024-10-08", 
+        category: "Product Launch", 
+        hrName: "Rohit Mehta", 
+        hrContact: "+91 9876543216", 
+        customerName: "Innovation Labs", 
+        customerContact: "+91 9876543226", 
+        status: "completed" 
+      },
     ],
     rejected: [
-      { id: 8, name: "Kavita Joshi", email: "kavita@example.com", phone: "+91 9876543217", campaign: "SEO Services", date: "2024-10-12" },
+      { 
+        leadId: "LD008", 
+        date: "2024-10-12", 
+        category: "SEO Services", 
+        hrName: "Kavita Joshi", 
+        hrContact: "+91 9876543217", 
+        customerName: "Local Business", 
+        customerContact: "+91 9876543227", 
+        status: "rejected" 
+      },
     ],
   };
 
@@ -89,38 +161,46 @@ export default function LeadsTable({ status }) {
       {/* Table with fixed height */}
       <div className="flex-1 bg-card rounded-lg border border-border overflow-hidden flex flex-col min-h-0">
         <div className="overflow-x-auto scrollbar-custom flex-1">
-          <table className="w-full min-w-[640px]">
+          <table className="w-full min-w-[1200px]">
           <thead className="bg-muted">
             <tr>
-              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">ID</th>
-              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Name</th>
-              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Email</th>
-              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Phone</th>
-              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Campaign</th>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Date</th>
+              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Lead ID</th>
+              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Category</th>
+              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">HR Name</th>
+              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">HR Contact</th>
+              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Customer Name</th>
+              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Customer Contact</th>
+              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Status</th>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {leads.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-3 sm:px-4 md:px-6 py-6 sm:py-8 text-center text-sm text-muted-foreground">
+                <td colSpan={9} className="px-3 sm:px-4 md:px-6 py-6 sm:py-8 text-center text-sm text-muted-foreground">
                   No {status} leads found
                 </td>
               </tr>
             ) : (
               leads.map((lead) => (
-                <tr key={lead.id} className="hover:bg-muted/50">
-                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.id}</td>
-                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm font-medium text-foreground whitespace-nowrap">{lead.name}</td>
-                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.email}</td>
-                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.phone}</td>
-                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.campaign}</td>
+                <tr key={lead.leadId} className="hover:bg-muted/50">
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.date}</td>
-                <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm whitespace-nowrap">
+                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm font-medium text-foreground whitespace-nowrap">{lead.leadId}</td>
+                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.category}</td>
+                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.hrName}</td>
+                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.hrContact}</td>
+                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.customerName}</td>
+                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.customerContact}</td>
+                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm whitespace-nowrap">
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColors[lead.status]}`}>
+                      {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
+                    </span>
+                  </td>
+                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm whitespace-nowrap">
                     <button className="text-primary hover:text-primary/80 mr-3 text-sm font-semibold whitespace-nowrap">View</button>
-                    <button className="text-blue-600 hover:text-blue-800 text-sm font-semibold whitespace-nowrap">Edit</button>
-                </td>
+                    <button className="text-primary hover:text-primary/80 text-sm font-semibold whitespace-nowrap">Edit</button>
+                  </td>
                 </tr>
               ))
             )}
