@@ -10,14 +10,21 @@ export default function AddProjectForm() {
     startDate: "",
     clientName: "",
     status: "pending",
-    bonus: "",
-    commissionType: ""
+    commission1: "", // mandatory
+    commission2: "", // optional
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Check if commission1 is filled
+    if (!formData.commission1) {
+      alert("⚠️ Commission 1 is required!");
+      return;
+    }
+
     console.log("Project Data:", formData);
-    alert("Project added successfully!");
+    alert("✅ Project added successfully!");
   };
 
   const handleChange = (e) => {
@@ -89,19 +96,36 @@ export default function AddProjectForm() {
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Commission Type</label>
-            <select
-              name="commissionType"
-              value={formData.commissionType}
-              onChange={handleChange}
-              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              required
-            >
-              <option value="commission1">Commission 1 (10%)</option>
-              <option value="commission2">Commission 2 (15%)</option>
-            </select>
-          </div>
+            {/* Commission 1 (Mandatory) */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Commission 1 (%) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                name="commission1"
+                value={formData.commission1}
+                onChange={handleChange}
+                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="e.g., 10"
+                required
+              />
+            </div>
+
+            {/* Commission 2 (Optional) */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Commission 2 (%) <span className="text-gray-400">(optional)</span>
+              </label>
+              <input
+                type="number"
+                name="commission2"
+                value={formData.commission2}
+                onChange={handleChange}
+                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="e.g., 15"
+              />
+            </div>
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">Start Date</label>
@@ -124,19 +148,6 @@ export default function AddProjectForm() {
               onChange={handleChange}
               className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="30"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Bonus (₹)</label>
-            <input
-              type="number"
-              name="bonus"
-              value={formData.bonus}
-              onChange={handleChange}
-              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="500"
               required
             />
           </div>
