@@ -15,7 +15,7 @@ export const PUBLIC_ROUTES = {
 
 // Admin Routes
 export const ADMIN_ROUTES = {
-  DASHBOARD: '/admin/dashboard',
+  DASHBOARD: '/admin',
   PRODUCTS: '/admin/products',
   USERS: '/admin/users',
   CATEGORIES: '/admin/categories',
@@ -30,7 +30,7 @@ export const ADMIN_ROUTES = {
 
 // User Routes
 export const USER_ROUTES = {
-  DASHBOARD: '/user/dashboard',
+  DASHBOARD: '/user',
   PROFILE: '/user/profile',
   ACCOUNT_LINK: '/user/account-link',
   ATTENDANCE: '/user/attendance',

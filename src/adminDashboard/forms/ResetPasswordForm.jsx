@@ -7,7 +7,7 @@ export default function ResetPasswordForm() {
     email: "",
     newPassword: "",
     confirmPassword: "",
-    reason: ""
+    otp: ""
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
@@ -16,6 +16,10 @@ export default function ResetPasswordForm() {
     e.preventDefault();
     if (formData.newPassword !== formData.confirmPassword) {
       alert("Passwords do not match!");
+      return;
+    }
+    if (formData.otp.length !== 6 || !/^\d{6}$/.test(formData.otp)) {
+      alert("Please enter a valid 6-digit OTP!");
       return;
     }
     console.log("Reset Password Data:", formData);
@@ -122,21 +126,26 @@ export default function ResetPasswordForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Reason for Reset</label>
-            <textarea
-              name="reason"
-              value={formData.reason}
+            <label className="block text-sm font-medium text-foreground mb-1.5">OTP Verification</label>
+            <input
+              type="text"
+              name="otp"
+              value={formData.otp}
               onChange={handleChange}
-              rows={3}
-              className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-              placeholder="Enter reason for password reset..."
+              className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="Enter 6-digit OTP"
               required
+              maxLength={6}
+              pattern="[0-9]{6}"
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              Enter the 6-digit OTP sent to the user's registered email/phone
+            </p>
           </div>
 
           <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
             <p className="text-xs text-yellow-800 dark:text-yellow-200">
-              <strong>Warning:</strong> This action will immediately reset the user's password. The user will need to use the new password for their next login.
+              <strong>Warning:</strong> This action will immediately reset the user's password. Valid OTP verification is required. The user will need to use the new password for their next login.
             </p>
           </div>
         </div>
@@ -150,8 +159,9 @@ export default function ResetPasswordForm() {
           </button>
           <button
             type="button"
-            className="px-5 py-2 text-sm bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
+            className="px-5 py-2 text-sm bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/80 transition-colors font-semibold"
           >
+            Cancel
           </button>
         </div>
       </form>

@@ -35,9 +35,9 @@ export const useAuth = () => {
       
       // Redirect based on user role
       if (result.user.role === 'admin') {
-        navigate('/admin/dashboard', { replace: true });
+        navigate('/admin', { replace: true });
       } else if (result.user.role === 'user') {
-        navigate('/user/dashboard', { replace: true });
+        navigate('/user', { replace: true });
       }
       
       return result;
@@ -52,7 +52,7 @@ export const useAuth = () => {
       const result = await dispatch(registerUser(userData)).unwrap();
       
       // New users are always 'user' role - redirect to user dashboard
-      navigate('/user/dashboard', { replace: true });
+      navigate('/user', { replace: true });
       
       return result;
     } catch (error) {
@@ -79,7 +79,7 @@ export const useAuth = () => {
   // Get user display name
   const getDisplayName = useCallback(() => {
     if (!user) return '';
-    return user.displayName || user.name || user.email || 'User';
+    return user.displayName || user.name || user.phoneNumber || 'User';
   }, [user]);
 
   return {

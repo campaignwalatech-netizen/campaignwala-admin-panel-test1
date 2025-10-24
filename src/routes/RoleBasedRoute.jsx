@@ -46,9 +46,9 @@ const RoleBasedRoute = ({
  */
 const getRedirectPath = (userRole) => {
   const rolePaths = {
-    admin: '/admin/dashboard',
-    user: '/user/dashboard',
-    moderator: '/moderator/dashboard',
+    admin: '/admin',
+    user: '/user',
+    moderator: '/moderator',
     guest: '/'
   };
 

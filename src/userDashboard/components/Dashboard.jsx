@@ -7,13 +7,13 @@ const Dashboard = ({ darkMode }) => {
     alert(`${title}\n\n${description}`);
   };
   return (
-    <main
+    <div
       className={`transition-all duration-300 ${
         darkMode ? 'bg-gray-950 text-gray-100' : 'bg-gray-50 text-gray-900'
-      } min-h-screen pt-24 pb-32 px-4 sm:px-6 md:px-10 lg:ml-64`}
+      }`}
     >
       {/* Welcome Section */}
-      <section className="mb-8 text-center md:text-left">
+      <section className="mb-6 text-center md:text-left">
         <h2 className="text-2xl md:text-3xl font-bold mb-2">
           Welcome Back, <span className="text-blue-600">#user!</span>
         </h2>
@@ -23,7 +23,7 @@ const Dashboard = ({ darkMode }) => {
       </section>
 
       {/* Stats Cards */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {[
           {
             title: 'Current Balance',
@@ -59,7 +59,7 @@ const Dashboard = ({ darkMode }) => {
                 openPopup(card.title, card.img, card.reward);
                 }
                 }}
-            className={`rounded-lg p-5 border cursor-pointer transition-all duration-300 hover:shadow-lg ${
+            className={`rounded-lg p-4 border cursor-pointer transition-all duration-300 hover:shadow-lg ${
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             }`}
           >
@@ -75,14 +75,14 @@ const Dashboard = ({ darkMode }) => {
 
       {/* Banner Section */}
       <section
-        className={`rounded-xl mb-10 flex flex-col md:flex-row items-center justify-center gap-6 p-8 sm:p-12 md:p-16 ${
+        className={`rounded-xl mb-6 flex flex-col md:flex-row items-center justify-center gap-4 p-6 ${
           darkMode
             ? 'bg-gradient-to-r from-blue-900 to-green-900'
             : 'bg-gradient-to-r from-blue-100 to-green-100'
         }`}
       >
         <div
-          className={`w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full opacity-60 ${
+          className={`w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full opacity-60 ${
             darkMode ? 'bg-green-700' : 'bg-green-300'
           }`}
         ></div>
@@ -96,7 +96,7 @@ const Dashboard = ({ darkMode }) => {
       </section>
 
       {/* Product Cards */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {[
           {
             title: 'Industrial Bank Credit Card',
@@ -149,7 +149,7 @@ const Dashboard = ({ darkMode }) => {
             }`}
           >
             <div
-              className={`bg-gradient-to-br ${card.color} h-28 sm:h-36 md:h-40 flex items-center justify-center`}
+              className={`bg-gradient-to-br ${card.color} h-24 sm:h-28 md:h-32 flex items-center justify-center`}
             >
               <div className="text-white text-lg font-bold text-center px-2">
                 {card.title.split(' ')[0]}
@@ -174,7 +174,7 @@ const Dashboard = ({ darkMode }) => {
           </div>
         ))}
       </section>
-    </main>
+    </div>
   );
 };
 

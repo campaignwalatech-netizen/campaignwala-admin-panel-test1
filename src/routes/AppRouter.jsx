@@ -1,11 +1,48 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated, selectUserRole } from "../redux/slices/authSlice";
+
+// Auth Pages
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/Register";
 import OtpVerification from "../pages/auth/OtpVerification";
-import App from "../App";
-import { UserDashboardLayout } from "../userDashboard/pages";
 
+// Admin Components
+import App from "../App";
+import { DefaultView } from "../adminDashboard/components/DummyForms";
+
+// Manage Account
+import AllProductsTable from "../adminDashboard/forms/AllProductsTable";
+import AddProjectForm from "../adminDashboard/forms/AddProjectForm";
+import ApproveProjectTable from "../adminDashboard/forms/ApproveProjectTable";
+
+// Manage Category
+import AllCategoriesTable from "../adminDashboard/forms/AllCategoriesTable";
+import AddCategoryForm from "../adminDashboard/forms/AddCategoryForm";
+
+// Leads
+import ABCAnalytics from "../adminDashboard/forms/ABCAnalytics";
+import LeadsTable from "../adminDashboard/forms/LeadsTable";
+
+// User Management
+import UsersTable from "../adminDashboard/forms/UsersTable";
+
+// Slide Board
+import AllSlidesTable from "../adminDashboard/forms/AllSlidesTable";
+import AddSlideForm from "../adminDashboard/forms/AddSlideForm";
+
+// Payment Withdrawal
+import PaymentWithdrawalTable from "../adminDashboard/forms/PaymentWithdrawalTable";
+
+// Miscellaneous
+import ResetPasswordForm from "../adminDashboard/forms/ResetPasswordForm";
+import AdminLogsTable from "../adminDashboard/forms/AdminLogsTable";
+import UserQueriesTable from "../adminDashboard/forms/UserQueriesTable";
+import KYCReview from "../adminDashboard/forms/KYCReview";
+
+// User Dashboard
+import { UserDashboardLayout } from "../userDashboard/pages";
 import Dashboard from "../userDashboard/components/Dashboard";
 import AllLeads from "../userDashboard/pages/AllLeads";
 import ApprovedLeads from "../userDashboard/layouts/ApprovedLeads";
@@ -20,51 +57,10 @@ import ProfileOverview from "../userDashboard/layouts/ProfileOverview";
 import KYCDetails from "../userDashboard/layouts/KYCDetails";
 import TotalBalance from "../userDashboard/layouts/TotalBalance";
 
-/**
- * Protected Route Component
- */
-const ProtectedRoute = ({ children, allowedRoles = [] }) => {
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-  const userRole = useSelector(selectUserRole);
-
-  if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
-
-  if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
-    return <Navigate to="/unauthorized" replace />;
-  }
-
-  return children;
-};
-
-/**
- * Public Route Component
- */
-const PublicRoute = ({ children }) => {
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-  const userRole = useSelector(selectUserRole);
-
-  if (isAuthenticated) {
-    // Redirect based on user role
-    if (userRole === 'admin') {
-      return <Navigate to="/admin/dashboard" replace />;
-    } else if (userRole === 'user') {
-      return <Navigate to="/user/dashboard" replace />;
-    }
-  }
-
-  return children;
-};
-
-/**
- * Loading component
- */
-const RouteLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
-    <Loader />
-  </div>
-);
+// Route Components
+import ProtectedRoute from "./ProtectedRoute";
+import RoleBasedRoute from "./RoleBasedRoute";
+import Loader from "../components/Loader";
 
 /**
  * Main Application Router
@@ -87,13 +83,67 @@ export default function AppRouter() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/verify-otp" element={<OtpVerification />} />
 
-        {/* Admin Dashboard */}
-        <Route path="/admin/*" element={<App />} />
+        {/* Admin Dashboard Routes */}
+        <Route 
+          path="/admin/*" 
+          element={
+            <RoleBasedRoute role="admin">
+              <App />
+            </RoleBasedRoute>
+          }
+        >
+          {/* Default route */}
+          <Route index element={<AllProductsTable />} />
+          
+          {/* Manage Account routes */}
+          <Route path="manage-account" element={<AllProductsTable />} />
+          <Route path="all-products" element={<AllProductsTable />} />
+          <Route path="add-project" element={<AddProjectForm />} />
+          <Route path="approve-project" element={<ApproveProjectTable />} />
+          
+          {/* Manage Category routes */}
+          <Route path="manage-category" element={<AllCategoriesTable />} />
+          <Route path="all-categories" element={<AllCategoriesTable />} />
+          <Route path="add-category" element={<AddCategoryForm />} />
+          
+          {/* Leads routes */}
+          <Route path="leads" element={<ABCAnalytics />} />
+          <Route path="abc-analytics" element={<ABCAnalytics />} />
+          <Route path="leads-pending" element={<LeadsTable status="pending" />} />
+          <Route path="leads-approved" element={<LeadsTable status="approved" />} />
+          <Route path="leads-completed" element={<LeadsTable status="completed" />} />
+          <Route path="leads-rejected" element={<LeadsTable status="rejected" />} />
+          
+          {/* User Management routes */}
+          <Route path="user-management" element={<UsersTable userType="active" />} />
+          <Route path="all-active-users" element={<UsersTable userType="active" />} />
+          <Route path="all-hold-users" element={<UsersTable userType="hold" />} />
+          <Route path="all-ex-users" element={<UsersTable userType="ex" />} />
+          
+          {/* Slide Board routes */}
+          <Route path="slideboard" element={<AllSlidesTable />} />
+          <Route path="all-slides" element={<AllSlidesTable />} />
+          <Route path="add-slide" element={<AddSlideForm />} />
+          
+          {/* Payment Withdrawal */}
+          <Route path="payment-withdrawal" element={<PaymentWithdrawalTable />} />
+          
+          {/* Miscellaneous routes */}
+          <Route path="miscellaneous" element={<ResetPasswordForm />} />
+          <Route path="reset-password" element={<ResetPasswordForm />} />
+          <Route path="admin-logs" element={<AdminLogsTable />} />
+          <Route path="user-queries" element={<UserQueriesTable />} />
+          <Route path="kyc-review" element={<KYCReview />} />
+        </Route>
 
         {/* ✅ User Dashboard */}
         <Route
           path="/user/*"
-          element={<UserDashboardLayout darkMode={darkMode} setDarkMode={setDarkMode} />}
+          element={
+            <RoleBasedRoute role="user">
+              <UserDashboardLayout darkMode={darkMode} setDarkMode={setDarkMode} />
+            </RoleBasedRoute>
+          }
         >
           <Route index element={<Dashboard darkMode={darkMode} />} />
           <Route path="all-leads" element={<AllLeads darkMode={darkMode} />} />
@@ -109,6 +159,9 @@ export default function AppRouter() {
           <Route path="kyc-details" element={<KYCDetails darkMode={darkMode} />} />
           <Route path="total-balance" element={<TotalBalance darkMode={darkMode} />} />
         </Route>
+
+        {/* Fallback Route */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

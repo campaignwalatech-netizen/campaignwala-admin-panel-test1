@@ -287,7 +287,7 @@ export default function AllProductsTable() {
             <div className="flex gap-3">
               <button 
                 onClick={() => setShowDeleteModal(false)} 
-                className="flex-1 px-4 py-2 bg-muted text-foreground text-sm rounded-lg hover:bg-muted/80 font-semibold whitespace-nowrap"
+                className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-lg hover:bg-destructive/80 font-semibold whitespace-nowrap"
               >
                 Cancel
               </button>
@@ -424,7 +424,7 @@ export default function AllProductsTable() {
               </button>
               <button 
                 onClick={() => setShowEditModal(false)} 
-                className="flex-1 px-4 py-2 bg-muted text-foreground text-sm rounded-lg hover:bg-muted/80 font-semibold whitespace-nowrap"
+                className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-lg hover:bg-destructive/80 font-semibold whitespace-nowrap"
               >
                 Cancel
               </button>

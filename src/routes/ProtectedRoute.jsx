@@ -66,11 +66,11 @@ const ProtectedRoute = ({
 const getUserRoleRedirect = (userRole) => {
   switch (userRole) {
     case 'admin':
-      return '/admin/dashboard';
+      return '/admin';
     case 'user':
-      return '/user/dashboard';
+      return '/user';
     case 'moderator':
-      return '/moderator/dashboard';
+      return '/moderator';
     default:
       return '/unauthorized';
   }

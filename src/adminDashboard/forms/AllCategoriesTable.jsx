@@ -143,7 +143,7 @@ export default function AllCategoriesTable() {
               <button onClick={confirmDelete} className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-lg hover:bg-destructive/90 whitespace-nowrap">
                 Delete
               </button>
-              <button onClick={() => setShowDeleteModal(false)} className="flex-1 px-4 py-2 bg-muted text-foreground text-sm rounded-lg hover:bg-muted/80">
+              <button onClick={() => setShowDeleteModal(false)} className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-lg hover:bg-destructive/80">
                 Cancel
               </button>
             </div>
@@ -196,7 +196,7 @@ export default function AllCategoriesTable() {
               <button onClick={confirmEdit} className="flex-1 px-4 py-2 bg-primary text-primary-foreground text-sm rounded-lg hover:bg-primary/90">
                 Save Changes
               </button>
-              <button onClick={() => setShowEditModal(false)} className="flex-1 px-4 py-2 bg-muted text-foreground text-sm rounded-lg hover:bg-muted/80">
+              <button onClick={() => setShowEditModal(false)} className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-lg hover:bg-destructive/80">
                 Cancel
               </button>
             </div>

@@ -7,14 +7,14 @@ import { useAuth } from "../../hooks/useAuth";
 export default function LoginPage() {
   const { login, isLoading, error } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
-      await login({ email, password });
+      await login({ phoneNumber, password });
       // Navigation will be handled automatically by useAuth hook
     } catch (error) {
       // Error is handled by Redux state
@@ -110,24 +110,26 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Email */}
+            {/* Phone Number */}
             <div>
               <label
-                htmlFor="email"
+                htmlFor="phoneNumber"
                 className="block text-sm font-medium text-foreground mb-2"
               >
-                Email Address
+                Phone Number
               </label>
               <input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="phoneNumber"
+                type="tel"
+                placeholder="Enter your phone number"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
                 className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition bg-background text-foreground font-medium placeholder:text-muted-foreground"
                 required
+                pattern="[0-9]{10}"
+                maxLength="10"
               />
-              <p className="text-xs text-muted-foreground mt-1">Admin: admin@test.com | User: user@test.com</p>
+              <p className="text-xs text-muted-foreground mt-1">Admin: 9876543210 | User: 9876543211</p>
             </div>
 
             {/* Password */}
