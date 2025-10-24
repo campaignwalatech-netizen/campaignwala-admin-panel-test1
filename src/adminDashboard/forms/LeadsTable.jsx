@@ -1,9 +1,12 @@
-import { Download, Search, Filter } from "lucide-react";
+import { Download, Search, Filter, X } from "lucide-react";
 import { useState } from "react";
 
 export default function LeadsTable({ status }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCampaign, setFilterCampaign] = useState("all");
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedLead, setSelectedLead] = useState(null);
 
   const allLeads = {
     pending: [
@@ -136,6 +139,16 @@ export default function LeadsTable({ status }) {
     alert("Export functionality will be implemented soon!");
   };
 
+  const handleViewLead = (lead) => {
+    setSelectedLead(lead);
+    setShowViewModal(true);
+  };
+
+  const handleEditLead = (lead) => {
+    setSelectedLead(lead);
+    setShowEditModal(true);
+  };
+
   return (
     <div className="h-full flex flex-col p-3 sm:p-4">
       {/* Header with Title */}
@@ -229,8 +242,18 @@ export default function LeadsTable({ status }) {
                     </span>
                   </td>
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm whitespace-nowrap">
-                    <button className="text-primary hover:text-primary/80 mr-3 text-sm font-semibold whitespace-nowrap">View</button>
-                    <button className="text-primary hover:text-primary/80 text-sm font-semibold whitespace-nowrap">Edit</button>
+                    <button 
+                      onClick={() => handleViewLead(lead)}
+                      className="text-primary hover:text-primary/80 mr-3 text-sm font-semibold whitespace-nowrap"
+                    >
+                      View
+                    </button>
+                    <button 
+                      onClick={() => handleEditLead(lead)}
+                      className="text-primary hover:text-primary/80 text-sm font-semibold whitespace-nowrap"
+                    >
+                      Edit
+                    </button>
                   </td>
                 </tr>
               ))
@@ -239,6 +262,120 @@ export default function LeadsTable({ status }) {
         </table>
         </div>
       </div>
+
+      {/* View Modal */}
+      {showViewModal && selectedLead && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-lg border border-border p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-foreground">View Lead Details</h3>
+              <button onClick={() => setShowViewModal(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Lead ID</label>
+                <p className="text-sm text-muted-foreground">{selectedLead.leadId}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Date</label>
+                <p className="text-sm text-muted-foreground">{selectedLead.date}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Category</label>
+                <p className="text-sm text-muted-foreground">{selectedLead.category}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">HR Name</label>
+                <p className="text-sm text-muted-foreground">{selectedLead.hrName}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">HR Contact</label>
+                <p className="text-sm text-muted-foreground">{selectedLead.hrContact}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Customer Name</label>
+                <p className="text-sm text-muted-foreground">{selectedLead.customerName}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Customer Contact</label>
+                <p className="text-sm text-muted-foreground">{selectedLead.customerContact}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Offer</label>
+                <p className="text-sm font-semibold text-green-600">{selectedLead.offer}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && selectedLead && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-lg border border-border p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-foreground">Edit Lead</h3>
+              <button onClick={() => setShowEditModal(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Category</label>
+                <input
+                  type="text"
+                  defaultValue={selectedLead.category}
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">HR Name</label>
+                <input
+                  type="text"
+                  defaultValue={selectedLead.hrName}
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Customer Name</label>
+                <input
+                  type="text"
+                  defaultValue={selectedLead.customerName}
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Offer Amount</label>
+                <input
+                  type="text"
+                  defaultValue={selectedLead.offer}
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="flex-1 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors text-sm font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  alert("Lead updated successfully!");
+                }}
+                className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-semibold"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -11,8 +11,15 @@ export default function AllCategoriesTable() {
   ]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [addForm, setAddForm] = useState({
+    name: "",
+    description: "",
+    count: 0,
+    status: "Active"
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
@@ -37,6 +44,26 @@ export default function AllCategoriesTable() {
     setCategories(categories.map(c => c.id === selectedCategory.id ? editForm : c));
     setShowEditModal(false);
     setSelectedCategory(null);
+  };
+
+  const handleAddNew = () => {
+    setAddForm({
+      name: "",
+      description: "",
+      count: 0,
+      status: "Active"
+    });
+    setShowAddModal(true);
+  };
+
+  const confirmAdd = () => {
+    const newCategory = {
+      id: categories.length + 1,
+      ...addForm,
+      count: parseInt(addForm.count) || 0
+    };
+    setCategories([...categories, newCategory]);
+    setShowAddModal(false);
   };
 
   const handleExport = () => {
@@ -87,7 +114,7 @@ export default function AllCategoriesTable() {
         </button>
 
         {/* Add New Button */}
-        <button className="flex items-center gap-2 px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold whitespace-nowrap">
+        <button onClick={handleAddNew} className="flex items-center gap-2 px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold whitespace-nowrap">
           + Add New
         </button>
       </div>
@@ -197,6 +224,81 @@ export default function AllCategoriesTable() {
                 Save Changes
               </button>
               <button onClick={() => setShowEditModal(false)} className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-lg hover:bg-destructive/80">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add New Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl border max-w-md w-full">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-bold text-gray-900">Add New Category</h3>
+              <button 
+                onClick={() => setShowAddModal(false)}
+                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X size={16} className="text-gray-500" />
+              </button>
+            </div>
+            <div className="p-4 space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category Name</label>
+                <input 
+                  type="text"
+                  value={addForm.name}
+                  onChange={(e) => setAddForm({...addForm, name: e.target.value})}
+                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  placeholder="Enter category name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea 
+                  value={addForm.description}
+                  onChange={(e) => setAddForm({...addForm, description: e.target.value})}
+                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  placeholder="Enter category description"
+                  rows="2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Count</label>
+                <input 
+                  type="number"
+                  value={addForm.count}
+                  onChange={(e) => setAddForm({...addForm, count: e.target.value})}
+                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select 
+                  value={addForm.status}
+                  onChange={(e) => setAddForm({...addForm, status: e.target.value})}
+                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-2 p-4 pt-0">
+              <button 
+                onClick={confirmAdd}
+                className="flex-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
+              >
+                Add Category
+              </button>
+              <button 
+                onClick={() => setShowAddModal(false)}
+                className="flex-1 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-semibold"
+              >
                 Cancel
               </button>
             </div>

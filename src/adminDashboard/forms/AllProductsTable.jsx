@@ -59,8 +59,20 @@ export default function AllProductsTable() {
   
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [addForm, setAddForm] = useState({
+    name: "",
+    latestStage: "",
+    commission: "",
+    withdrawalBonus: "",
+    done: "",
+    status: "Active",
+    link: "",
+    image: "",
+    video: ""
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
@@ -93,6 +105,35 @@ export default function AllProductsTable() {
     setShowSuccessAlert(true);
     setTimeout(() => setShowSuccessAlert(false), 3000);
     setSelectedProduct(null);
+  };
+
+  const handleAddNew = () => {
+    setAddForm({
+      name: "",
+      latestStage: "",
+      commission: "",
+      withdrawalBonus: "",
+      done: "",
+      status: "Active",
+      link: "",
+      image: "",
+      video: ""
+    });
+    setShowAddModal(true);
+  };
+
+  const confirmAdd = () => {
+    const newProduct = {
+      id: products.length + 1,
+      image: addForm.image || "https://picsum.photos/48/48?random=" + (products.length + 1),
+      date: new Date().toISOString().split('T')[0],
+      ...addForm
+    };
+    setProducts([...products, newProduct]);
+    setShowAddModal(false);
+    setAlertMessage(`"${addForm.name}" added successfully!`);
+    setShowSuccessAlert(true);
+    setTimeout(() => setShowSuccessAlert(false), 3000);
   };
 
   const handleExport = () => {
@@ -175,7 +216,7 @@ export default function AllProductsTable() {
         </button>
 
         {/* Add New Button */}
-        <button className="flex items-center gap-2 px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold whitespace-nowrap">
+        <button onClick={handleAddNew} className="flex items-center gap-2 px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold whitespace-nowrap">
           + Add New
         </button>
       </div>
@@ -438,6 +479,139 @@ export default function AllProductsTable() {
           </div>
         </div>
       )}
+
+      {/* Add New Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-lg border border-border p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-foreground whitespace-nowrap">Add New Product</h3>
+              <button onClick={() => setShowAddModal(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Product Name</label>
+                  <input
+                    type="text"
+                    value={addForm.name}
+                    onChange={(e) => setAddForm({...addForm, name: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                    placeholder="Enter product name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Latest Stage</label>
+                  <select
+                    value={addForm.latestStage}
+                    onChange={(e) => setAddForm({...addForm, latestStage: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                  >
+                    <option value="">Select Stage</option>
+                    <option value="Upload">Upload</option>
+                    <option value="Number">Number</option>
+                    <option value="Review">Review</option>
+                    <option value="Processing">Processing</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Commission</label>
+                  <input
+                    type="text"
+                    value={addForm.commission}
+                    onChange={(e) => setAddForm({...addForm, commission: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                    placeholder="e.g., ₹5,000"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Withdrawal Bonus</label>
+                  <input
+                    type="text"
+                    value={addForm.withdrawalBonus}
+                    onChange={(e) => setAddForm({...addForm, withdrawalBonus: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                    placeholder="e.g., ₹1,200"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Done</label>
+                  <select
+                    value={addForm.done}
+                    onChange={(e) => setAddForm({...addForm, done: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                  >
+                    <option value="">Select Done Status</option>
+                    <option value="Upload">Upload</option>
+                    <option value="Number">Number</option>
+                    <option value="Review">Review</option>
+                    <option value="Processing">Processing</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Status</label>
+                  <select
+                    value={addForm.status}
+                    onChange={(e) => setAddForm({...addForm, status: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Hold">Hold</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Product Link</label>
+                <input
+                  type="url"
+                  value={addForm.link}
+                  onChange={(e) => setAddForm({...addForm, link: e.target.value})}
+                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                  placeholder="https://example.com/product"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Image URL</label>
+                <input
+                  type="url"
+                  value={addForm.image}
+                  onChange={(e) => setAddForm({...addForm, image: e.target.value})}
+                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Video File</label>
+                <input
+                  type="text"
+                  value={addForm.video}
+                  onChange={(e) => setAddForm({...addForm, video: e.target.value})}
+                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                  placeholder="video.mp4"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button 
+                onClick={confirmAdd}
+                className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-semibold"
+              >
+                Add Product
+              </button>
+              <button 
+                onClick={() => setShowAddModal(false)}
+                className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/80 transition-colors text-sm font-semibold"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
