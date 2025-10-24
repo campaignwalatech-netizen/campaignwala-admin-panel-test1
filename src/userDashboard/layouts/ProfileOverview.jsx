@@ -1,12 +1,12 @@
 import React from "react";
-import { useNavigate } from "react-router-dom"; // ✅ import navigation hook
+import { useNavigate } from "react-router-dom";
 
 const ProfileOverview = ({ darkMode }) => {
-  const navigate = useNavigate(); // ✅ initialize navigate
+  const navigate = useNavigate();
 
   return (
     <div
-      className={`min-h-screen pt-24 pb-20 px-4 sm:px-6 md:px-10 transition-all duration-300 ${
+      className={`min-h-screen pt-10 pb-16 px-4 sm:px-6 md:px-10 transition-all duration-300 ${
         darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
       }`}
     >
@@ -86,7 +86,7 @@ const ProfileOverview = ({ darkMode }) => {
           </span>
         </div>
 
-        {/* ✅ Navigate to KYC form on click */}
+        {/* Navigate to KYC form on click */}
         <button
           onClick={() => navigate("/user/kyc-details")}
           className="w-full sm:w-auto px-5 py-2.5 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 transition text-sm sm:text-base"

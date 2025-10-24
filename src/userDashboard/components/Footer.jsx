@@ -1,4 +1,4 @@
-import React from "react";
+ import React from "react";
 
 const Footer = ({ darkMode }) => {
   return (
@@ -27,11 +27,11 @@ const Footer = ({ darkMode }) => {
         </div>
 
         <div className="mt-4 text-center text-xs sm:text-sm text-gray-500">
-          © {new Date().getFullYear()} YourCompany. All rights reserved.
+          © CampaignWaala by codessy
         </div>
       </div>
     </footer>
   );
 };
 
-export default Footer;
+export default Footer;

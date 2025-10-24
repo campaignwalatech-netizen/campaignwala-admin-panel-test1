@@ -53,12 +53,15 @@ const Dashboard = ({ darkMode }) => {
           <div
             key={card.title}
             onClick={() => {
-                if (card.title === "Current Balance") {
-                navigate("/user/total-balance");
-                } else {
-                openPopup(card.title, card.img, card.reward);
-                }
-                }}
+  if (card.title === "Current Balance") {
+    navigate("/user/wallet-withdrawl");
+  } else if (card.title === "Total Earnings") {
+    navigate("/user/total-balance");
+  } else {
+    openPopup(card.title, card.img, card.reward);
+  }
+}}
+
             className={`rounded-lg p-4 border cursor-pointer transition-all duration-300 hover:shadow-lg ${
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             }`}
