@@ -1,4 +1,4 @@
-import { Download, Search, Filter } from "lucide-react";
+import { Download, Search, Filter, X } from "lucide-react";
 import { useState } from "react";
 
 export default function UsersTable({ userType }) {
@@ -6,6 +6,9 @@ export default function UsersTable({ userType }) {
   const [filterRole, setFilterRole] = useState("all");
   const [userStatuses, setUserStatuses] = useState({});
   const [hoveredUser, setHoveredUser] = useState(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const allUsers = {
     active: [
@@ -159,6 +162,16 @@ export default function UsersTable({ userType }) {
   const handleExport = () => {
     console.log("Exporting users...");
     alert("Export functionality will be implemented soon!");
+  };
+
+  const handleViewUser = (user) => {
+    setSelectedUser(user);
+    setShowViewModal(true);
+  };
+
+  const handleEditUser = (user) => {
+    setSelectedUser(user);
+    setShowEditModal(true);
   };
 
   const handleActivateUser = (userId) => {
@@ -320,8 +333,18 @@ export default function UsersTable({ userType }) {
                 <td className="px-3 py-3 text-sm text-orange-600 whitespace-nowrap font-semibold">{user.pending}</td>
                 <td className="px-3 py-3 text-sm text-foreground whitespace-nowrap font-semibold text-green-600">{user.currentBalance}</td>
                 <td className="px-3 py-3 text-sm whitespace-nowrap">
-                  <button className="text-primary hover:text-primary/80 mr-3 text-sm font-semibold whitespace-nowrap">View</button>
-                  <button className="text-blue-600 hover:text-blue-800 text-sm font-semibold whitespace-nowrap">Edit</button>
+                  <button 
+                    onClick={() => handleViewUser(user)}
+                    className="text-primary hover:text-primary/80 mr-3 text-sm font-semibold whitespace-nowrap"
+                  >
+                    View
+                  </button>
+                  <button 
+                    onClick={() => handleEditUser(user)}
+                    className="text-blue-600 hover:text-blue-800 text-sm font-semibold whitespace-nowrap"
+                  >
+                    Edit
+                  </button>
                 </td>
               </tr>
             ))}
@@ -329,6 +352,123 @@ export default function UsersTable({ userType }) {
         </table>
         </div>
       </div>
+
+      {/* View Modal */}
+      {showViewModal && selectedUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-lg border border-border p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-foreground">View User Details</h3>
+              <button onClick={() => setShowViewModal(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Name</label>
+                <p className="text-sm text-muted-foreground">{selectedUser.name}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Email</label>
+                <p className="text-sm text-muted-foreground">{selectedUser.email}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Phone</label>
+                <p className="text-sm text-muted-foreground">{selectedUser.phone}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Status</label>
+                <p className="text-sm text-muted-foreground">{selectedUser.status}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Joined On</label>
+                <p className="text-sm text-muted-foreground">{selectedUser.joinedOn}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Total Leads</label>
+                <p className="text-sm font-semibold text-foreground">{selectedUser.totalLeads}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Approved</label>
+                <p className="text-sm font-semibold text-green-600">{selectedUser.approved}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Current Balance</label>
+                <p className="text-sm font-semibold text-green-600">{selectedUser.currentBalance}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && selectedUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-lg border border-border p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-foreground">Edit User</h3>
+              <button onClick={() => setShowEditModal(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Name</label>
+                <input
+                  type="text"
+                  defaultValue={selectedUser.name}
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Email</label>
+                <input
+                  type="email"
+                  defaultValue={selectedUser.email}
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Phone</label>
+                <input
+                  type="text"
+                  defaultValue={selectedUser.phone}
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Status</label>
+                <select
+                  defaultValue={selectedUser.status}
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Hold">Hold</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="flex-1 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors text-sm font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  alert("User updated successfully!");
+                }}
+                className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-semibold"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
