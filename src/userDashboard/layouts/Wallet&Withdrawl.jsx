@@ -11,7 +11,8 @@ const WalletAndWithdrawl = ({ darkMode }) => {
   ]);
 
   const handleWithdraw = () => {
-    if (!withdrawAmount || isNaN(withdrawAmount)) return alert("Enter a valid amount!");
+    if (!withdrawAmount || isNaN(withdrawAmount))
+      return alert("Enter a valid amount!");
     const newRequest = {
       id: `WDR-00${withdrawals.length + 1}`,
       amount: parseFloat(withdrawAmount),
@@ -26,12 +27,12 @@ const WalletAndWithdrawl = ({ darkMode }) => {
 
   return (
     <div
-      className={`min-h-screen pt-24 pb-20 px-4 sm:px-6 md:px-10 transition-all duration-300 ${
+      className={`min-h-screen px-4 sm:px-6 md:px-10 transition-all duration-300 ${
         darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
       }`}
+      style={{ paddingTop: "2.5rem", paddingBottom: "4rem" }} // ✅ Reduced top spacing
     >
       <div className="max-w-6xl mx-auto space-y-8">
-
         {/* Balance Card */}
         <div
           className={`border rounded-2xl p-6 sm:p-8 shadow-sm text-center sm:text-left ${
@@ -99,7 +100,6 @@ const WalletAndWithdrawl = ({ darkMode }) => {
         >
           <h3 className="text-lg font-semibold mb-4">Withdrawal History</h3>
 
-          {/* Table Wrapper for Mobile Scroll */}
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm border-collapse">
               <thead>
@@ -108,11 +108,21 @@ const WalletAndWithdrawl = ({ darkMode }) => {
                     darkMode ? "bg-gray-700 text-gray-200" : "bg-gray-100 text-gray-700"
                   }`}
                 >
-                  <th className="py-3 px-4 font-semibold whitespace-nowrap">Request ID</th>
-                  <th className="py-3 px-4 font-semibold whitespace-nowrap">Amount (USD)</th>
-                  <th className="py-3 px-4 font-semibold whitespace-nowrap">Date</th>
-                  <th className="py-3 px-4 font-semibold whitespace-nowrap">Status</th>
-                  <th className="py-3 px-4 font-semibold whitespace-nowrap">Processed By</th>
+                  <th className="py-3 px-4 font-semibold whitespace-nowrap">
+                    Request ID
+                  </th>
+                  <th className="py-3 px-4 font-semibold whitespace-nowrap">
+                    Amount (USD)
+                  </th>
+                  <th className="py-3 px-4 font-semibold whitespace-nowrap">
+                    Date
+                  </th>
+                  <th className="py-3 px-4 font-semibold whitespace-nowrap">
+                    Status
+                  </th>
+                  <th className="py-3 px-4 font-semibold whitespace-nowrap">
+                    Processed By
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -148,7 +158,6 @@ const WalletAndWithdrawl = ({ darkMode }) => {
             </table>
           </div>
         </div>
-
       </div>
     </div>
   );

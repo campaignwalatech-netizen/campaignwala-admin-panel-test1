@@ -9,8 +9,8 @@ const Sidebar = ({ darkMode, isSidebarOpen, toggleSidebar }) => {
   const menuItems = [
     { icon: Home, label: "Dashboard", path: "/user" },
     { icon: Users, label: "All Leads", path: "/user/all-leads" },
-    { icon: Wallet, label: "Wallet", path: "/user/wallet-withdrawl" }, // ✅ Updated Path
-    { icon: User, label: "Profile", path: "/user/profile-overview" }, 
+    { icon: Wallet, label: "Wallet", path: "/user/wallet-withdrawl" },
+    { icon: User, label: "Profile", path: "/user/profile-overview" },
   ];
 
   const handleItemClick = (path) => {
@@ -23,19 +23,16 @@ const Sidebar = ({ darkMode, isSidebarOpen, toggleSidebar }) => {
 
   return (
     <aside
-      className={`fixed top-0 left-0 z-50 h-full transition-all duration-300 ease-in-out 
+      className={`fixed top-[64px] left-0 z-40 h-[calc(100%-64px)] transition-all duration-300 ease-in-out 
       ${isSidebarOpen ? "w-64" : "w-16"} 
       ${darkMode ? "bg-gray-900 border-gray-700" : "bg-white border-gray-200"} 
       border-r shadow-md`}
     >
-      {/* Header */}
+      {/* Collapse Button */}
       <div
-        className={`p-4 border-b flex items-center justify-between 
-        ${darkMode ? "border-gray-700 text-white" : "border-gray-200 text-gray-800"}`}
+        className={`p-3 border-b flex items-center justify-end 
+        ${darkMode ? "border-gray-700" : "border-gray-200"}`}
       >
-        {isSidebarOpen && (
-          <h2 className="text-lg font-semibold whitespace-nowrap">Campaign Wala</h2>
-        )}
         <button
           onClick={handleCollapse}
           className={`p-2 rounded-md transition-colors 
@@ -46,7 +43,7 @@ const Sidebar = ({ darkMode, isSidebarOpen, toggleSidebar }) => {
       </div>
 
       {/* Menu */}
-      <nav className="p-4 space-y-1">
+      <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100%-64px)]">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
@@ -75,4 +72,4 @@ const Sidebar = ({ darkMode, isSidebarOpen, toggleSidebar }) => {
   );
 };
 
-export default Sidebar;
+export default Sidebar;

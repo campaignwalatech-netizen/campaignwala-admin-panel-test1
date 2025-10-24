@@ -2,31 +2,88 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const ApprovedLeads = ({ darkMode }) => {
-  const [activeTab, setActiveTab] = useState("Approved");
   const navigate = useNavigate();
   const location = useLocation();
+  const [activeTab, setActiveTab] = useState("Approved");
+  const [filter, setFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Detect active tab dynamically
+  useEffect(() => {
+    if (location.pathname.includes("approved")) setActiveTab("Approved");
+    else if (location.pathname.includes("pending")) setActiveTab("Pending");
+    else if (location.pathname.includes("rejected")) setActiveTab("Rejected");
+    else setActiveTab("");
+  }, [location.pathname]);
 
   const leadsData = [
-    { id: 17, name: "Sarah Johnson", category: "DEMAT Account", offer: "$456", created: "2024-07-20", approved: "20/01/2022", commission: "$954" },
-    { id: 67, name: "Michael Brown", category: "Bank Account", offer: "#252852", created: "2024-07-19", approved: "11/12/2022", commission: "$256" },
-    { id: 20, name: "Emily Davis", category: "DEMAT Account", offer: "#4558266", created: "2024-07-18", approved: "17/09/2024", commission: "$127" },
-    { id: 91, name: "David Wilson", category: "Bank Account", offer: "#852862", created: "2024-07-17", approved: "02/06/2023", commission: "$683" },
-    { id: 84, name: "Jessica Garcia", category: "DEMAT Account", offer: "#1345621", created: "2024-07-16", approved: "13/05/2025", commission: "$838" },
+    {
+      id: 17,
+      name: "Sarah Johnson",
+      contact: "9876543210",
+      category: "DEMAT Account",
+      offer: "$456",
+      created: "2024-07-20",
+      approved: "20/01/2022",
+      commission: "$954",
+    },
+    {
+      id: 67,
+      name: "Michael Brown",
+      contact: "9123456780",
+      category: "Bank Account",
+      offer: "#252852",
+      created: "2024-07-19",
+      approved: "11/12/2022",
+      commission: "$256",
+    },
+    {
+      id: 20,
+      name: "Emily Davis",
+      contact: "9988776655",
+      category: "DEMAT Account",
+      offer: "#4558266",
+      created: "2024-07-18",
+      approved: "17/09/2024",
+      commission: "$127",
+    },
+    {
+      id: 91,
+      name: "David Wilson",
+      contact: "9090909090",
+      category: "Bank Account",
+      offer: "#852862",
+      created: "2024-07-17",
+      approved: "02/06/2023",
+      commission: "$683",
+    },
+    {
+      id: 84,
+      name: "Jessica Garcia",
+      contact: "8080808080",
+      category: "DEMAT Account",
+      offer: "#1345621",
+      created: "2024-07-16",
+      approved: "13/05/2025",
+      commission: "$838",
+    },
   ];
+
+  // 🔍 Filter + Search logic
+  const filteredLeads = leadsData.filter((lead) => {
+    const matchesCategory = filter === "All" || lead.category === filter;
+    const matchesSearch =
+      lead.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lead.contact.includes(searchQuery);
+    return matchesCategory && matchesSearch;
+  });
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
-    let targetRoute = "";
-    if (tab === "Pending") targetRoute = "/user/pending-leads";
-    if (tab === "Approved") targetRoute = "/user/approved-leads";
-    if (tab === "Rejected") targetRoute = "/user/rejected-leads";
-    if (tab === "All") targetRoute = "/user/all-leads";
-    if (location.pathname !== targetRoute) navigate(targetRoute);
+    if (tab === "Pending") navigate("/user/pending-leads");
+    if (tab === "Approved") navigate("/user/approved-leads");
+    if (tab === "Rejected") navigate("/user/rejected-leads");
   };
-
-  useEffect(() => {
-    setActiveTab("Approved");
-  }, []);
 
   return (
     <div
@@ -63,7 +120,38 @@ const ApprovedLeads = ({ darkMode }) => {
           ))}
         </div>
 
-        {/* Main Table Section */}
+        {/* 🔽 Filter + Search Bar */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mb-6">
+          {/* Search */}
+          <input
+            type="text"
+            placeholder="Search by Lead Name or Contact..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={`w-full sm:w-1/2 px-4 py-2 rounded-md border text-sm sm:text-base ${
+              darkMode
+                ? "bg-gray-800 border-gray-700 text-gray-200 placeholder-gray-400"
+                : "bg-white border-gray-300 text-gray-700 placeholder-gray-500"
+            }`}
+          />
+
+          {/* Filter */}
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className={`w-full sm:w-auto px-4 py-2 rounded-md border text-sm sm:text-base ${
+              darkMode
+                ? "bg-gray-800 border-gray-700 text-gray-200"
+                : "bg-white border-gray-300 text-gray-700"
+            }`}
+          >
+            <option value="All">All Categories</option>
+            <option value="DEMAT Account">DEMAT Account</option>
+            <option value="Bank Account">Bank Account</option>
+          </select>
+        </div>
+
+        {/* Table Section */}
         <div
           className={`rounded-lg border shadow-sm ${
             darkMode
@@ -88,12 +176,12 @@ const ApprovedLeads = ({ darkMode }) => {
                 darkMode ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              Showing all recently approved leads.
+              Filter and search through all approved leads.
             </p>
           </div>
 
           {/* Desktop Table */}
-          {leadsData.length > 0 ? (
+          {filteredLeads.length > 0 ? (
             <div className="overflow-x-auto hidden sm:block">
               <table className="min-w-full text-sm sm:text-base">
                 <thead
@@ -106,6 +194,7 @@ const ApprovedLeads = ({ darkMode }) => {
                   <tr>
                     <th className="text-left px-4 py-3">Lead ID</th>
                     <th className="text-left px-4 py-3">Lead Name</th>
+                    <th className="text-left px-4 py-3">Contact</th>
                     <th className="text-left px-4 py-3">Category</th>
                     <th className="text-left px-4 py-3">Offer</th>
                     <th className="text-left px-4 py-3 whitespace-nowrap">
@@ -120,7 +209,7 @@ const ApprovedLeads = ({ darkMode }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {leadsData.map((lead) => (
+                  {filteredLeads.map((lead) => (
                     <tr
                       key={lead.id}
                       className={`border-t ${
@@ -131,6 +220,7 @@ const ApprovedLeads = ({ darkMode }) => {
                     >
                       <td className="px-4 py-3 font-medium">{lead.id}</td>
                       <td className="px-4 py-3">{lead.name}</td>
+                      <td className="px-4 py-3">{lead.contact}</td>
                       <td className="px-4 py-3">{lead.category}</td>
                       <td className="px-4 py-3">{lead.offer}</td>
                       <td className="px-4 py-3 whitespace-nowrap">
@@ -146,14 +236,14 @@ const ApprovedLeads = ({ darkMode }) => {
               </table>
             </div>
           ) : (
-            <div className="p-6 text-center text-gray-500">
-              No approved leads found.
+            <div className="p-6 text-center text-gray-500 italic">
+              No leads found matching your criteria.
             </div>
           )}
 
-          {/* Mobile-Friendly Card Layout */}
+          {/* Mobile-Friendly Layout */}
           <div className="sm:hidden flex flex-col gap-4 p-4">
-            {leadsData.map((lead) => (
+            {filteredLeads.map((lead) => (
               <div
                 key={lead.id}
                 className={`p-4 rounded-lg border ${
@@ -169,7 +259,7 @@ const ApprovedLeads = ({ darkMode }) => {
                   </span>
                 </div>
                 <p className="text-sm">
-                  <strong>ID:</strong> {lead.id}
+                  <strong>Contact:</strong> {lead.contact}
                 </p>
                 <p className="text-sm">
                   <strong>Category:</strong> {lead.category}
@@ -185,6 +275,12 @@ const ApprovedLeads = ({ darkMode }) => {
                 </p>
               </div>
             ))}
+
+            {filteredLeads.length === 0 && (
+              <p className="text-center text-sm text-gray-400 italic">
+                No leads found matching your criteria.
+              </p>
+            )}
           </div>
         </div>
       </div>
