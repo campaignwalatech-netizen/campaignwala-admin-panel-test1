@@ -1,8 +1,147 @@
-import { BarChart3, TrendingUp, Users, DollarSign, Download, Filter, Calendar, CheckCircle, XCircle, Clock, Ban } from "lucide-react";
-import { useState } from "react";
+import { BarChart3, TrendingUp, Users, DollarSign, Download, Filter, Calendar, CheckCircle, XCircle, Clock, Ban, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 
 export default function ABCAnalytics() {
-  const [filterPeriod, setFilterPeriod] = useState("6months");
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [selectedStartDate, setSelectedStartDate] = useState(null);
+  const [selectedEndDate, setSelectedEndDate] = useState(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [isSelectingEndDate, setIsSelectingEndDate] = useState(false);
+  const [selectionMode, setSelectionMode] = useState('range'); // 'single' or 'range'
+  const [showManualInput, setShowManualInput] = useState(false);
+  const [manualStartDate, setManualStartDate] = useState('');
+  const [manualEndDate, setManualEndDate] = useState('');
+  const calendarRef = useRef(null);
+
+  // Calendar helper functions
+  const formatDate = (date) => {
+    if (!date) return "";
+    return date.toLocaleDateString('en-IN', { 
+      day: '2-digit', 
+      month: 'short', 
+      year: 'numeric' 
+    });
+  };
+
+  const getDaysInMonth = (date) => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  };
+
+  const getFirstDayOfMonth = (date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  };
+
+  const isSameDay = (date1, date2) => {
+    return date1 && date2 && 
+           date1.getDate() === date2.getDate() && 
+           date1.getMonth() === date2.getMonth() && 
+           date1.getFullYear() === date2.getFullYear();
+  };
+
+  const isDateInRange = (date) => {
+    if (!selectedStartDate || !selectedEndDate) return false;
+    return date >= selectedStartDate && date <= selectedEndDate;
+  };
+
+  const handleDateClick = (day) => {
+    const clickedDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    
+    if (selectionMode === 'single') {
+      // Single date selection mode
+      setSelectedStartDate(clickedDate);
+      setSelectedEndDate(null);
+      setIsSelectingEndDate(false);
+    } else {
+      // Range selection mode
+      if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
+        // Start new selection
+        setSelectedStartDate(clickedDate);
+        setSelectedEndDate(null);
+        setIsSelectingEndDate(true);
+      } else if (isSelectingEndDate) {
+        // Set end date
+        if (clickedDate >= selectedStartDate) {
+          setSelectedEndDate(clickedDate);
+          setIsSelectingEndDate(false);
+        } else {
+          // If clicked date is before start date, make it the new start date
+          setSelectedStartDate(clickedDate);
+          setSelectedEndDate(null);
+        }
+      }
+    }
+  };
+
+  const clearDateSelection = () => {
+    setSelectedStartDate(null);
+    setSelectedEndDate(null);
+    setIsSelectingEndDate(false);
+  };
+
+  const toggleSelectionMode = () => {
+    const newMode = selectionMode === 'single' ? 'range' : 'single';
+    setSelectionMode(newMode);
+    // Clear selections when switching modes
+    clearDateSelection();
+  };
+
+  const handleManualDateInput = (value, isEndDate = false) => {
+    if (isEndDate) {
+      setManualEndDate(value);
+      if (value) {
+        const date = new Date(value);
+        if (!isNaN(date.getTime())) {
+          setSelectedEndDate(date);
+        }
+      }
+    } else {
+      setManualStartDate(value);
+      if (value) {
+        const date = new Date(value);
+        if (!isNaN(date.getTime())) {
+          setSelectedStartDate(date);
+          if (selectionMode === 'single') {
+            setSelectedEndDate(null);
+          }
+        }
+      }
+    }
+  };
+
+  const applyManualDates = () => {
+    setShowManualInput(false);
+    setShowCalendar(false);
+  };
+
+  const toggleInputMethod = () => {
+    setShowManualInput(!showManualInput);
+    if (!showManualInput) {
+      // When switching to manual input, populate with current selected dates
+      if (selectedStartDate) {
+        setManualStartDate(selectedStartDate.toISOString().split('T')[0]);
+      }
+      if (selectedEndDate) {
+        setManualEndDate(selectedEndDate.toISOString().split('T')[0]);
+      }
+    }
+  };
+
+  const navigateMonth = (direction) => {
+    const newMonth = new Date(currentMonth);
+    newMonth.setMonth(newMonth.getMonth() + direction);
+    setCurrentMonth(newMonth);
+  };
+
+  // Close calendar when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target)) {
+        setShowCalendar(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleExport = () => {
     console.log("Exporting analytics...");
@@ -38,30 +177,221 @@ export default function ABCAnalytics() {
       <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">ABC Analytics Dashboard</h2>
 
       {/* Filters and Export in one line */}
-      <div className="flex flex-wrap items-center gap-2 mb-3">
-        {/* Period Filter */}
-        <div className="relative">
-          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-          <select
-            value={filterPeriod}
-            onChange={(e) => setFilterPeriod(e.target.value)}
-            className="pl-9 pr-8 py-2 text-sm bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
+      <div className="flex flex-wrap items-center gap-4 mb-6">
+        {/* Date Range Filter with Calendar */}
+        <div className="relative" ref={calendarRef}>
+          <button
+            onClick={() => setShowCalendar(!showCalendar)}
+            className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl text-foreground hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/40 dark:hover:to-indigo-900/40 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
           >
-            <option value="7days">Last 7 Days</option>
-            <option value="30days">Last 30 Days</option>
-            <option value="3months">Last 3 Months</option>
-            <option value="6months">Last 6 Months</option>
-            <option value="1year">Last Year</option>
-          </select>
+            <CalendarDays className="w-5 h-5 text-blue-600" />
+            <div className="text-left">
+              <div className="text-sm font-semibold">
+                {selectionMode === 'single' ? 'Single Date' : 'Date Range'}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {selectionMode === 'single' 
+                  ? (selectedStartDate 
+                    ? formatDate(selectedStartDate) 
+                    : "Select a date")
+                  : (selectedStartDate && selectedEndDate 
+                    ? `${formatDate(selectedStartDate)} - ${formatDate(selectedEndDate)}`
+                    : selectedStartDate 
+                    ? `From ${formatDate(selectedStartDate)}`
+                    : "Select date range")
+                }
+              </div>
+            </div>
+            <Filter className="w-4 h-4 text-blue-600" />
+          </button>
+
+          {/* Calendar Popup */}
+          {showCalendar && (
+            <div className="absolute top-full left-0 mt-2 bg-card border border-border rounded-xl shadow-xl z-50 p-4 w-80">
+              {/* Selection Mode Toggle */}
+              <div className="flex items-center justify-center mb-4">
+                <div className="bg-muted rounded-lg p-1 flex">
+                  <button
+                    onClick={() => setSelectionMode('single')}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                      selectionMode === 'single' 
+                        ? 'bg-primary text-primary-foreground shadow-sm' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    Single Date
+                  </button>
+                  <button
+                    onClick={() => setSelectionMode('range')}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                      selectionMode === 'range' 
+                        ? 'bg-primary text-primary-foreground shadow-sm' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    Date Range
+                  </button>
+                </div>
+              </div>
+
+              {/* Input Method Toggle */}
+              <div className="flex items-center justify-center mb-4">
+                <button
+                  onClick={toggleInputMethod}
+                  className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
+                >
+                  {showManualInput ? '📅 Use Calendar' : '✏️ Manual Input'}
+                </button>
+              </div>
+
+              {/* Manual Input Section */}
+              {showManualInput ? (
+                <div className="space-y-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      {selectionMode === 'single' ? 'Select Date' : 'Start Date'}
+                    </label>
+                    <input
+                      type="date"
+                      value={manualStartDate}
+                      onChange={(e) => handleManualDateInput(e.target.value, false)}
+                      className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    />
+                  </div>
+                  
+                  {selectionMode === 'range' && (
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        End Date
+                      </label>
+                      <input
+                        type="date"
+                        value={manualEndDate}
+                        onChange={(e) => handleManualDateInput(e.target.value, true)}
+                        className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      onClick={applyManualDates}
+                      className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                    >
+                      Apply Dates
+                    </button>
+                    <button
+                      onClick={clearDateSelection}
+                      className="px-4 py-2 border border-border text-muted-foreground rounded-lg text-sm hover:text-foreground hover:bg-muted transition-colors"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Calendar Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <button 
+                      onClick={() => navigateMonth(-1)}
+                      className="p-2 hover:bg-muted rounded-lg transition-colors"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                    </h3>
+                    <button 
+                      onClick={() => navigateMonth(1)}
+                      className="p-2 hover:bg-muted rounded-lg transition-colors"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Calendar Grid */}
+                  <div className="grid grid-cols-7 gap-1 mb-4">
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                  <div key={day} className="text-center text-xs font-medium text-muted-foreground py-2">
+                    {day}
+                  </div>
+                ))}
+                
+                {/* Empty cells for days before month starts */}
+                {Array.from({ length: getFirstDayOfMonth(currentMonth) }).map((_, index) => (
+                  <div key={`empty-${index}`} className="h-8"></div>
+                ))}
+                
+                {/* Days of the month */}
+                {Array.from({ length: getDaysInMonth(currentMonth) }).map((_, index) => {
+                  const day = index + 1;
+                  const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+                  const isStart = isSameDay(date, selectedStartDate);
+                  const isEnd = isSameDay(date, selectedEndDate);
+                  const isInRange = selectionMode === 'range' && isDateInRange(date);
+                  const isSelected = selectionMode === 'single' && isStart;
+                  const isToday = isSameDay(date, new Date());
+                  
+                  return (
+                    <button
+                      key={day}
+                      onClick={() => handleDateClick(day)}
+                      className={`h-8 w-8 text-sm rounded-lg transition-all duration-150 ${
+                        isSelected || isStart || isEnd
+                          ? 'bg-primary text-primary-foreground font-semibold shadow-md'
+                          : isInRange
+                          ? 'bg-primary/20 text-primary font-medium'
+                          : isToday
+                          ? 'bg-muted text-foreground font-semibold border-2 border-primary'
+                          : 'hover:bg-muted text-foreground'
+                      }`}
+                    >
+                      {day}
+                    </button>
+                  );
+                })}
+                  </div>
+
+                  {/* Calendar Actions */}
+                  <div className="flex items-center justify-between pt-3 border-t border-border">
+                    <button
+                      onClick={clearDateSelection}
+                      className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Clear
+                    </button>
+                    <div className="text-xs text-muted-foreground">
+                      {selectionMode === 'single' 
+                        ? 'Select a date' 
+                        : (isSelectingEndDate ? 'Select end date' : 'Select start date')
+                      }
+                    </div>
+                    <button
+                      onClick={() => setShowCalendar(false)}
+                      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                    >
+                      Done
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Export Button */}
         <button
           onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold whitespace-nowrap"
+          className="flex items-center gap-2 px-6 py-3 text-white rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+          style={{ 
+            backgroundColor: '#4406CB',
+            borderColor: '#4406CB'
+          }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#3905B8'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#4406CB'}
         >
           <Download className="w-4 h-4" />
-          Export
+          Export Data
         </button>
       </div>
 

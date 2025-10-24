@@ -15,6 +15,7 @@ export default function LeadsTable({ status }) {
         hrContact: "+91 9876543210", 
         customerName: "Amit Enterprises", 
         customerContact: "+91 9876543220", 
+        offer: "₹50,000",
         status: "pending" 
       },
       { 
@@ -25,6 +26,7 @@ export default function LeadsTable({ status }) {
         hrContact: "+91 9876543211", 
         customerName: "Tech Solutions Ltd", 
         customerContact: "+91 9876543221", 
+        offer: "₹75,000",
         status: "pending" 
       },
       { 
@@ -35,6 +37,7 @@ export default function LeadsTable({ status }) {
         hrContact: "+91 9876543212", 
         customerName: "Fashion Hub", 
         customerContact: "+91 9876543222", 
+        offer: "₹30,000",
         status: "pending" 
       },
     ],
@@ -47,6 +50,7 @@ export default function LeadsTable({ status }) {
         hrContact: "+91 9876543213", 
         customerName: "Global Corp", 
         customerContact: "+91 9876543223", 
+        offer: "₹1,20,000",
         status: "approved" 
       },
       { 
@@ -57,6 +61,7 @@ export default function LeadsTable({ status }) {
         hrContact: "+91 9876543214", 
         customerName: "StartUp Inc", 
         customerContact: "+91 9876543224", 
+        offer: "₹85,000",
         status: "approved" 
       },
     ],
@@ -69,6 +74,7 @@ export default function LeadsTable({ status }) {
         hrContact: "+91 9876543215", 
         customerName: "Retail Chain", 
         customerContact: "+91 9876543225", 
+        offer: "₹2,50,000",
         status: "completed" 
       },
       { 
@@ -79,6 +85,7 @@ export default function LeadsTable({ status }) {
         hrContact: "+91 9876543216", 
         customerName: "Innovation Labs", 
         customerContact: "+91 9876543226", 
+        offer: "₹1,80,000",
         status: "completed" 
       },
     ],
@@ -91,12 +98,32 @@ export default function LeadsTable({ status }) {
         hrContact: "+91 9876543217", 
         customerName: "Local Business", 
         customerContact: "+91 9876543227", 
+        offer: "₹25,000",
         status: "rejected" 
       },
     ],
   };
 
-  const leads = allLeads[status] || [];
+  // Enhanced filtering logic
+  const filteredLeads = (allLeads[status] || []).filter(lead => {
+    const matchesSearch = searchTerm === "" || 
+      lead.leadId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.hrName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.offer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.hrContact.includes(searchTerm) ||
+      lead.customerContact.includes(searchTerm);
+    
+    const matchesFilter = filterCampaign === "all" || 
+      (filterCampaign === "marketing" && lead.category.toLowerCase().includes("marketing")) ||
+      (filterCampaign === "seo" && lead.category.toLowerCase().includes("seo")) ||
+      (filterCampaign === "social" && lead.category.toLowerCase().includes("social"));
+    
+    return matchesSearch && matchesFilter;
+  });
+
+  const leads = filteredLeads;
   const statusColors = {
     pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
     approved: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
@@ -126,7 +153,7 @@ export default function LeadsTable({ status }) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search leads..."
+            placeholder="Search by ID, name, category, offer, contact..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
@@ -161,7 +188,7 @@ export default function LeadsTable({ status }) {
       {/* Table with fixed height */}
       <div className="flex-1 bg-card rounded-lg border border-border overflow-hidden flex flex-col min-h-0">
         <div className="overflow-x-auto scrollbar-custom flex-1">
-          <table className="w-full min-w-[1200px]">
+          <table className="w-full min-w-[1400px]">
           <thead className="bg-muted">
             <tr>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Date</th>
@@ -171,6 +198,7 @@ export default function LeadsTable({ status }) {
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">HR Contact</th>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Customer Name</th>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Customer Contact</th>
+              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Offer</th>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Status</th>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Actions</th>
             </tr>
@@ -178,7 +206,7 @@ export default function LeadsTable({ status }) {
           <tbody className="divide-y divide-border">
             {leads.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-3 sm:px-4 md:px-6 py-6 sm:py-8 text-center text-sm text-muted-foreground">
+                <td colSpan={10} className="px-3 sm:px-4 md:px-6 py-6 sm:py-8 text-center text-sm text-muted-foreground">
                   No {status} leads found
                 </td>
               </tr>
@@ -192,6 +220,9 @@ export default function LeadsTable({ status }) {
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.hrContact}</td>
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.customerName}</td>
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.customerContact}</td>
+                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm font-semibold text-foreground whitespace-nowrap">
+                    <span className="text-green-600">{lead.offer}</span>
+                  </td>
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm whitespace-nowrap">
                     <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColors[lead.status]}`}>
                       {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}

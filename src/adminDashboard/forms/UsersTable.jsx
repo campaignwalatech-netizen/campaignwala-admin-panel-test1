@@ -4,6 +4,8 @@ import { useState } from "react";
 export default function UsersTable({ userType }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("all");
+  const [userStatuses, setUserStatuses] = useState({});
+  const [hoveredUser, setHoveredUser] = useState(null);
 
   const allUsers = {
     active: [
@@ -19,8 +21,6 @@ export default function UsersTable({ userType }) {
         rejected: 5,
         completed: 28,
         pending: 12,
-        accountNumber: "ACC001234",
-        category: "Marketing",
         currentBalance: "₹15,450"
       },
       { 
@@ -35,8 +35,6 @@ export default function UsersTable({ userType }) {
         rejected: 8,
         completed: 22,
         pending: 8,
-        accountNumber: "ACC001235",
-        category: "Content",
         currentBalance: "₹12,300"
       },
       { 
@@ -51,8 +49,6 @@ export default function UsersTable({ userType }) {
         rejected: 3,
         completed: 35,
         pending: 14,
-        accountNumber: "ACC001236",
-        category: "SEO",
         currentBalance: "₹18,750"
       },
       { 
@@ -67,8 +63,6 @@ export default function UsersTable({ userType }) {
         rejected: 4,
         completed: 18,
         pending: 7,
-        accountNumber: "ACC001237",
-        category: "Social Media",
         currentBalance: "₹9,850"
       },
     ],
@@ -85,8 +79,6 @@ export default function UsersTable({ userType }) {
         rejected: 2,
         completed: 6,
         pending: 5,
-        accountNumber: "ACC001238",
-        category: "Design",
         currentBalance: "₹4,200"
       },
       { 
@@ -101,8 +93,6 @@ export default function UsersTable({ userType }) {
         rejected: 3,
         completed: 4,
         pending: 4,
-        accountNumber: "ACC001239",
-        category: "Marketing",
         currentBalance: "₹2,800"
       },
     ],
@@ -119,8 +109,6 @@ export default function UsersTable({ userType }) {
         rejected: 12,
         completed: 58,
         pending: 0,
-        accountNumber: "ACC001240",
-        category: "Project Management",
         currentBalance: "₹0"
       },
       { 
@@ -135,14 +123,27 @@ export default function UsersTable({ userType }) {
         rejected: 7,
         completed: 20,
         pending: 0,
-        accountNumber: "ACC001241",
-        category: "Analytics",
         currentBalance: "₹0"
       },
     ],
   };
 
-  const users = allUsers[userType] || [];
+  // Filter users based on search term and filter criteria
+  const filteredUsers = (allUsers[userType] || []).filter(user => {
+    const matchesSearch = searchTerm === "" || 
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.phone.includes(searchTerm);
+    
+    const matchesFilter = filterRole === "all" || 
+      (filterRole === "high_leads" && user.totalLeads > 30) ||
+      (filterRole === "moderate_leads" && user.totalLeads >= 10 && user.totalLeads <= 30) ||
+      (filterRole === "low_leads" && user.totalLeads < 10);
+    
+    return matchesSearch && matchesFilter;
+  });
+
+  const users = filteredUsers;
   const statusColors = {
     active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
     hold: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
@@ -158,6 +159,28 @@ export default function UsersTable({ userType }) {
   const handleExport = () => {
     console.log("Exporting users...");
     alert("Export functionality will be implemented soon!");
+  };
+
+  const handleActivateUser = (userId) => {
+    console.log(`Activating user with ID: ${userId}`);
+    // Update local state to show user as active
+    setUserStatuses(prev => ({
+      ...prev,
+      [userId]: 'Active'
+    }));
+    setHoveredUser(null); // Close dropdown
+    alert(`User ${userId} has been activated successfully!`);
+  };
+
+  const handleDeactivateUser = (userId) => {
+    console.log(`Putting user on hold with ID: ${userId}`);
+    // Update local state to show user as hold
+    setUserStatuses(prev => ({
+      ...prev,
+      [userId]: 'Hold'
+    }));
+    setHoveredUser(null); // Close dropdown
+    alert(`User ${userId} has been put on hold!`);
   };
 
   return (
@@ -192,12 +215,10 @@ export default function UsersTable({ userType }) {
             onChange={(e) => setFilterRole(e.target.value)}
             className="pl-9 pr-8 py-2 text-sm bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
           >
-            <option value="all">All Categories</option>
-            <option value="marketing">Marketing</option>
-            <option value="content">Content</option>
-            <option value="seo">SEO</option>
-            <option value="social">Social Media</option>
-            <option value="design">Design</option>
+            <option value="all">All Users</option>
+            <option value="high_leads">High Leads (&gt;30)</option>
+            <option value="moderate_leads">Moderate Leads (10-30)</option>
+            <option value="low_leads">Low Leads (&lt;10)</option>
           </select>
         </div>
 
@@ -227,8 +248,6 @@ export default function UsersTable({ userType }) {
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Rejected</th>
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Completed</th>
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Pending</th>
-              <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Account Number</th>
-              <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Category</th>
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Current Balance</th>
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Actions</th>
             </tr>
@@ -240,26 +259,65 @@ export default function UsersTable({ userType }) {
                 <td className="px-3 py-3 text-sm font-medium text-foreground whitespace-nowrap">{user.name}</td>
                 <td className="px-3 py-3 text-sm text-foreground whitespace-nowrap">{user.phone}</td>
                 <td className="px-3 py-3 text-sm text-foreground whitespace-nowrap">{user.email}</td>
-                <td className="px-3 py-3 text-sm whitespace-nowrap">
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                    user.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                    user.status === 'Hold' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                    'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-                  }`}>
-                    {user.status}
-                  </span>
+                <td className="px-3 py-3 text-sm whitespace-nowrap relative">
+                  {(() => {
+                    // Check if user status has been updated locally
+                    const currentStatus = userStatuses[user.id] || user.status;
+                    const isHovered = hoveredUser === user.id;
+                    
+                    return (
+                      <div className="relative inline-block">
+                        <div
+                          onMouseEnter={() => setHoveredUser(user.id)}
+                          onMouseLeave={() => setHoveredUser(null)}
+                          className="relative"
+                        >
+                          {!isHovered ? (
+                            // Show normal status badge when not hovered
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold cursor-pointer transition-colors ${
+                              currentStatus === 'Active' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                              currentStatus === 'Hold' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+                              'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                            }`}>
+                              {currentStatus}
+                            </span>
+                          ) : (
+                            // Show connected options when hovered
+                            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg overflow-hidden">
+                              {/* Current Status */}
+                              <div className={`px-2 py-1 text-xs font-semibold cursor-pointer transition-colors text-center ${
+                                currentStatus === 'Active' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                              }`}>
+                                {currentStatus}
+                              </div>
+                              
+                              {/* Separator line */}
+                              <div className="border-t border-gray-200 dark:border-gray-600"></div>
+                              
+                              {/* Alternative Status */}
+                              <button
+                                onClick={() => currentStatus === 'Active' ? handleDeactivateUser(user.id) : handleActivateUser(user.id)}
+                                className={`w-full px-2 py-1 text-xs font-semibold cursor-pointer transition-colors text-center ${
+                                  currentStatus === 'Active' 
+                                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 hover:bg-yellow-200' 
+                                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 hover:bg-red-200'
+                                }`}
+                              >
+                                {currentStatus === 'Active' ? 'Hold' : 'Active'}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </td>
                 <td className="px-3 py-3 text-sm text-foreground whitespace-nowrap font-semibold">{user.totalLeads}</td>
                 <td className="px-3 py-3 text-sm text-green-600 whitespace-nowrap font-semibold">{user.approved}</td>
                 <td className="px-3 py-3 text-sm text-red-600 whitespace-nowrap font-semibold">{user.rejected}</td>
                 <td className="px-3 py-3 text-sm text-blue-600 whitespace-nowrap font-semibold">{user.completed}</td>
                 <td className="px-3 py-3 text-sm text-orange-600 whitespace-nowrap font-semibold">{user.pending}</td>
-                <td className="px-3 py-3 text-sm text-foreground whitespace-nowrap font-mono">{user.accountNumber}</td>
-                <td className="px-3 py-3 text-sm text-foreground whitespace-nowrap">
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-md text-xs font-medium">
-                    {user.category}
-                  </span>
-                </td>
                 <td className="px-3 py-3 text-sm text-foreground whitespace-nowrap font-semibold text-green-600">{user.currentBalance}</td>
                 <td className="px-3 py-3 text-sm whitespace-nowrap">
                   <button className="text-primary hover:text-primary/80 mr-3 text-sm font-semibold whitespace-nowrap">View</button>

@@ -10,7 +10,14 @@ export default function PaymentWithdrawalTable() {
       dateRequested: "2024-07-20", 
       amount: 800.00, 
       status: "Approved",
-      details: "TXN: TXNQ23458"
+      details: "TXN: TXNQ23458",
+      bankDetails: {
+        accountNumber: "1234567890",
+        ifscCode: "HDFC0000123",
+        bankName: "HDFC Bank",
+        accountHolderName: "Alice Johnson",
+        branchName: "Mumbai Central"
+      }
     },
     { 
       leadId: "LID002", 
@@ -19,7 +26,14 @@ export default function PaymentWithdrawalTable() {
       dateRequested: "2024-07-19", 
       amount: 120.50, 
       status: "Pending",
-      details: "N/A"
+      details: "N/A",
+      bankDetails: {
+        accountNumber: "9876543210",
+        ifscCode: "ICIC0000456",
+        bankName: "ICICI Bank",
+        accountHolderName: "Bob Williams",
+        branchName: "Delhi Main"
+      }
     },
     { 
       leadId: "LID003", 
@@ -28,7 +42,14 @@ export default function PaymentWithdrawalTable() {
       dateRequested: "2024-07-18", 
       amount: 75.00, 
       status: "Rejected",
-      details: "Insufficient funds"
+      details: "Insufficient funds",
+      bankDetails: {
+        accountNumber: "5555666677",
+        ifscCode: "SBI0000789",
+        bankName: "State Bank of India",
+        accountHolderName: "Charlie Brown",
+        branchName: "Bangalore South"
+      }
     },
     { 
       leadId: "LID004", 
@@ -163,7 +184,14 @@ export default function PaymentWithdrawalTable() {
       dateRequested: "2024-07-03", 
       amount: 65.00, 
       status: "Approved",
-      details: "TXN: TXN789456"
+      details: "TXN: TXN789456",
+      bankDetails: {
+        accountNumber: "7777888899",
+        ifscCode: "CANR0000789",
+        bankName: "Canara Bank",
+        accountHolderName: "Rachel Davis",
+        branchName: "Chennai Central"
+      }
     },
     { 
       leadId: "LID019", 
@@ -172,7 +200,14 @@ export default function PaymentWithdrawalTable() {
       dateRequested: "2024-07-02", 
       amount: 890.00, 
       status: "Pending",
-      details: "N/A"
+      details: "N/A",
+      bankDetails: {
+        accountNumber: "8888999900",
+        ifscCode: "AXIS0000456",
+        bankName: "Axis Bank",
+        accountHolderName: "Sam Johnson",
+        branchName: "Pune Main"
+      }
     },
     { 
       leadId: "LID020", 
@@ -181,7 +216,14 @@ export default function PaymentWithdrawalTable() {
       dateRequested: "2024-07-01", 
       amount: 155.75, 
       status: "Approved",
-      details: "TXN: TXN321654"
+      details: "TXN: TXN321654",
+      bankDetails: {
+        accountNumber: "9999000011",
+        ifscCode: "KOTAK000789",
+        bankName: "Kotak Bank",
+        accountHolderName: "Tina Brown",
+        branchName: "Kolkata Park Street"
+      }
     },
     { 
       leadId: "LID021", 
@@ -190,7 +232,14 @@ export default function PaymentWithdrawalTable() {
       dateRequested: "2024-06-30", 
       amount: 1450.00, 
       status: "Rejected",
-      details: "Exceeds limit"
+      details: "Exceeds limit",
+      bankDetails: {
+        accountNumber: "1111222233",
+        ifscCode: "BOB0000456",
+        bankName: "Bank of Baroda",
+        accountHolderName: "Uma Patel",
+        branchName: "Ahmedabad CG Road"
+      }
     },
     { 
       leadId: "LID022", 
@@ -199,7 +248,14 @@ export default function PaymentWithdrawalTable() {
       dateRequested: "2024-06-29", 
       amount: 2100.50, 
       status: "Pending",
-      details: "N/A"
+      details: "N/A",
+      bankDetails: {
+        accountNumber: "2222333344",
+        ifscCode: "UNION0000789",
+        bankName: "Union Bank",
+        accountHolderName: "Victor Lee",
+        branchName: "Hyderabad Banjara Hills"
+      }
     },
     { 
       leadId: "LID023", 
@@ -208,7 +264,14 @@ export default function PaymentWithdrawalTable() {
       dateRequested: "2024-06-28", 
       amount: 340.25, 
       status: "Approved",
-      details: "TXN: TXN654987"
+      details: "TXN: TXN654987",
+      bankDetails: {
+        accountNumber: "3333444455",
+        ifscCode: "IDBI000456",
+        bankName: "IDBI Bank",
+        accountHolderName: "Wendy Clark",
+        branchName: "Bangalore Koramangala"
+      }
     },
     { 
       leadId: "LID024", 
@@ -217,7 +280,14 @@ export default function PaymentWithdrawalTable() {
       dateRequested: "2024-06-27", 
       amount: 725.00, 
       status: "Approved",
-      details: "TXN: TXN852741"
+      details: "TXN: TXN852741",
+      bankDetails: {
+        accountNumber: "4444555566",
+        ifscCode: "VIJB000123",
+        bankName: "Vijaya Bank",
+        accountHolderName: "Xavier Kim",
+        branchName: "Gurgaon Cyber City"
+      }
     },
     { 
       leadId: "LID025", 
@@ -226,12 +296,24 @@ export default function PaymentWithdrawalTable() {
       dateRequested: "2024-06-26", 
       amount: 45.90, 
       status: "Rejected",
-      details: "Invalid documentation"
+      details: "Invalid documentation",
+      bankDetails: {
+        accountNumber: "5555666677",
+        ifscCode: "PNB0000789",
+        bankName: "Punjab National Bank",
+        accountHolderName: "Yara Singh",
+        branchName: "Chandigarh Sector 17"
+      }
     }
   ]);
   const [showModal, setShowModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
   const [actionType, setActionType] = useState("");
+  const [transactionId, setTransactionId] = useState("");
+  const [rejectReason, setRejectReason] = useState("");
+  const [comments, setComments] = useState("");
+  const [selectedAction, setSelectedAction] = useState(""); // "approve" or "reject"
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All Statuses");
 
@@ -245,6 +327,48 @@ export default function PaymentWithdrawalTable() {
     setSelectedWithdrawal(withdrawal);
     setActionType(action);
     setShowModal(true);
+  };
+
+  const handleViewDetails = (withdrawal) => {
+    setSelectedWithdrawal(withdrawal);
+    setShowDetailsModal(true);
+    setTransactionId("");
+    setRejectReason("");
+    setComments("");
+  };
+
+  const handleApprove = () => {
+    if (!transactionId.trim()) {
+      alert("Please enter transaction ID");
+      return;
+    }
+    
+    setWithdrawals(withdrawals.map(w => 
+      w.leadId === selectedWithdrawal.leadId 
+        ? { ...w, status: "Approved", details: `TXN: ${transactionId}${comments ? ` - ${comments}` : ''}` }
+        : w
+    ));
+    
+    setShowDetailsModal(false);
+    setTransactionId("");
+    setComments("");
+  };
+
+  const handleReject = () => {
+    if (!rejectReason.trim()) {
+      alert("Please enter rejection reason");
+      return;
+    }
+    
+    setWithdrawals(withdrawals.map(w => 
+      w.leadId === selectedWithdrawal.leadId 
+        ? { ...w, status: "Rejected", details: `${rejectReason}${comments ? ` - ${comments}` : ''}` }
+        : w
+    ));
+    
+    setShowDetailsModal(false);
+    setRejectReason("");
+    setComments("");
   };
 
   const confirmAction = () => {
@@ -273,9 +397,9 @@ export default function PaymentWithdrawalTable() {
   };
 
   return (
-    <div className="h-full flex flex-col p-3 sm:p-4 bg-background">
+    <div className="h-full flex flex-col p-2 sm:p-3 bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-2">
         <h1 className="text-2xl font-semibold text-foreground">Payment Withdrawal Requests</h1>
         <button
           onClick={handleExport}
@@ -287,7 +411,7 @@ export default function PaymentWithdrawalTable() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-2">
         <div className="bg-card rounded-lg border border-border p-3">
           <div className="flex items-center justify-between">
             <div>
@@ -334,8 +458,8 @@ export default function PaymentWithdrawalTable() {
       </div>
 
       {/* Filters */}
-      <div className="mb-3">
-        <h3 className="text-lg font-semibold text-foreground mb-3">Filter Requests</h3>
+      <div className="mb-2">
+        <h3 className="text-lg font-semibold text-foreground mb-2">Filter Requests</h3>
         <div className="flex flex-wrap items-center gap-4">
           <div className="relative flex-1 min-w-[200px] max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -365,34 +489,59 @@ export default function PaymentWithdrawalTable() {
       </div>
 
       {/* Table */}
-      <div className="flex-1 bg-card rounded-lg border border-border overflow-hidden">
-        <div className="max-h-96 overflow-y-auto overflow-x-auto scrollbar-hide">
+      <div className="flex-1 bg-card rounded-lg border border-border overflow-hidden mt-1">
+        <div className="max-h-[500px] overflow-y-auto overflow-x-auto scrollbar-hide">
           <table className="w-full">
             <thead className="bg-muted/50 border-b border-border">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">LEAD ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">LEAD NAME</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">CATEGORY</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">DATE REQUESTED</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">AMOUNT</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">STATUS</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">DETAILS</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">LEAD ID</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">LEAD NAME</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">CATEGORY</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">DATE REQUESTED</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">AMOUNT</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">STATUS</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">DETAILS</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">ACTIONS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-background">
               {withdrawals.map((withdrawal) => (
                 <tr key={withdrawal.leadId} className="hover:bg-muted/20">
-                  <td className="px-6 py-4 text-sm text-foreground">{withdrawal.leadId}</td>
-                  <td className="px-6 py-4 text-sm font-medium text-foreground">{withdrawal.leadName}</td>
-                  <td className="px-6 py-4 text-sm text-foreground">{withdrawal.category}</td>
-                  <td className="px-6 py-4 text-sm text-foreground">{withdrawal.dateRequested}</td>
-                  <td className="px-6 py-4 text-sm font-semibold text-foreground">${withdrawal.amount.toFixed(2)}</td>
-                  <td className="px-6 py-4 text-sm">
+                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{withdrawal.leadId}</td>
+                  <td className="px-4 py-3 text-sm font-medium text-foreground whitespace-nowrap">{withdrawal.leadName}</td>
+                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{withdrawal.category}</td>
+                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{withdrawal.dateRequested}</td>
+                  <td className="px-4 py-3 text-sm font-semibold text-foreground whitespace-nowrap">${withdrawal.amount.toFixed(2)}</td>
+                  <td className="px-4 py-3 text-sm whitespace-nowrap">
                     <span className={`px-2 py-1 rounded text-xs font-medium border ${statusColors[withdrawal.status]}`}>
                       {withdrawal.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-foreground">{withdrawal.details}</td>
+                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{withdrawal.details}</td>
+                  <td className="px-4 py-3 text-sm whitespace-nowrap">
+                    <button
+                      onClick={() => handleViewDetails(withdrawal)}
+                      className="flex items-center gap-1 px-2 py-1 text-blue-600 hover:text-blue-800 text-xs font-medium cursor-pointer"
+                      style={{ 
+                        textDecoration: 'none', 
+                        userSelect: 'none', 
+                        WebkitUserSelect: 'none',
+                        MozUserSelect: 'none',
+                        msUserSelect: 'none',
+                        background: 'none', 
+                        border: 'none',
+                        outline: 'none',
+                        WebkitTouchCallout: 'none',
+                        WebkitTapHighlightColor: 'transparent'
+                      }}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onSelectStart={(e) => e.preventDefault()}
+                      onDragStart={(e) => e.preventDefault()}
+                    >
+                      <Info className="w-3 h-3 pointer-events-none" />
+                      <span style={{ userSelect: 'none', WebkitUserSelect: 'none' }}>View Details</span>
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -445,6 +594,182 @@ export default function PaymentWithdrawalTable() {
               <button onClick={() => setShowModal(false)} className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-lg hover:bg-destructive/80 whitespace-nowrap">
                 Cancel
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Details Modal */}
+      {showDetailsModal && selectedWithdrawal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-lg border border-border p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-foreground">Withdrawal Details</h3>
+              <button 
+                onClick={() => setShowDetailsModal(false)} 
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Withdrawal Information */}
+            <div className="space-y-6">
+              {/* Basic Info */}
+              <div className="bg-muted/30 rounded-lg p-4">
+                <h4 className="font-semibold text-foreground mb-3">Withdrawal Information</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Lead ID:</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.leadId}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Lead Name:</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.leadName}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Category:</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.category}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Date Requested:</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.dateRequested}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Amount:</span>
+                    <span className="ml-2 font-semibold text-foreground text-lg">${selectedWithdrawal.amount.toFixed(2)}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Status:</span>
+                    <span className={`ml-2 px-2 py-1 rounded text-xs font-medium border ${statusColors[selectedWithdrawal.status]}`}>
+                      {selectedWithdrawal.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bank Details */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                <h4 className="font-semibold text-foreground mb-3">Bank Details</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Account Holder:</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.bankDetails.accountHolderName}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Account Number:</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.bankDetails.accountNumber}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Bank Name:</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.bankDetails.bankName}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">IFSC Code:</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.bankDetails.ifscCode}</span>
+                  </div>
+                  <div className="md:col-span-2">
+                    <span className="text-muted-foreground">Branch Name:</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.bankDetails.branchName}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Section - Available for all withdrawals */}
+              <div className="bg-gray-50 dark:bg-gray-900/20 rounded-lg p-4">
+                <h4 className="font-semibold text-foreground mb-4">Admin Action</h4>
+                
+                {/* Action Buttons */}
+                <div className="flex gap-3 mb-4">
+                  <button
+                    onClick={() => setSelectedAction("approve")}
+                    className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                      selectedAction === "approve" 
+                        ? "bg-green-600 text-white" 
+                        : "bg-green-100 text-green-700 hover:bg-green-200"
+                    }`}
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    Approve
+                  </button>
+                  
+                  <button
+                    onClick={() => setSelectedAction("reject")}
+                    className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                      selectedAction === "reject" 
+                        ? "bg-red-600 text-white" 
+                        : "bg-red-100 text-red-700 hover:bg-red-200"
+                    }`}
+                  >
+                    <XCircle className="w-4 h-4" />
+                    Reject
+                  </button>
+                </div>
+
+                {/* Approve Form - Only show when approve is selected */}
+                {selectedAction === "approve" && (
+                  <div className="border border-green-200 bg-green-50 dark:bg-green-900/20 rounded-lg p-4 mb-4">
+                    <h5 className="font-medium text-green-800 dark:text-green-200 mb-3">
+                      Approve Payment
+                    </h5>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          Transaction ID <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={transactionId}
+                          onChange={(e) => setTransactionId(e.target.value)}
+                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                          placeholder="Enter transaction ID (e.g., TXN123456)"
+                        />
+                      </div>
+                      
+                      <button
+                        onClick={handleApprove}
+                        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        Confirm Approval
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Reject Form - Only show when reject is selected */}
+                {selectedAction === "reject" && (
+                  <div className="border border-red-200 bg-red-50 dark:bg-red-900/20 rounded-lg p-4 mb-4">
+                    <h5 className="font-medium text-red-800 dark:text-red-200 mb-3">
+                      Reject Payment
+                    </h5>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          Rejection Reason <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          value={rejectReason}
+                          onChange={(e) => setRejectReason(e.target.value)}
+                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
+                          rows={3}
+                          placeholder="Enter reason for rejection..."
+                        />
+                      </div>
+                      
+                      <button
+                        onClick={handleReject}
+                        className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center justify-center gap-2"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        Confirm Rejection
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -1,24 +1,74 @@
 import { useState } from "react";
-import { Edit2, Trash2, X, Upload, CheckCircle } from "lucide-react";
+import { Edit2, Trash2, X, Eye, Image, Calendar } from "lucide-react";
 
 export default function AllSlidesTable() {
   const [slides, setSlides] = useState([
-    { id: 1, title: "Summer Campaign 2024", image: "slide1.jpg", order: 1, status: "Active", views: 1250 },
-    { id: 2, title: "New Product Launch", image: "slide2.jpg", order: 2, status: "Active", views: 980 },
-    { id: 3, title: "Special Offer Banner", image: "slide3.jpg", order: 3, status: "Inactive", views: 750 },
-    { id: 4, title: "Partnership Announcement", image: "slide4.jpg", order: 4, status: "Active", views: 650 },
-    { id: 5, title: "Festival Sale", image: "slide5.jpg", order: 5, status: "Active", views: 1500 },
+    { 
+      id: 1, 
+      title: "Zero Fee Demat Account", 
+      image: "https://picsum.photos/280/160?random=1", 
+      category: "Demat Account",
+      order: 1, 
+      status: "Active", 
+      views: 1250,
+      dateCreated: "2024-06-15",
+      description: "Officia sunt laboris elit fugiat adipisicing ex ea nulla aute duis occaecat dolore id et ess"
+    },
+    { 
+      id: 2, 
+      title: "Offer Slide 1", 
+      image: "https://picsum.photos/280/160?random=2", 
+      category: "Demat Account",
+      order: 2, 
+      status: "Active", 
+      views: 980,
+      dateCreated: "2024-07-20",
+      description: "Officia sunt laboris elit fugiat adipisicing ex ea nulla aute duis occaecat dolore id et ess"
+    },
+    { 
+      id: 3, 
+      title: "Offer Slide 2", 
+      image: "https://picsum.photos/280/160?random=3", 
+      category: "Demat Account",
+      order: 3, 
+      status: "Active", 
+      views: 750,
+      dateCreated: "2024-08-10",
+      description: "Officia sunt laboris elit fugiat adipisicing ex ea nulla aute duis occaecat dolore id et ess"
+    },
+    { 
+      id: 4, 
+      title: "Offer Slide 3", 
+      image: "https://picsum.photos/280/160?random=4", 
+      category: "Demat Account",
+      order: 4, 
+      status: "Active", 
+      views: 650,
+      dateCreated: "2024-09-05",
+      description: "Officia sunt laboris elit fugiat adipisicing ex ea nulla aute duis occaecat dolore id et ess"
+    },
+    { 
+      id: 5, 
+      title: "Special Promotion", 
+      image: "https://picsum.photos/280/160?random=5", 
+      category: "Investment",
+      order: 5, 
+      status: "Inactive", 
+      views: 1500,
+      dateCreated: "2024-10-01",
+      description: "Officia sunt laboris elit fugiat adipisicing ex ea nulla aute duis occaecat dolore id et ess"
+    },
   ]);
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [selectedSlide, setSelectedSlide] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     image: "",
+    category: "",
     order: "",
     status: "Active"
   });
@@ -28,6 +78,7 @@ export default function AllSlidesTable() {
     setFormData({
       title: slide.title,
       image: slide.image,
+      category: slide.category,
       order: slide.order,
       status: slide.status
     });
@@ -37,16 +88,6 @@ export default function AllSlidesTable() {
   const handleDelete = (slide) => {
     setSelectedSlide(slide);
     setShowDeleteModal(true);
-  };
-
-  const handleAddNew = () => {
-    setFormData({
-      title: "",
-      image: "",
-      order: slides.length + 1,
-      status: "Active"
-    });
-    setShowAddModal(true);
   };
 
   const confirmEdit = () => {
@@ -69,160 +110,95 @@ export default function AllSlidesTable() {
     setTimeout(() => setShowSuccessAlert(false), 3000);
   };
 
-  const confirmAdd = () => {
-    const newSlide = {
-      id: slides.length + 1,
-      ...formData,
-      views: 0
-    };
-    setSlides([...slides, newSlide]);
-    setShowAddModal(false);
-    setAlertMessage(`Slide "${formData.title}" added successfully!`);
-    setShowSuccessAlert(true);
-    setTimeout(() => setShowSuccessAlert(false), 3000);
-  };
-
   return (
-    <div className="p-6">
+    <div className="h-full flex flex-col p-4 sm:p-6">
       {/* Success Alert */}
       {showSuccessAlert && (
         <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-slide-in">
-          <CheckCircle className="w-5 h-5" />
-          <span className="font-semibold whitespace-nowrap">{alertMessage}</span>
+          <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
+            <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+            </svg>
+          </div>
+          <span className="font-semibold">{alertMessage}</span>
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-foreground whitespace-nowrap">All Slides</h2>
-        <button 
-          onClick={handleAddNew}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors whitespace-nowrap"
-        >
-          Add New Slide
-        </button>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground mb-1">Slide Board</h1>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search category..."
+              className="pl-10 pr-4 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary w-64"
+            />
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
       </div>
 
-      <div className="bg-card rounded-lg border border-border overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-muted">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Image</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Order</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Views</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {slides.map((slide) => (
-              <tr key={slide.id} className="hover:bg-muted/50">
-                <td className="px-6 py-4 text-sm text-foreground whitespace-nowrap">{slide.id}</td>
-                <td className="px-6 py-4 text-sm font-medium text-foreground whitespace-nowrap">{slide.title}</td>
-                <td className="px-6 py-4 text-sm text-foreground whitespace-nowrap">{slide.image}</td>
-                <td className="px-6 py-4 text-sm text-foreground whitespace-nowrap">{slide.order}</td>
-                <td className="px-6 py-4 text-sm whitespace-nowrap">
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-                    slide.status === 'Active' 
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                  }`}>
-                    {slide.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm text-foreground whitespace-nowrap">{slide.views}</td>
-                <td className="px-6 py-4 text-sm whitespace-nowrap">
+      {/* Cards Grid */}
+      <div className="flex-1 overflow-y-auto scrollbar-custom">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {slides.map((slide) => (
+            <div key={slide.id} className="bg-white dark:bg-card rounded-lg border border-gray-200 dark:border-border overflow-hidden hover:shadow-lg transition-all duration-200">
+              {/* Slide Image */}
+              <div className="relative">
+                <img 
+                  src={slide.image} 
+                  alt={slide.title}
+                  className="w-full h-32 object-cover"
+                  onError={(e) => {
+                    e.target.src = `https://via.placeholder.com/280x160/e2e8f0/64748b?text=${encodeURIComponent(slide.title)}`;
+                  }}
+                />
+              </div>
+
+              {/* Card Content */}
+              <div className="p-4">
+                {/* Title */}
+                <h3 className="text-base font-semibold text-gray-900 dark:text-foreground mb-1">
+                  {slide.title}
+                </h3>
+                
+                {/* Category */}
+                <p className="text-sm text-gray-500 dark:text-muted-foreground mb-2">
+                  {slide.category}
+                </p>
+
+                {/* Description */}
+                <p className="text-sm text-gray-600 dark:text-muted-foreground leading-relaxed mb-4 line-clamp-3">
+                  {slide.description}
+                </p>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2">
                   <button 
                     onClick={() => handleEdit(slide)}
-                    className="text-primary hover:text-primary/80 mr-3 whitespace-nowrap inline-flex items-center gap-1"
+                    className="flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors text-xs font-medium"
                   >
-                    <Edit2 className="w-4 h-4" />
+                    <Edit2 className="w-3 h-3" />
                     Edit
                   </button>
                   <button 
                     onClick={() => handleDelete(slide)}
-                    className="text-destructive hover:text-destructive/80 whitespace-nowrap inline-flex items-center gap-1"
+                    className="flex items-center justify-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 rounded-md hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors text-xs font-medium"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3 h-3" />
                     Delete
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Add Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-lg border border-border p-6 max-w-md w-full">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-foreground whitespace-nowrap">Add New Slide</h3>
-              <button onClick={() => setShowAddModal(false)} className="text-muted-foreground hover:text-foreground">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1 whitespace-nowrap">Title</label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground text-sm"
-                  placeholder="Enter slide title"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1 whitespace-nowrap">Image File</label>
-                <input
-                  type="text"
-                  value={formData.image}
-                  onChange={(e) => setFormData({...formData, image: e.target.value})}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground text-sm"
-                  placeholder="image.jpg"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1 whitespace-nowrap">Display Order</label>
-                <input
-                  type="number"
-                  value={formData.order}
-                  onChange={(e) => setFormData({...formData, order: parseInt(e.target.value)})}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1 whitespace-nowrap">Status</label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({...formData, status: e.target.value})}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground text-sm"
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
+                </div>
               </div>
             </div>
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/80 transition-colors text-sm font-semibold whitespace-nowrap"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmAdd}
-                className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-semibold whitespace-nowrap"
-              >
-                Add Slide
-              </button>
-            </div>
-          </div>
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Edit Modal */}
       {showEditModal && (
@@ -245,7 +221,16 @@ export default function AllSlidesTable() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1 whitespace-nowrap">Image File</label>
+                <label className="block text-sm font-medium text-foreground mb-1 whitespace-nowrap">Category</label>
+                <input
+                  type="text"
+                  value={formData.category}
+                  onChange={(e) => setFormData({...formData, category: e.target.value})}
+                  className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1 whitespace-nowrap">Image URL</label>
                 <input
                   type="text"
                   value={formData.image}
