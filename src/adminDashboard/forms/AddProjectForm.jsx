@@ -178,7 +178,7 @@ export default function AddProjectForm() {
           </button>
           <button
             type="button"
-            className="w-full sm:w-auto px-6 py-2 text-sm bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors whitespace-nowrap"
+            className="w-full sm:w-auto px-6 py-2 text-sm bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/80 transition-colors whitespace-nowrap"
           >
             Cancel
           </button>

@@ -89,10 +89,10 @@ export default function OtpVerification() {
     setTimeout(() => {
       // Route to correct dashboard based on user type
       if (userType === "admin") {
-        console.log("🚀 Navigating to /admin/dashboard");
-        navigate("/admin/dashboard");
+        console.log("🚀 Navigating to /admin");
+        navigate("/admin");
       } else if (userType === "user") {
-        console.log("🚀 Navigating to /user/dashboard");
+        console.log("🚀 Navigating to /user");
         navigate("/user");
       }
     }, 100);

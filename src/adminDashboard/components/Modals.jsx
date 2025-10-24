@@ -19,7 +19,7 @@ export function DeleteModal({ isOpen, onClose, onConfirm, itemName, itemType = "
           <button onClick={onConfirm} className="flex-1 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 whitespace-nowrap">
             Delete
           </button>
-          <button onClick={onClose} className="flex-1 px-4 py-2 bg-muted text-foreground text-sm rounded-lg hover:bg-muted/80 whitespace-nowrap">
+          <button onClick={onClose} className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-lg hover:bg-destructive/80 whitespace-nowrap">
             Cancel
           </button>
         </div>
@@ -45,7 +45,7 @@ export function EditModal({ isOpen, onClose, onConfirm, title, children }) {
           <button onClick={onConfirm} className="flex-1 px-4 py-2 bg-primary text-primary-foreground text-sm rounded-lg hover:bg-primary/90 whitespace-nowrap">
             Save Changes
           </button>
-          <button onClick={onClose} className="flex-1 px-4 py-2 bg-muted text-foreground text-sm rounded-lg hover:bg-muted/80 whitespace-nowrap">
+          <button onClick={onClose} className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-lg hover:bg-destructive/80 whitespace-nowrap">
             Cancel
           </button>
         </div>
@@ -77,7 +77,7 @@ export function ConfirmModal({ isOpen, onClose, onConfirm, title, message, confi
           <button onClick={onConfirm} className={`flex-1 px-4 py-2 text-sm rounded-lg whitespace-nowrap ${colorClasses[confirmColor]}`}>
             {confirmText}
           </button>
-          <button onClick={onClose} className="flex-1 px-4 py-2 bg-muted text-foreground text-sm rounded-lg hover:bg-muted/80 whitespace-nowrap">
+          <button onClick={onClose} className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-lg hover:bg-destructive/80 whitespace-nowrap">
             Cancel
           </button>
         </div>

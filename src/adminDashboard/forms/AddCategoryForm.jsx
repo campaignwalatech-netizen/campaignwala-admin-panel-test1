@@ -190,7 +190,7 @@ export default function AddCategoryForm() {
           </button>
           <button
             type="button"
-            className="px-6 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
+            className="px-6 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/80 transition-colors"
           >
             Cancel
           </button>

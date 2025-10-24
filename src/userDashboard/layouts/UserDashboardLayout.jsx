@@ -29,7 +29,7 @@ function UserDashboardLayout({ darkMode, setDarkMode }) {
           setDarkMode={setDarkMode}
           toggleSidebar={toggleSidebar}
         />
-        <main className="p-6 min-h-screen">
+        <main className="p-4 min-h-screen pt-20">
           <Outlet /> {/* ✅ Always render Outlet - it handles all child routes including index */}
         </main>
         <Footer darkMode={darkMode} />

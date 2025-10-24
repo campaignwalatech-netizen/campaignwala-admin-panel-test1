@@ -209,7 +209,7 @@ export default function AllSlidesTable() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowAddModal(false)}
-                className="flex-1 px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors text-sm font-semibold whitespace-nowrap"
+                className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/80 transition-colors text-sm font-semibold whitespace-nowrap"
               >
                 Cancel
               </button>
@@ -277,7 +277,7 @@ export default function AllSlidesTable() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowEditModal(false)}
-                className="flex-1 px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors text-sm font-semibold whitespace-nowrap"
+                className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/80 transition-colors text-sm font-semibold whitespace-nowrap"
               >
                 Cancel
               </button>
@@ -308,7 +308,7 @@ export default function AllSlidesTable() {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="flex-1 px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors text-sm font-semibold whitespace-nowrap"
+                className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/80 transition-colors text-sm font-semibold whitespace-nowrap"
               >
                 Cancel
               </button>

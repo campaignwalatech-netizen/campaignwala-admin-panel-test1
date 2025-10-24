@@ -50,12 +50,12 @@ export const loginUser = createAsyncThunk(
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Simple credential check - replace with actual API call
-      if (credentials.email === 'admin@test.com' && credentials.password === 'admin123') {
+      if (credentials.phoneNumber === '9876543210' && credentials.password === 'admin123') {
         const response = {
           user: {
             id: 1,
             name: 'Admin User',
-            email: 'admin@test.com',
+            phoneNumber: '9876543210',
             role: 'admin'
           },
           accessToken: 'admin-token-123',
@@ -69,12 +69,12 @@ export const loginUser = createAsyncThunk(
         localStorage.setItem('user', JSON.stringify(response.user));
         
         return response;
-      } else if (credentials.email === 'user@test.com' && credentials.password === 'user123') {
+      } else if (credentials.phoneNumber === '9876543211' && credentials.password === 'user123') {
         const response = {
           user: {
             id: 2,
             name: 'Regular User',
-            email: 'user@test.com',
+            phoneNumber: '9876543211',
             role: 'user'
           },
           accessToken: 'user-token-123',

@@ -236,7 +236,7 @@ export const endpoints = {
   
   // User endpoints
   user: {
-    dashboard: '/user/dashboard',
+    dashboard: '/user',
     profile: '/user/profile',
     leads: '/user/leads',
     attendance: '/user/attendance',

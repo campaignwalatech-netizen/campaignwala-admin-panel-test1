@@ -2,6 +2,7 @@ import {
   LayoutDashboard, Users, Package, Users2, MoreVertical, Database, Menu, X, Grid, ChevronDown, ChevronRight
 } from "lucide-react";
 import { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 
 const menuItems = [
   {
@@ -74,13 +75,15 @@ const menuItems = [
       { key: "reset-password", label: "Reset User Password", icon: MoreVertical },
       { key: "admin-logs", label: "Admin Activity Logs", icon: MoreVertical },
       { key: "user-queries", label: "User Queries", icon: MoreVertical },
+      { key: "kyc-review", label: "KYC Review", icon: MoreVertical },
     ]
   }
 ];
 
-export default function Sidebar({ onMenuSelect, activeKey }) {
+export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({});
+  const location = useLocation();
 
   const toggleMenu = (menuId) => {
     setExpandedMenus(prev => ({
@@ -89,14 +92,11 @@ export default function Sidebar({ onMenuSelect, activeKey }) {
     }));
   };
 
-  const handleMenuClick = (item, subItem = null) => {
-    const key = subItem ? subItem.key : item.key;
-    if (key) {
-      onMenuSelect(key);
+  const isActive = (path) => {
+    if (path === 'manage-account') {
+      return location.pathname === '/admin' || location.pathname === '/admin/' || location.pathname === '/admin/manage-account';
     }
-    if (!subItem && !item.submenu) {
-      setIsOpen(false);
-    }
+    return location.pathname === `/admin/${path}`;
   };
 
   return (
@@ -144,17 +144,23 @@ export default function Sidebar({ onMenuSelect, activeKey }) {
                       )}
                     </button>
                   ) : (
-                    <button
-                      onClick={() => handleMenuClick(item)}
-                      className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 ${
-                        activeKey === item.key
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-lg border border-sidebar-border/20"
-                          : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/30 hover:translate-x-1"
-                      }`}
+                    <NavLink
+                      to={item.key === 'manage-account' ? '/admin' : `/admin/${item.key}`}
+                      onClick={() => setIsOpen(false)}
+                      className={({ isActive }) => {
+                        const active = item.key === 'manage-account' 
+                          ? (isActive || location.pathname === '/admin' || location.pathname === '/admin/')
+                          : isActive;
+                        return `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 ${
+                          active
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-lg border border-sidebar-border/20"
+                            : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/30 hover:translate-x-1"
+                        }`;
+                      }}
                     >
                       <Icon className="w-5 h-5 flex-shrink-0" />
                       <span className="text-sm font-medium">{item.label}</span>
-                    </button>
+                    </NavLink>
                   )}
                   
                   {hasSubmenu && isExpanded && (
@@ -162,18 +168,24 @@ export default function Sidebar({ onMenuSelect, activeKey }) {
                       {item.submenu.map((subItem) => {
                         const SubIcon = subItem.icon;
                         return (
-                          <button
+                          <NavLink
                             key={subItem.key}
-                            onClick={() => handleMenuClick(item, subItem)}
-                            className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
-                              activeKey === subItem.key
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium shadow-md"
-                                : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/20"
-                            }`}
+                            to={subItem.key === 'all-products' ? '/admin' : `/admin/${subItem.key}`}
+                            onClick={() => setIsOpen(false)}
+                            className={({ isActive }) => {
+                              const active = subItem.key === 'all-products' 
+                                ? (isActive || location.pathname === '/admin' || location.pathname === '/admin/')
+                                : isActive;
+                              return `w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                                active
+                                  ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium shadow-md"
+                                  : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/20"
+                              }`;
+                            }}
                           >
                             <SubIcon className="w-4 h-4 flex-shrink-0" />
                             <span className="font-medium">{subItem.label}</span>
-                          </button>
+                          </NavLink>
                         );
                       })}
                     </div>

@@ -210,7 +210,7 @@ export default function AddSlideForm() {
                   fileInputRef.current.value = '';
                 }
               }}
-              className="px-6 py-2 text-muted-foreground border border-border rounded-lg hover:bg-muted transition-colors"
+              className="px-6 py-2 bg-destructive text-destructive-foreground border border-destructive rounded-lg hover:bg-destructive/80 transition-colors"
             >
               Reset
             </button>

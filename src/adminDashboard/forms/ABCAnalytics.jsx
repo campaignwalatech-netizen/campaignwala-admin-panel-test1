@@ -1,4 +1,4 @@
-import { BarChart3, TrendingUp, Users, DollarSign, Download, Filter, Calendar } from "lucide-react";
+import { BarChart3, TrendingUp, Users, DollarSign, Download, Filter, Calendar, CheckCircle, XCircle, Clock, Ban } from "lucide-react";
 import { useState } from "react";
 
 export default function ABCAnalytics() {
@@ -14,6 +14,13 @@ export default function ABCAnalytics() {
     { label: "Conversion Rate", value: "68%", change: "+5%", icon: TrendingUp, color: "bg-green-500" },
     { label: "Revenue", value: "₹12,50,000", change: "+18%", icon: DollarSign, color: "bg-purple-500" },
     { label: "Active Campaigns", value: "45", change: "+3", icon: BarChart3, color: "bg-orange-500" },
+  ];
+
+  const statusStats = [
+    { label: "Approved", value: "856", change: "+8%", icon: CheckCircle, color: "bg-green-500" },
+    { label: "Pending", value: "234", change: "-2%", icon: Clock, color: "bg-yellow-500" },
+    { label: "Rejected", value: "89", change: "+5%", icon: XCircle, color: "bg-red-500" },
+    { label: "Cancelled", value: "55", change: "-10%", icon: Ban, color: "bg-gray-500" },
   ];
 
   const leadData = [
@@ -60,7 +67,7 @@ export default function ABCAnalytics() {
 
       {/* Content with scroll */}
       <div className="flex-1 overflow-y-auto scrollbar-custom min-h-0 space-y-4">
-      {/* Stats Grid */}
+      {/* Main Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
@@ -70,13 +77,35 @@ export default function ABCAnalytics() {
                 <div className={`${stat.color} w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center`}>
                   <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <span className="text-xs sm:text-sm font-semibold text-green-600 whitespace-nowrap">{stat.change}</span>
+                <span className={`text-xs sm:text-sm font-semibold whitespace-nowrap ${stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>{stat.change}</span>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-1 whitespace-nowrap">{stat.value}</h3>
               <p className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">{stat.label}</p>
             </div>
           );
         })}
+      </div>
+
+      {/* Status Stats Grid */}
+      <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
+        <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4">Project Status Overview</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {statusStats.map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <div key={index} className="bg-background rounded-lg border border-border p-4 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between mb-3">
+                  <div className={`${stat.color} w-10 h-10 rounded-lg flex items-center justify-center`}>
+                    <Icon className="w-5 h-5 text-white" />
+                  </div>
+                  <span className={`text-xs font-semibold whitespace-nowrap ${stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>{stat.change}</span>
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-1 whitespace-nowrap">{stat.value}</h3>
+                <p className="text-xs text-muted-foreground whitespace-nowrap">{stat.label}</p>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Lead Performance Table */}
