@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Download, Search, Filter } from "lucide-react";
 
 export default function ResetPasswordForm() {
   const [formData, setFormData] = useState({
@@ -9,8 +8,6 @@ export default function ResetPasswordForm() {
     confirmPassword: "",
     otp: ""
   });
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("all");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -30,57 +27,14 @@ export default function ResetPasswordForm() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleExport = () => {
-    console.log("Exporting data...");
-    alert("Export functionality will be implemented soon!");
-  };
-
   return (
     <div className="h-full flex flex-col p-3 sm:p-4">
-      {/* Header with Title, Filters and Export */}
-      <div className="mb-2">
-        <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Reset User Password</h2>
-        
-        {/* Filters and Export in one line */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Search */}
-          <div className="relative flex-1 min-w-[200px] max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search users..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          {/* Filter */}
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="pl-9 pr-8 py-2 text-sm bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
-            >
-              <option value="all">All Users</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-
-          {/* Export Button */}
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold whitespace-nowrap"
-          >
-            <Download className="w-4 h-4" />
-            Export
-          </button>
-        </div>
+      {/* Header with Title */}
+      <div className="mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground">Reset User Password</h2>
       </div>
       
-      {/* Form with scroll */}
+      {/* Form */}
       <div className="flex-1 overflow-y-auto scrollbar-custom min-h-0">
       <form onSubmit={handleSubmit} className="bg-card rounded-lg border border-border p-4 sm:p-6 max-w-2xl">
         <div className="space-y-4">

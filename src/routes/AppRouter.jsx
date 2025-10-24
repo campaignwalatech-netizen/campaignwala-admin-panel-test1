@@ -92,22 +92,22 @@ export default function AppRouter() {
             </RoleBasedRoute>
           }
         >
-          {/* Default route */}
-          <Route index element={<AllProductsTable />} />
+          {/* Default route - redirect to all-products */}
+          <Route index element={<Navigate to="all-products" replace />} />
           
           {/* Manage Account routes */}
-          <Route path="manage-account" element={<AllProductsTable />} />
+          <Route path="manage-account" element={<Navigate to="all-products" replace />} />
           <Route path="all-products" element={<AllProductsTable />} />
           <Route path="add-project" element={<AddProjectForm />} />
           <Route path="approve-project" element={<ApproveProjectTable />} />
           
           {/* Manage Category routes */}
-          <Route path="manage-category" element={<AllCategoriesTable />} />
+          <Route path="manage-category" element={<Navigate to="all-categories" replace />} />
           <Route path="all-categories" element={<AllCategoriesTable />} />
           <Route path="add-category" element={<AddCategoryForm />} />
           
           {/* Leads routes */}
-          <Route path="leads" element={<ABCAnalytics />} />
+          <Route path="leads" element={<Navigate to="abc-analytics" replace />} />
           <Route path="abc-analytics" element={<ABCAnalytics />} />
           <Route path="leads-pending" element={<LeadsTable status="pending" />} />
           <Route path="leads-approved" element={<LeadsTable status="approved" />} />
@@ -115,13 +115,13 @@ export default function AppRouter() {
           <Route path="leads-rejected" element={<LeadsTable status="rejected" />} />
           
           {/* User Management routes */}
-          <Route path="user-management" element={<UsersTable userType="active" />} />
+          <Route path="user-management" element={<Navigate to="all-active-users" replace />} />
           <Route path="all-active-users" element={<UsersTable userType="active" />} />
           <Route path="all-hold-users" element={<UsersTable userType="hold" />} />
           <Route path="all-ex-users" element={<UsersTable userType="ex" />} />
           
           {/* Slide Board routes */}
-          <Route path="slideboard" element={<AllSlidesTable />} />
+          <Route path="slideboard" element={<Navigate to="all-slides" replace />} />
           <Route path="all-slides" element={<AllSlidesTable />} />
           <Route path="add-slide" element={<AddSlideForm />} />
           

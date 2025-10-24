@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Users, Package, Users2, MoreVertical, Database, Menu, X, Grid, ChevronDown, ChevronRight
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 
 const menuItems = [
@@ -82,8 +82,30 @@ const menuItems = [
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [expandedMenus, setExpandedMenus] = useState({});
   const location = useLocation();
+  
+  // Auto-expand parent menus based on current route
+  const getExpandedMenus = () => {
+    const expanded = {};
+    menuItems.forEach(item => {
+      if (item.submenu) {
+        const hasActiveSubmenu = item.submenu.some(subItem => 
+          location.pathname === `/admin/${subItem.key}`
+        );
+        if (hasActiveSubmenu) {
+          expanded[item.id] = true;
+        }
+      }
+    });
+    return expanded;
+  };
+
+  const [expandedMenus, setExpandedMenus] = useState(getExpandedMenus());
+
+  // Update expanded menus when location changes
+  useEffect(() => {
+    setExpandedMenus(prev => ({ ...prev, ...getExpandedMenus() }));
+  }, [location.pathname]);
 
   const toggleMenu = (menuId) => {
     setExpandedMenus(prev => ({
@@ -93,9 +115,7 @@ export default function Sidebar() {
   };
 
   const isActive = (path) => {
-    if (path === 'manage-account') {
-      return location.pathname === '/admin' || location.pathname === '/admin/' || location.pathname === '/admin/manage-account';
-    }
+    // Only highlight exact route matches, no default selections
     return location.pathname === `/admin/${path}`;
   };
 
@@ -145,14 +165,11 @@ export default function Sidebar() {
                     </button>
                   ) : (
                     <NavLink
-                      to={item.key === 'manage-account' ? '/admin' : `/admin/${item.key}`}
+                      to={`/admin/${item.key}`}
                       onClick={() => setIsOpen(false)}
                       className={({ isActive }) => {
-                        const active = item.key === 'manage-account' 
-                          ? (isActive || location.pathname === '/admin' || location.pathname === '/admin/')
-                          : isActive;
                         return `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 ${
-                          active
+                          isActive
                             ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-lg border border-sidebar-border/20"
                             : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/30 hover:translate-x-1"
                         }`;
@@ -170,14 +187,11 @@ export default function Sidebar() {
                         return (
                           <NavLink
                             key={subItem.key}
-                            to={subItem.key === 'all-products' ? '/admin' : `/admin/${subItem.key}`}
+                            to={`/admin/${subItem.key}`}
                             onClick={() => setIsOpen(false)}
                             className={({ isActive }) => {
-                              const active = subItem.key === 'all-products' 
-                                ? (isActive || location.pathname === '/admin' || location.pathname === '/admin/')
-                                : isActive;
                               return `w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
-                                active
+                                isActive
                                   ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium shadow-md"
                                   : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/20"
                               }`;

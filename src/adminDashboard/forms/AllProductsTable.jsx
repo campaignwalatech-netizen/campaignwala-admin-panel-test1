@@ -162,7 +162,13 @@ export default function AllProductsTable() {
         {/* Export Button */}
         <button
           onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold whitespace-nowrap"
+          className="flex items-center gap-2 px-4 py-2 text-sm text-white rounded-lg transition-all duration-200 font-semibold whitespace-nowrap shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+          style={{ 
+            backgroundColor: '#4406CB',
+            borderColor: '#4406CB'
+          }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#3905B8'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#4406CB'}
         >
           <Download className="w-4 h-4" />
           Export
