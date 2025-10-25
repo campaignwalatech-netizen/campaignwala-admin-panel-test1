@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import authService from '../../services/authService';
 
 // Define user roles
 export const USER_ROLES = {
@@ -7,92 +8,111 @@ export const USER_ROLES = {
   GUEST: 'guest'
 };
 
-// Simple register async thunk
+// Send OTP async thunk
+export const sendOTP = createAsyncThunk(
+  'auth/sendOTP',
+  async (phoneNumber, { rejectWithValue }) => {
+    try {
+      console.log('🔵 Redux sendOTP thunk called with:', phoneNumber);
+      const response = await authService.sendOTP({ phoneNumber });
+      console.log('✅ Redux sendOTP response:', response);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Redux sendOTP error:', error);
+      return rejectWithValue(error.message || 'Failed to send OTP');
+    }
+  }
+);
+
+// Verify OTP async thunk
+export const verifyOTP = createAsyncThunk(
+  'auth/verifyOTP',
+  async ({ phoneNumber, otp }, { rejectWithValue }) => {
+    try {
+      const response = await authService.verifyOTP({ phoneNumber, otp });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to verify OTP');
+    }
+  }
+);
+
+// Register user async thunk
+// Register user async thunk
 export const registerUser = createAsyncThunk(
   'auth/register',
-  async (userData, { rejectWithValue }) => {
+  async ({ phoneNumber, otp, name, email, password }, { rejectWithValue }) => {
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // For demo purposes, create a new user account and auto-login
-      const response = {
-        user: {
-          id: Date.now(), // Simple ID generation
-          name: userData.name,
-          email: userData.email,
-          phone: userData.phone,
-          role: 'user' // New users default to 'user' role
-        },
-        accessToken: `user-token-${Date.now()}`,
-        refreshToken: `user-refresh-${Date.now()}`
-      };
+      // Send all fields to backend
+      const response = await authService.register({ 
+        phoneNumber, 
+        otp, 
+        name, 
+        email, 
+        password 
+      });
       
       // Store in localStorage
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userType', 'user');
-      localStorage.setItem('accessToken', response.accessToken);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      if (response.success && response.data) {
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userType', response.data.user.role);
+        localStorage.setItem('accessToken', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem('userPhone', response.data.user.phoneNumber);
+      }
       
-      return response;
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.message || 'Registration failed');
     }
   }
 );
 
-// Simple login async thunk - simulate API call for now
+// Login user async thunk
 export const loginUser = createAsyncThunk(
   'auth/login',
-  async (credentials, { rejectWithValue }) => {
+  async ({ phoneNumber, password }, { rejectWithValue }) => {
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await authService.login({ phoneNumber, password });
       
-      // Simple credential check - replace with actual API call
-      if (credentials.phoneNumber === '9876543210' && credentials.password === 'admin123') {
-        const response = {
-          user: {
-            id: 1,
-            name: 'Admin User',
-            phoneNumber: '9876543210',
-            role: 'admin'
-          },
-          accessToken: 'admin-token-123',
-          refreshToken: 'admin-refresh-123'
-        };
-        
-        // Store in localStorage
+      // Store in localStorage
+      if (response.success && response.data) {
         localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userType', 'admin');
-        localStorage.setItem('accessToken', response.accessToken);
-        localStorage.setItem('user', JSON.stringify(response.user));
-        
-        return response;
-      } else if (credentials.phoneNumber === '9876543211' && credentials.password === 'user123') {
-        const response = {
-          user: {
-            id: 2,
-            name: 'Regular User',
-            phoneNumber: '9876543211',
-            role: 'user'
-          },
-          accessToken: 'user-token-123',
-          refreshToken: 'user-refresh-123'
-        };
-        
-        // Store in localStorage
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userType', 'user');
-        localStorage.setItem('accessToken', response.accessToken);
-        localStorage.setItem('user', JSON.stringify(response.user));
-        
-        return response;
-      } else {
-        throw new Error('Invalid credentials');
+        localStorage.setItem('userType', response.data.user.role);
+        localStorage.setItem('accessToken', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem('userPhone', response.data.user.phoneNumber);
       }
+      
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.message || 'Login failed');
+    }
+  }
+);
+
+// Forgot password async thunk
+export const forgotPassword = createAsyncThunk(
+  'auth/forgotPassword',
+  async (phoneNumber, { rejectWithValue }) => {
+    try {
+      const response = await authService.forgotPassword({ phoneNumber });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to send reset OTP');
+    }
+  }
+);
+
+// Reset password async thunk
+export const resetPassword = createAsyncThunk(
+  'auth/resetPassword',
+  async ({ phoneNumber, otp, newPassword }, { rejectWithValue }) => {
+    try {
+      const response = await authService.resetPassword({ phoneNumber, otp, newPassword });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to reset password');
     }
   }
 );
@@ -102,13 +122,7 @@ export const logoutUser = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
-      // Clear localStorage
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('userType');
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-      
+      await authService.logout();
       return true;
     } catch (error) {
       return rejectWithValue(error.message || 'Logout failed');
@@ -147,6 +161,34 @@ const authSlice = createSlice({
   
   extraReducers: (builder) => {
     builder
+      // Send OTP cases
+      .addCase(sendOTP.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(sendOTP.fulfilled, (state) => {
+        state.status = 'succeeded';
+        state.error = null;
+      })
+      .addCase(sendOTP.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      
+      // Verify OTP cases
+      .addCase(verifyOTP.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(verifyOTP.fulfilled, (state) => {
+        state.status = 'succeeded';
+        state.error = null;
+      })
+      .addCase(verifyOTP.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      
       // Register cases
       .addCase(registerUser.pending, (state) => {
         state.status = 'loading';
@@ -156,7 +198,7 @@ const authSlice = createSlice({
         state.status = 'succeeded';
         state.isAuthenticated = true;
         state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
+        state.accessToken = action.payload.token;
         state.role = action.payload.user.role;
         state.error = null;
       })
@@ -178,7 +220,7 @@ const authSlice = createSlice({
         state.status = 'succeeded';
         state.isAuthenticated = true;
         state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
+        state.accessToken = action.payload.token;
         state.role = action.payload.user.role;
         state.error = null;
       })
@@ -189,6 +231,34 @@ const authSlice = createSlice({
         state.user = null;
         state.accessToken = null;
         state.role = USER_ROLES.GUEST;
+      })
+      
+      // Forgot password cases
+      .addCase(forgotPassword.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state) => {
+        state.status = 'succeeded';
+        state.error = null;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      
+      // Reset password cases
+      .addCase(resetPassword.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.status = 'succeeded';
+        state.error = null;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
       })
       
       // Logout cases

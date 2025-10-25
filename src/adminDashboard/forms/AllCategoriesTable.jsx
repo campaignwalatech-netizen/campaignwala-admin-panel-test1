@@ -92,7 +92,6 @@ export default function AllCategoriesTable() {
       const csvData = categories.map(cat => ({
         Name: cat.name,
         Description: cat.description,
-        'Earn Upto': cat.earnUpto,
         Count: cat.count,
         Status: cat.status,
         Created: new Date(cat.createdAt).toLocaleDateString()
@@ -196,8 +195,7 @@ export default function AllCategoriesTable() {
                       {category.status.charAt(0).toUpperCase() + category.status.slice(1)}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-2 break-words">{category.description}</p>
-                  <p className="text-sm text-green-600 font-semibold mb-4">Earn Upto: {category.earnUpto}</p>
+                  <p className="text-sm text-muted-foreground mb-4 break-words">{category.description}</p>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-foreground whitespace-nowrap">
                       <span className="font-bold">{category.count}</span> Offers
