@@ -48,13 +48,16 @@ export default function AllOffersTable() {
       setError(null);
       
       const params = {
-        status: filterStatus,
         search: searchTerm,
         page: 1,
         limit: 100,
         sortBy: 'createdAt',
         order: 'desc'
       };
+
+      if (filterStatus !== 'all') {
+        params.isApproved = filterStatus;
+      }
 
       const response = await getAllOffers(params);
       
@@ -140,7 +143,7 @@ export default function AllOffersTable() {
         'Latest Stage': offer.latestStage,
         'Commission 1': offer.commission1,
         'Commission 2': offer.commission2,
-        Status: offer.status,
+        'Approved': offer.isApproved ? 'Yes' : 'No',
         Created: new Date(offer.createdAt).toLocaleDateString()
       }));
 
@@ -207,12 +210,9 @@ export default function AllOffersTable() {
             onChange={(e) => setFilterStatus(e.target.value)}
             className="pl-9 pr-8 py-2 text-sm bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
           >
-            <option value="all">All Status</option>
-            <option value="Active">Active</option>
-            <option value="Hold">Hold</option>
-            <option value="Pending">Pending</option>
-            <option value="Completed">Completed</option>
-            <option value="Rejected">Rejected</option>
+            <option value="all">All Offers</option>
+            <option value="true">Approved</option>
+            <option value="false">Pending Approval</option>
           </select>
         </div>
 
@@ -265,7 +265,7 @@ export default function AllOffersTable() {
                 <th className="px-3 py-2 text-left font-semibold">Latest Stage</th>
                 <th className="px-3 py-2 text-left font-semibold">Commission 1</th>
                 <th className="px-3 py-2 text-left font-semibold">Commission 2</th>
-                <th className="px-3 py-2 text-left font-semibold">Status</th>
+                <th className="px-3 py-2 text-left font-semibold">Approved</th>
                 <th className="px-3 py-2 text-left font-semibold">Link</th>
                 <th className="px-3 py-2 text-left font-semibold">Video</th>
                 <th className="px-3 py-2 text-left font-semibold">Actions</th>
@@ -305,12 +305,9 @@ export default function AllOffersTable() {
                 <td className="px-3 py-2 text-blue-600 font-semibold">{product.commission2}</td>
                 <td className="px-3 py-2">
                   <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                    product.status === 'Active' ? 'bg-green-100 text-green-800' :
-                    product.status === 'Hold' ? 'bg-yellow-100 text-yellow-800' :
-                    product.status === 'Pending' ? 'bg-blue-100 text-blue-800' :
-                    'bg-red-100 text-red-800'
+                    product.isApproved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                   }`}>
-                    {product.status}
+                    {product.isApproved ? 'Approved' : 'Pending'}
                   </span>
                 </td>
                 <td className="px-3 py-2">
@@ -454,28 +451,14 @@ export default function AllOffersTable() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Client Name</label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Link</label>
                   <input
-                    type="text"
-                    value={editForm.clientName || ''}
-                    onChange={(e) => setEditForm({ ...editForm, clientName: e.target.value })}
+                    type="url"
+                    value={editForm.link || ''}
+                    onChange={(e) => setEditForm({ ...editForm, link: e.target.value })}
                     className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="https://example.com"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Status</label>
-                  <select
-                    value={editForm.status || 'Pending'}
-                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Active">Active</option>
-                    <option value="Hold">Hold</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Rejected">Rejected</option>
-                  </select>
                 </div>
 
                 <div>
@@ -493,35 +476,24 @@ export default function AllOffersTable() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Commission 1</label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Commission 1 <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     value={editForm.commission1 || ''}
                     onChange={(e) => setEditForm({ ...editForm, commission1: e.target.value })}
                     className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="e.g., ₹5000"
+                    placeholder="e.g., 10%"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Commission 2</label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Commission 2 <span className="text-gray-400">(optional)</span></label>
                   <input
                     type="text"
                     value={editForm.commission2 || ''}
                     onChange={(e) => setEditForm({ ...editForm, commission2: e.target.value })}
                     className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="e.g., ₹1200"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Link</label>
-                  <input
-                    type="url"
-                    value={editForm.link || ''}
-                    onChange={(e) => setEditForm({ ...editForm, link: e.target.value })}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="https://example.com"
+                    placeholder="e.g., 15%"
                   />
                 </div>
 
@@ -554,6 +526,28 @@ export default function AllOffersTable() {
                     onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                     className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     rows="3"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">Video Link</label>
+                  <input
+                    type="url"
+                    value={editForm.videoLink || ''}
+                    onChange={(e) => setEditForm({ ...editForm, videoLink: e.target.value })}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="https://youtube.com/watch?v=..."
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">Terms and Conditions</label>
+                  <textarea
+                    value={editForm.termsAndConditions || ''}
+                    onChange={(e) => setEditForm({ ...editForm, termsAndConditions: e.target.value })}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    rows="3"
+                    placeholder="Enter terms and conditions..."
                   />
                 </div>
               </div>

@@ -6,15 +6,33 @@ import api from './api';
  */
 class AuthService {
   /**
-   * Login user with credentials
-   * @param {Object} credentials - User login credentials
-   * @param {string} credentials.email - User email or phone
-   * @param {string} credentials.password - User password
-   * @returns {Promise<Object>} - Authentication response
+   * Send OTP to phone number
+   * @param {Object} data - Phone number data
+   * @param {string} data.phoneNumber - User phone number
+   * @returns {Promise<Object>} - OTP response
    */
-  async login(credentials) {
+  async sendOTP(data) {
     try {
-      const response = await api.post('/auth/login', credentials);
+      console.log('🌐 authService.sendOTP called with:', data);
+      const response = await api.post('/users/send-otp', data);
+      console.log('✅ authService.sendOTP response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ authService.sendOTP error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Verify OTP
+   * @param {Object} otpData - OTP verification data
+   * @param {string} otpData.phoneNumber - User phone number
+   * @param {string} otpData.otp - OTP code
+   * @returns {Promise<Object>} - Verification response
+   */
+  async verifyOTP(otpData) {
+    try {
+      const response = await api.post('/users/verify-otp', otpData);
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -24,11 +42,35 @@ class AuthService {
   /**
    * Register new user
    * @param {Object} userData - User registration data
+   * @param {string} userData.phoneNumber - Phone number
+   * @param {string} userData.otp - OTP code
+   * @param {string} userData.name - Full name
+   * @param {string} userData.email - Email address
+   * @param {string} userData.password - Password
    * @returns {Promise<Object>} - Registration response
    */
   async register(userData) {
     try {
-      const response = await api.post('/auth/register', userData);
+      console.log('📤 Sending registration data:', userData);
+      const response = await api.post('/users/register', userData);
+      console.log('✅ Registration response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Registration error:', error.response?.data || error.message);
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Login user with credentials
+   * @param {Object} credentials - User login credentials
+   * @param {string} credentials.phoneNumber - User phone number
+   * @param {string} credentials.password - User password
+   * @returns {Promise<Object>} - Authentication response
+   */
+  async login(credentials) {
+    try {
+      const response = await api.post('/users/login', credentials);
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -36,15 +78,14 @@ class AuthService {
   }
 
   /**
-   * Verify OTP
-   * @param {Object} otpData - OTP verification data
-   * @param {string} otpData.phone - User phone number
-   * @param {string} otpData.otp - OTP code
-   * @returns {Promise<Object>} - Verification response
+   * Request password reset OTP
+   * @param {Object} data - Reset request data
+   * @param {string} data.phoneNumber - User phone number
+   * @returns {Promise<Object>} - Reset request response
    */
-  async verifyOtp(otpData) {
+  async forgotPassword(data) {
     try {
-      const response = await api.post('/auth/verify-otp', otpData);
+      const response = await api.post('/users/forgot-password', data);
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -52,13 +93,16 @@ class AuthService {
   }
 
   /**
-   * Refresh access token
-   * @param {string} refreshToken - Refresh token
-   * @returns {Promise<Object>} - New token response
+   * Reset password with OTP
+   * @param {Object} data - Reset data
+   * @param {string} data.phoneNumber - User phone number
+   * @param {string} data.otp - OTP code
+   * @param {string} data.newPassword - New password
+   * @returns {Promise<Object>} - Reset response
    */
-  async refreshToken(refreshToken) {
+  async resetPassword(data) {
     try {
-      const response = await api.post('/auth/refresh-token', { refreshToken });
+      const response = await api.post('/users/reset-password', data);
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -66,13 +110,12 @@ class AuthService {
   }
 
   /**
-   * Logout user
-   * @param {string} refreshToken - Refresh token to invalidate
-   * @returns {Promise<Object>} - Logout response
+   * Get current user profile
+   * @returns {Promise<Object>} - Profile response
    */
-  async logout(refreshToken) {
+  async getProfile() {
     try {
-      const response = await api.post('/auth/logout', { refreshToken });
+      const response = await api.get('/users/profile');
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -86,7 +129,7 @@ class AuthService {
    */
   async updateProfile(profileData) {
     try {
-      const response = await api.put('/auth/profile', profileData);
+      const response = await api.put('/users/profile', profileData);
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -94,45 +137,15 @@ class AuthService {
   }
 
   /**
-   * Request password reset
-   * @param {string} email - User email
-   * @returns {Promise<Object>} - Reset request response
-   */
-  async forgotPassword(email) {
-    try {
-      const response = await api.post('/auth/forgot-password', { email });
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
-  /**
-   * Reset password with token
-   * @param {Object} resetData - Password reset data
-   * @param {string} resetData.token - Reset token
-   * @param {string} resetData.password - New password
-   * @returns {Promise<Object>} - Reset response
-   */
-  async resetPassword(resetData) {
-    try {
-      const response = await api.post('/auth/reset-password', resetData);
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
-  /**
-   * Change user password
+   * Change password
    * @param {Object} passwordData - Password change data
    * @param {string} passwordData.currentPassword - Current password
    * @param {string} passwordData.newPassword - New password
-   * @returns {Promise<Object>} - Change response
+   * @returns {Promise<Object>} - Change password response
    */
   async changePassword(passwordData) {
     try {
-      const response = await api.put('/auth/change-password', passwordData);
+      const response = await api.post('/users/change-password', passwordData);
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -140,29 +153,18 @@ class AuthService {
   }
 
   /**
-   * Get user profile
-   * @returns {Promise<Object>} - User profile data
+   * Logout user
+   * @returns {Promise<void>}
    */
-  async getProfile() {
-    try {
-      const response = await api.get('/auth/profile');
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
-  /**
-   * Validate current session
-   * @returns {Promise<Object>} - Session validation response
-   */
-  async validateSession() {
-    try {
-      const response = await api.get('/auth/validate-session');
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+  async logout() {
+    // Clear local storage
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userType');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('userPhone');
+    return Promise.resolve();
   }
 
   /**
@@ -173,7 +175,8 @@ class AuthService {
   handleError(error) {
     if (error.response) {
       // Server responded with error status
-      return new Error(error.response.data.message || 'Authentication failed');
+      const message = error.response.data?.message || 'Operation failed';
+      return new Error(message);
     } else if (error.request) {
       // Request made but no response received
       return new Error('Network error. Please check your connection.');
@@ -225,6 +228,7 @@ class AuthService {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+    localStorage.removeItem('userPhone');
   }
 }
 

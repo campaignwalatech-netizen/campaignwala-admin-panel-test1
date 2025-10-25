@@ -8,8 +8,6 @@ export default function AddOffersForm() {
     name: "",
     category: "",
     description: "",
-    clientName: "",
-    status: "Pending",
     commission1: "", // mandatory
     commission1Comment: "", // comment for commission 1
     commission2: "", // optional
@@ -17,11 +15,8 @@ export default function AddOffersForm() {
     link: "",
     image: "",
     video: "",
-    leadId: "",
-    customerContact: "",
-    email: "",
-    company: "",
-    budget: ""
+    videoLink: "",
+    termsAndConditions: ""
   });
 
   const [categories, setCategories] = useState([]);
@@ -81,8 +76,6 @@ export default function AddOffersForm() {
             name: "",
             category: "",
             description: "",
-            clientName: "",
-            status: "Pending",
             commission1: "",
             commission1Comment: "",
             commission2: "",
@@ -90,11 +83,8 @@ export default function AddOffersForm() {
             link: "",
             image: "",
             video: "",
-            leadId: "",
-            customerContact: "",
-            email: "",
-            company: "",
-            budget: ""
+            videoLink: "",
+            termsAndConditions: ""
           });
           setSuccessMessage("");
         }, 2000);
@@ -160,19 +150,6 @@ export default function AddOffersForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Client Name</label>
-            <input
-              type="text"
-              name="clientName"
-              value={formData.clientName}
-              onChange={handleChange}
-              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="Enter client name"
-              required
-            />
-          </div>
-
-          <div>
             <label className="block text-sm font-medium text-foreground mb-2">Category</label>
             <select
               name="category"
@@ -191,83 +168,6 @@ export default function AddOffersForm() {
                 </option>
               ))}
             </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Status</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="Pending">Pending</option>
-              <option value="Active">Active</option>
-              <option value="Hold">Hold</option>
-              <option value="Completed">Completed</option>
-              <option value="Rejected">Rejected</option>
-            </select>
-          </div>
-
-          {/* Lead Information */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Lead ID</label>
-            <input
-              type="text"
-              name="leadId"
-              value={formData.leadId}
-              onChange={handleChange}
-              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="e.g., LEAD001"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Customer Contact</label>
-            <input
-              type="text"
-              name="customerContact"
-              value={formData.customerContact}
-              onChange={handleChange}
-              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="+91 9876543210"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="customer@example.com"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Company</label>
-            <input
-              type="text"
-              name="company"
-              value={formData.company}
-              onChange={handleChange}
-              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="Company name"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Budget (₹)</label>
-            <input
-              type="number"
-              name="budget"
-              value={formData.budget}
-              onChange={handleChange}
-              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="e.g., 50000"
-            />
           </div>
 
           <div>
@@ -355,6 +255,32 @@ export default function AddOffersForm() {
               required
             />
           </div>
+
+          {/* Video Link */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-foreground mb-2">Video Link</label>
+            <input
+              type="url"
+              name="videoLink"
+              value={formData.videoLink}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="https://youtube.com/watch?v=..."
+            />
+          </div>
+
+          {/* Terms and Conditions */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-foreground mb-2">Terms and Conditions</label>
+            <textarea
+              name="termsAndConditions"
+              value={formData.termsAndConditions}
+              onChange={handleChange}
+              rows={4}
+              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="Enter terms and conditions..."
+            />
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6">
@@ -372,8 +298,6 @@ export default function AddOffersForm() {
                 name: "",
                 category: "",
                 description: "",
-                clientName: "",
-                status: "Pending",
                 commission1: "",
                 commission1Comment: "",
                 commission2: "",
@@ -381,11 +305,8 @@ export default function AddOffersForm() {
                 link: "",
                 image: "",
                 video: "",
-                leadId: "",
-                customerContact: "",
-                email: "",
-                company: "",
-                budget: ""
+                videoLink: "",
+                termsAndConditions: ""
               });
               setErrorMessage("");
               setSuccessMessage("");

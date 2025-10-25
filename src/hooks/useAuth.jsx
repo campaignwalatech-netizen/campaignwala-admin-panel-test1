@@ -10,12 +10,16 @@ import {
   loginUser,
   registerUser,
   logoutUser,
+  sendOTP,
+  verifyOTP,
+  forgotPassword,
+  resetPassword,
   clearError
 } from '../redux/slices/authSlice';
 
 /**
- * Simple Auth Hook
- * Provides basic authentication functionality
+ * Auth Hook with Backend Integration
+ * Provides authentication functionality connected to backend APIs
  */
 export const useAuth = () => {
   const dispatch = useDispatch();
@@ -27,6 +31,45 @@ export const useAuth = () => {
   const userRole = useSelector(selectUserRole);
   const error = useSelector(selectAuthError);
   const isLoading = useSelector(selectIsLoading);
+
+  // Send OTP function
+  const requestOTP = useCallback(async (phoneNumber) => {
+    try {
+      console.log('📱 useAuth requestOTP called with:', phoneNumber);
+      const result = await dispatch(sendOTP(phoneNumber)).unwrap();
+      console.log('✅ useAuth requestOTP result:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ useAuth requestOTP error:', error);
+      throw error;
+    }
+  }, [dispatch]);
+
+  // Verify OTP function
+  const verifyOTPCode = useCallback(async (phoneNumber, otp) => {
+    try {
+      const result = await dispatch(verifyOTP({ phoneNumber, otp })).unwrap();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, [dispatch]);
+
+  // Register function
+  const register = useCallback(async ({ phoneNumber, otp, name, email, password }) => {
+    try {
+      console.log('🎯 useAuth register called with:', { phoneNumber, otp, name, email, password: '***' });
+      
+      const result = await dispatch(registerUser({ phoneNumber, otp, name, email, password })).unwrap();
+      
+      // New users are always 'user' role - redirect to user dashboard
+      navigate('/user', { replace: true });
+      
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, [dispatch, navigate]);
 
   // Login function
   const login = useCallback(async (credentials) => {
@@ -46,19 +89,25 @@ export const useAuth = () => {
     }
   }, [dispatch, navigate]);
 
-  // Register function
-  const register = useCallback(async (userData) => {
+  // Forgot password function
+  const requestPasswordReset = useCallback(async (phoneNumber) => {
     try {
-      const result = await dispatch(registerUser(userData)).unwrap();
-      
-      // New users are always 'user' role - redirect to user dashboard
-      navigate('/user', { replace: true });
-      
+      const result = await dispatch(forgotPassword(phoneNumber)).unwrap();
       return result;
     } catch (error) {
       throw error;
     }
-  }, [dispatch, navigate]);
+  }, [dispatch]);
+
+  // Reset password function
+  const resetUserPassword = useCallback(async ({ phoneNumber, otp, newPassword }) => {
+    try {
+      const result = await dispatch(resetPassword({ phoneNumber, otp, newPassword })).unwrap();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, [dispatch]);
 
   // Logout function
   const logout = useCallback(async () => {
@@ -94,6 +143,10 @@ export const useAuth = () => {
     login,
     register,
     logout,
+    requestOTP,
+    verifyOTPCode,
+    requestPasswordReset,
+    resetUserPassword,
     clearAuthError,
 
     // Utilities
