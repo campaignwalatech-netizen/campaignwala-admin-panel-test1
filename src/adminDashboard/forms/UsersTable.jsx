@@ -14,8 +14,8 @@ export default function UsersTable({ userType }) {
     active: [
       { 
         id: 1, 
-        name: "Rahul Verma", 
-        email: "rahul@example.com", 
+        name: "Rajesh Kumar", 
+        email: "rajesh@example.com", 
         phone: "+91 9876543210", 
         status: "Active",
         joinedOn: "2024-01-15",
@@ -24,6 +24,8 @@ export default function UsersTable({ userType }) {
         rejected: 5,
         completed: 28,
         pending: 12,
+        totalEarnings: "₹45,280",
+        totalBalance: "₹38,450",
         currentBalance: "₹15,450"
       },
       { 
@@ -38,6 +40,8 @@ export default function UsersTable({ userType }) {
         rejected: 8,
         completed: 22,
         pending: 8,
+        totalEarnings: "₹32,150",
+        totalBalance: "₹28,300",
         currentBalance: "₹12,300"
       },
       { 
@@ -52,6 +56,8 @@ export default function UsersTable({ userType }) {
         rejected: 3,
         completed: 35,
         pending: 14,
+        totalEarnings: "₹58,920",
+        totalBalance: "₹52,750",
         currentBalance: "₹18,750"
       },
       { 
@@ -66,6 +72,8 @@ export default function UsersTable({ userType }) {
         rejected: 4,
         completed: 18,
         pending: 7,
+        totalEarnings: "₹25,680",
+        totalBalance: "₹21,850",
         currentBalance: "₹9,850"
       },
     ],
@@ -82,6 +90,8 @@ export default function UsersTable({ userType }) {
         rejected: 2,
         completed: 6,
         pending: 5,
+        totalEarnings: "₹12,480",
+        totalBalance: "₹8,200",
         currentBalance: "₹4,200"
       },
       { 
@@ -96,6 +106,8 @@ export default function UsersTable({ userType }) {
         rejected: 3,
         completed: 4,
         pending: 4,
+        totalEarnings: "₹8,750",
+        totalBalance: "₹5,800",
         currentBalance: "₹2,800"
       },
     ],
@@ -112,6 +124,8 @@ export default function UsersTable({ userType }) {
         rejected: 12,
         completed: 58,
         pending: 0,
+        totalEarnings: "₹78,420",
+        totalBalance: "₹68,000",
         currentBalance: "₹0"
       },
       { 
@@ -126,6 +140,8 @@ export default function UsersTable({ userType }) {
         rejected: 7,
         completed: 20,
         pending: 0,
+        totalEarnings: "₹35,680",
+        totalBalance: "₹28,400",
         currentBalance: "₹0"
       },
     ],
@@ -263,6 +279,7 @@ export default function UsersTable({ userType }) {
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Completed</th>
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Pending</th>
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Total Earnings</th>
+              <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Total Balance</th>
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Actions</th>
             </tr>
           </thead>
@@ -332,7 +349,8 @@ export default function UsersTable({ userType }) {
                 <td className="px-3 py-3 text-sm text-red-600 whitespace-nowrap font-semibold">{user.rejected}</td>
                 <td className="px-3 py-3 text-sm text-blue-600 whitespace-nowrap font-semibold">{user.completed}</td>
                 <td className="px-3 py-3 text-sm text-orange-600 whitespace-nowrap font-semibold">{user.pending}</td>
-                <td className="px-3 py-3 text-sm text-foreground whitespace-nowrap font-semibold text-green-600">{user.currentBalance}</td>
+                <td className="px-3 py-3 text-sm text-foreground whitespace-nowrap font-semibold text-green-600">{user.totalEarnings}</td>
+                <td className="px-3 py-3 text-sm text-foreground whitespace-nowrap font-semibold text-blue-600">{user.totalBalance}</td>
                 <td className="px-3 py-3 text-sm whitespace-nowrap">
                   <button 
                     onClick={() => handleViewUser(user)}
