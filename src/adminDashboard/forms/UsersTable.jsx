@@ -147,6 +147,7 @@ export default function UsersTable({ userType }) {
   });
 
   const users = filteredUsers;
+
   const statusColors = {
     active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
     hold: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
@@ -261,7 +262,7 @@ export default function UsersTable({ userType }) {
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Rejected</th>
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Completed</th>
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Pending</th>
-              <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Current Balance</th>
+              <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Total Earnings</th>
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Actions</th>
             </tr>
           </thead>
@@ -393,7 +394,7 @@ export default function UsersTable({ userType }) {
                 <p className="text-sm font-semibold text-green-600">{selectedUser.approved}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Current Balance</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Total Earnings</label>
                 <p className="text-sm font-semibold text-green-600">{selectedUser.currentBalance}</p>
               </div>
             </div>

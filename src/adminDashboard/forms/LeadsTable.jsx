@@ -5,14 +5,14 @@ export default function LeadsTable({ status }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCampaign, setFilterCampaign] = useState("all");
   const [showViewModal, setShowViewModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
 
-  const allLeads = {
+  const [allLeads, setAllLeads] = useState({
     pending: [
       { 
         leadId: "LD001", 
         date: "2024-10-15", 
+        offerName: "Brand Awareness Campaign",
         category: "Digital Marketing", 
         hrName: "Rajesh Kumar", 
         hrContact: "+91 9876543210", 
@@ -24,6 +24,7 @@ export default function LeadsTable({ status }) {
       { 
         leadId: "LD002", 
         date: "2024-10-16", 
+        offerName: "Website Optimization",
         category: "SEO Campaign", 
         hrName: "Priya Sharma", 
         hrContact: "+91 9876543211", 
@@ -35,6 +36,7 @@ export default function LeadsTable({ status }) {
       { 
         leadId: "LD003", 
         date: "2024-10-17", 
+        offerName: "Instagram Growth Package",
         category: "Social Media", 
         hrName: "Amit Patel", 
         hrContact: "+91 9876543212", 
@@ -48,6 +50,7 @@ export default function LeadsTable({ status }) {
       { 
         leadId: "LD004", 
         date: "2024-10-14", 
+        offerName: "Email Newsletter Campaign",
         category: "Email Marketing", 
         hrName: "Sneha Reddy", 
         hrContact: "+91 9876543213", 
@@ -59,6 +62,7 @@ export default function LeadsTable({ status }) {
       { 
         leadId: "LD005", 
         date: "2024-10-13", 
+        offerName: "Blog Content Package",
         category: "Content Creation", 
         hrName: "Vikram Singh", 
         hrContact: "+91 9876543214", 
@@ -72,6 +76,7 @@ export default function LeadsTable({ status }) {
       { 
         leadId: "LD006", 
         date: "2024-10-10", 
+        offerName: "Brand Identity Campaign",
         category: "Brand Awareness", 
         hrName: "Anita Desai", 
         hrContact: "+91 9876543215", 
@@ -83,6 +88,7 @@ export default function LeadsTable({ status }) {
       { 
         leadId: "LD007", 
         date: "2024-10-08", 
+        offerName: "New Product Marketing",
         category: "Product Launch", 
         hrName: "Rohit Mehta", 
         hrContact: "+91 9876543216", 
@@ -96,6 +102,7 @@ export default function LeadsTable({ status }) {
       { 
         leadId: "LD008", 
         date: "2024-10-12", 
+        offerName: "Basic SEO Package",
         category: "SEO Services", 
         hrName: "Kavita Joshi", 
         hrContact: "+91 9876543217", 
@@ -105,12 +112,13 @@ export default function LeadsTable({ status }) {
         status: "rejected" 
       },
     ],
-  };
+  });
 
   // Enhanced filtering logic
   const filteredLeads = (allLeads[status] || []).filter(lead => {
     const matchesSearch = searchTerm === "" || 
       lead.leadId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.offerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lead.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lead.hrName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lead.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -144,9 +152,22 @@ export default function LeadsTable({ status }) {
     setShowViewModal(true);
   };
 
-  const handleEditLead = (lead) => {
-    setSelectedLead(lead);
-    setShowEditModal(true);
+  // Function to approve pending leads
+  const handleApprove = (leadToApprove) => {
+    setAllLeads(prevLeads => {
+      // Remove from pending
+      const updatedPending = prevLeads.pending.filter(lead => lead.leadId !== leadToApprove.leadId);
+      
+      // Add to approved with updated status
+      const approvedLead = { ...leadToApprove, status: "approved" };
+      const updatedApproved = [...prevLeads.approved, approvedLead];
+      
+      return {
+        ...prevLeads,
+        pending: updatedPending,
+        approved: updatedApproved
+      };
+    });
   };
 
   return (
@@ -206,6 +227,7 @@ export default function LeadsTable({ status }) {
             <tr>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Date</th>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Lead ID</th>
+              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Offer Name</th>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Category</th>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">HR Name</th>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">HR Contact</th>
@@ -219,7 +241,7 @@ export default function LeadsTable({ status }) {
           <tbody className="divide-y divide-border">
             {leads.length === 0 ? (
               <tr>
-                <td colSpan={10} className="px-3 sm:px-4 md:px-6 py-6 sm:py-8 text-center text-sm text-muted-foreground">
+                <td colSpan={11} className="px-3 sm:px-4 md:px-6 py-6 sm:py-8 text-center text-sm text-muted-foreground">
                   No {status} leads found
                 </td>
               </tr>
@@ -228,6 +250,7 @@ export default function LeadsTable({ status }) {
                 <tr key={lead.leadId} className="hover:bg-muted/50">
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.date}</td>
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm font-medium text-foreground whitespace-nowrap">{lead.leadId}</td>
+                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm font-medium text-foreground whitespace-nowrap">{lead.offerName}</td>
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.category}</td>
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.hrName}</td>
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.hrContact}</td>
@@ -237,22 +260,26 @@ export default function LeadsTable({ status }) {
                     <span className="text-green-600">{lead.offer}</span>
                   </td>
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm whitespace-nowrap">
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColors[lead.status]}`}>
-                      {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
-                    </span>
+                    {lead.status === "pending" ? (
+                      <button
+                        onClick={() => handleApprove(lead)}
+                        className={`px-2 py-1 rounded-full text-xs font-semibold transition-colors hover:opacity-80 cursor-pointer ${statusColors[lead.status]}`}
+                        title="Click to approve"
+                      >
+                        {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
+                      </button>
+                    ) : (
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColors[lead.status]}`}>
+                        {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
+                      </span>
+                    )}
                   </td>
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm whitespace-nowrap">
                     <button 
                       onClick={() => handleViewLead(lead)}
-                      className="text-primary hover:text-primary/80 mr-3 text-sm font-semibold whitespace-nowrap"
-                    >
-                      View
-                    </button>
-                    <button 
-                      onClick={() => handleEditLead(lead)}
                       className="text-primary hover:text-primary/80 text-sm font-semibold whitespace-nowrap"
                     >
-                      Edit
+                      View
                     </button>
                   </td>
                 </tr>
@@ -283,6 +310,10 @@ export default function LeadsTable({ status }) {
                 <p className="text-sm text-muted-foreground">{selectedLead.date}</p>
               </div>
               <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Offer Name</label>
+                <p className="text-sm font-medium text-foreground">{selectedLead.offerName}</p>
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-foreground mb-1">Category</label>
                 <p className="text-sm text-muted-foreground">{selectedLead.category}</p>
               </div>
@@ -303,74 +334,9 @@ export default function LeadsTable({ status }) {
                 <p className="text-sm text-muted-foreground">{selectedLead.customerContact}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Offer</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Commission</label>
                 <p className="text-sm font-semibold text-green-600">{selectedLead.offer}</p>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Modal */}
-      {showEditModal && selectedLead && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-lg border border-border p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-foreground">Edit Lead</h3>
-              <button onClick={() => setShowEditModal(false)} className="text-muted-foreground hover:text-foreground">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Category</label>
-                <input
-                  type="text"
-                  defaultValue={selectedLead.category}
-                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">HR Name</label>
-                <input
-                  type="text"
-                  defaultValue={selectedLead.hrName}
-                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Customer Name</label>
-                <input
-                  type="text"
-                  defaultValue={selectedLead.customerName}
-                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Offer Amount</label>
-                <input
-                  type="text"
-                  defaultValue={selectedLead.offer}
-                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-            </div>
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="flex-1 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors text-sm font-semibold"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  setShowEditModal(false);
-                  alert("Lead updated successfully!");
-                }}
-                className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-semibold"
-              >
-                Save Changes
-              </button>
             </div>
           </div>
         </div>

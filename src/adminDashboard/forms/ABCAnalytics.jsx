@@ -1,4 +1,4 @@
-import { BarChart3, TrendingUp, Users, DollarSign, Download, Filter, Calendar, CheckCircle, XCircle, Clock, Ban, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { BarChart3, TrendingUp, Users, DollarSign, Download, Filter, Calendar, CheckCircle, XCircle, Clock, Ban, CalendarDays, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 export default function ABCAnalytics() {
@@ -12,6 +12,9 @@ export default function ABCAnalytics() {
   const [manualStartDate, setManualStartDate] = useState('');
   const [manualEndDate, setManualEndDate] = useState('');
   const calendarRef = useRef(null);
+
+  // Search functionality state
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Calendar helper functions
   const formatDate = (date) => {
@@ -170,6 +173,24 @@ export default function ABCAnalytics() {
     { month: "May", leads: 120, conversions: 85 },
     { month: "Jun", leads: 135, conversions: 95 },
   ];
+
+  // Sample user data for search
+  const sampleUsers = [
+    { id: 'U001', name: 'Rajesh Kumar', email: 'rajesh@example.com', phone: '+91 9876543210', location: 'Mumbai, Maharashtra', totalSpent: '₹15,000', campaigns: 8 },
+    { id: 'U002', name: 'Priya Sharma', email: 'priya.sharma@gmail.com', phone: '+91 8765432109', location: 'Delhi, Delhi', totalSpent: '₹8,500', campaigns: 5 },
+    { id: 'U003', name: 'Amit Singh', email: 'amit.singh@yahoo.com', phone: '+91 7654321098', location: 'Bangalore, Karnataka', totalSpent: '₹22,300', campaigns: 12 },
+    { id: 'U004', name: 'Sneha Gupta', email: 'sneha@hotmail.com', phone: '+91 6543210987', location: 'Pune, Maharashtra', totalSpent: '₹5,200', campaigns: 3 },
+    { id: 'U005', name: 'Vikash Patel', email: 'vikash.patel@gmail.com', phone: '+91 5432109876', location: 'Ahmedabad, Gujarat', totalSpent: '₹18,700', campaigns: 9 }
+  ];
+
+  // Filter data based on search term
+  const filteredUsers = sampleUsers.filter(user => 
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.phone.includes(searchTerm) ||
+    user.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="h-full flex flex-col p-3 sm:p-4">
@@ -379,6 +400,18 @@ export default function ABCAnalytics() {
           )}
         </div>
 
+        {/* Search Filter */}
+        <div className="relative flex-1 min-w-[200px] max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search users, categories..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
         {/* Export Button */}
         <button
           onClick={handleExport}
@@ -467,6 +500,7 @@ export default function ABCAnalytics() {
         </table>
       </div>
       </div>
+
     </div>
   );
 }
