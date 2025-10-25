@@ -1,7 +1,7 @@
 import { MoreVertical, Download, Filter, SortAsc, SortDesc, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 
-const products = [
+const Offers = [
   {
     id: 1,
     image:
@@ -59,7 +59,7 @@ const products = [
   },
 ];
 
-export default function ProductsTable() {
+export default function OffersTable() {
   const [expandedRow, setExpandedRow] = useState(null);
 
   const handleExport = () => {
@@ -74,7 +74,7 @@ export default function ProductsTable() {
       <div className="bg-card/30 backdrop-blur-sm rounded-xl border border-border/50 overflow-hidden shadow-lg flex-1 flex flex-col min-h-0">
         {/* Top bar inside card */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border/40 bg-card/40">
-          <h4 className="text-sm font-semibold text-foreground/90">ALL PRODUCTS 18</h4>
+          <h4 className="text-sm font-semibold text-foreground/90">ALL Offers 18</h4>
           <div className="flex items-center gap-2">
             <div className="hidden sm:flex items-center gap-2 bg-background/30 border border-border/40 rounded-full px-2 py-1 shadow-inner">
               <button className="p-2 rounded-full hover:bg-muted/40" title="Filter">
@@ -124,7 +124,7 @@ export default function ProductsTable() {
               </tr>
             </thead>
             <tbody>
-              {products.map((product, index) => (
+              {Offers.map((product, index) => (
                 <tr
                   key={product.id}
                   className="border-b border-border/30 hover:bg-muted/20 transition-all duration-200 group"

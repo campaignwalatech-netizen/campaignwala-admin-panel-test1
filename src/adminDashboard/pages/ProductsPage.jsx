@@ -5,7 +5,7 @@ import AdminSidebar from "../components/AdminSidebar";
 import AdminHeader from "../components/AdminHeader";
 import { useNavigate } from "react-router-dom";
 
-export default function ProductsPage() {
+export default function OffersPage() {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -17,7 +17,7 @@ export default function ProductsPage() {
     navigate("/");
   };
 
-  const products = [
+  const Offers = [
     { id: 1, name: "Product A", category: "Electronics", price: "₹25,000", stock: 45, status: "In Stock" },
     { id: 2, name: "Product B", category: "Fashion", price: "₹1,500", stock: 120, status: "In Stock" },
     { id: 3, name: "Product C", category: "Home", price: "₹8,000", stock: 0, status: "Out of Stock" },
@@ -40,7 +40,7 @@ export default function ProductsPage() {
           <main className="flex-1 overflow-y-auto p-6 bg-gray-100 dark:bg-gray-900">
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Products</h2>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Offers</h2>
                 <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your product inventory</p>
               </div>
               <button className="flex items-center gap-2 px-4 py-2 bg-[#570df8] text-white rounded-lg hover:opacity-90 transition">
@@ -49,9 +49,9 @@ export default function ProductsPage() {
               </button>
             </div>
 
-            {/* Products Grid */}
+            {/* Offers Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
+              {Offers.map((product) => (
                 <div key={product.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition">
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center">

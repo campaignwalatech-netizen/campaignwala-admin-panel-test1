@@ -18,7 +18,7 @@ const menuItems = [
   { icon: Users, label: "Manage Account", href: "#" },
   { icon: CheckCircle, label: "Approve Account", href: "#" },
   { icon: Plus, label: "Add Account", href: "#" },
-  { icon: Package, label: "All Products", href: "#", active: true },
+  { icon: Package, label: "All Offers", href: "#", active: true },
   { icon: LinkIcon, label: "Connected Leads", href: "#" },
   { icon: Users2, label: "Team Member", href: "#" },
   { icon: MoreVertical, label: "Miscellaneous", href: "#" },

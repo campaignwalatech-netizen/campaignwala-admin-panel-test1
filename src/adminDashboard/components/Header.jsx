@@ -8,7 +8,7 @@ export default function Header({ isDark, onThemeToggle }) {
   const getPageTitle = () => {
     const path = location.pathname.replace('/admin/', '').replace('/admin', '');
     if (!path || path === '/') {
-      return "ALL PRODUCTS";
+      return "ALL Offers";
     }
     return path.toUpperCase().replace(/-/g, " ");
   };

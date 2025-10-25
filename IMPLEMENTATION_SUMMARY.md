@@ -9,11 +9,11 @@ Complete implementation of admin dashboard with nested submenu structure based o
 **Main Menu Key:** `manage-account`
 
 **Submenus:**
-- **All Products** (`all-products`) - Table listing all products
-- **Add Project** (`add-project`) - Form to add new project
-- **Approve Project** (`approve-project`) - Excel-style table to approve projects
+- **All Offers** (`all-Offers`) - Table listing all Offers
+- **Add Offers** (`add-Offers`) - Form to add new Offers
+- **Approve Offers** (`approve-Offers`) - Excel-style table to approve Offerss
 
-**Default View:** All Products Table
+**Default View:** All Offers Table
 
 ---
 
@@ -123,9 +123,9 @@ src/
 │   │   ├── Sidebar.jsx (Updated with submenu structure)
 │   │   └── Header.jsx
 │   └── forms/
-│       ├── AllProductsTable.jsx
-│       ├── AddProjectForm.jsx
-│       ├── ApproveProjectTable.jsx
+│       ├── AllOffersTable.jsx
+│       ├── AddOffersForm.jsx
+│       ├── ApproveOffersTable.jsx
 │       ├── AllCategoriesTable.jsx
 │       ├── AddCategoryForm.jsx
 │       ├── ABCAnalytics.jsx

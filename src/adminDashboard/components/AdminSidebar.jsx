@@ -22,7 +22,7 @@ export default function AdminSidebar({
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
     { id: "users", label: "Users", icon: Users, path: "/admin/users" },
-    { id: "products", label: "Products", icon: Package, path: "/admin/products" },
+    { id: "Offers", label: "Offers", icon: Package, path: "/admin/Offers" },
     { id: "orders", label: "Orders", icon: ShoppingCart, path: "/admin/orders" },
     { id: "analytics", label: "Analytics", icon: Activity, path: "/admin/analytics" },
     { id: "settings", label: "Settings", icon: Settings, path: "/admin/settings" },

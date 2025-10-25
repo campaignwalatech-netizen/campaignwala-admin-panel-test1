@@ -22,8 +22,8 @@
 - ✅ Tables have minimum width (`min-w-[640px]`) to prevent squashing
 
 ### 3. **Functional Edit/Delete**
-- ✅ **AllProductsTable** - Full CRUD with modals
-- ✅ **ApproveProjectTable** - Approve/Reject with confirmation
+- ✅ **AllOffersTable** - Full CRUD with modals
+- ✅ **ApproveOffersTable** - Approve/Reject with confirmation
 - ✅ **AllCategoriesTable** - Edit/Delete with modals
 - ✅ Real state management with `useState`
 - ✅ No more `alert()` - proper modal popups
@@ -76,12 +76,12 @@ break-words        // Allows wrapping (long descriptions)
 ## 📊 Updated Components
 
 ### Fully Updated (With Modals)
-1. ✅ **AllProductsTable.jsx**
+1. ✅ **AllOffersTable.jsx**
    - Edit modal with form fields
    - Delete confirmation modal
    - State-based updates
 
-2. ✅ **ApproveProjectTable.jsx**
+2. ✅ **ApproveOffersTable.jsx**
    - Approve/Reject confirmation
    - Status updates in real-time
    - Conditional rendering based on status
@@ -97,7 +97,7 @@ break-words        // Allows wrapping (long descriptions)
    - Consistent text sizes
 
 ### Partially Updated (Forms)
-5. ✅ **AddProjectForm.jsx**
+5. ✅ **AddOffersForm.jsx**
    - Responsive padding
    - Consistent input sizes
    - Stacked buttons on mobile

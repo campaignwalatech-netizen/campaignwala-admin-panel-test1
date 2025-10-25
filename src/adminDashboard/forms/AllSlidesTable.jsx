@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Edit2, Trash2, X, Eye, Image, Calendar } from "lucide-react";
+import { Edit2, Trash2, X, Eye, Image, Calendar, Upload } from "lucide-react";
 
 export default function AllSlidesTable() {
   const [slides, setSlides] = useState([
@@ -203,72 +203,95 @@ export default function AllSlidesTable() {
       {/* Edit Modal */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-lg border border-border p-6 max-w-md w-full">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-foreground whitespace-nowrap">Edit Slide</h3>
+          <div className="bg-card rounded-lg border border-border p-4 max-w-md w-full">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-lg font-bold text-foreground">Edit Slide</h3>
               <button onClick={() => setShowEditModal(false)} className="text-muted-foreground hover:text-foreground">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1 whitespace-nowrap">Title</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Title</label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground text-sm"
+                  className="w-full px-3 py-1.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1 whitespace-nowrap">Category</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Category</label>
                 <input
                   type="text"
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground text-sm"
+                  className="w-full px-3 py-1.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1 whitespace-nowrap">Image URL</label>
-                <input
-                  type="text"
-                  value={formData.image}
-                  onChange={(e) => setFormData({...formData, image: e.target.value})}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground text-sm"
-                />
+                <label className="block text-sm font-medium text-foreground mb-1">Image Upload</label>
+                <div className="border-2 border-dashed border-border rounded-lg p-3 text-center hover:border-primary/50 transition-colors">
+                  <input
+                    type="file"
+                    accept="image/png,image/jpg,image/jpeg,image/gif"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        // Validate file size (10MB limit)
+                        if (file.size > 10 * 1024 * 1024) {
+                          alert("File size should be less than 10MB");
+                          return;
+                        }
+                        
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                          setFormData({...formData, image: e.target.result});
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    className="hidden"
+                    id="imageUpload"
+                  />
+                  <label htmlFor="imageUpload" className="cursor-pointer flex flex-col items-center gap-1">
+                    <Upload className="w-5 h-5 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Click to upload image</span>
+                    <span className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</span>
+                  </label>
+                </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1 whitespace-nowrap">Display Order</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Display Order</label>
                 <input
                   type="number"
                   value={formData.order}
                   onChange={(e) => setFormData({...formData, order: parseInt(e.target.value)})}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground text-sm"
+                  className="w-full px-3 py-1.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1 whitespace-nowrap">Status</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Status</label>
                 <select
                   value={formData.status}
                   onChange={(e) => setFormData({...formData, status: e.target.value})}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground text-sm"
+                  className="w-full px-3 py-1.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground text-sm"
                 >
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                 </select>
               </div>
             </div>
-            <div className="flex gap-3 mt-6">
+            <div className="flex gap-3 mt-4">
               <button
                 onClick={() => setShowEditModal(false)}
-                className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/80 transition-colors text-sm font-semibold whitespace-nowrap"
+                className="flex-1 px-3 py-1.5 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/80 transition-colors text-sm font-semibold"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmEdit}
-                className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-semibold whitespace-nowrap"
+                className="flex-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-semibold"
               >
                 Save Changes
               </button>

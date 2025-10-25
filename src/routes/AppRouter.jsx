@@ -13,9 +13,9 @@ import App from "../App";
 import { DefaultView } from "../adminDashboard/components/DummyForms";
 
 // Manage Account
-import AllProductsTable from "../adminDashboard/forms/AllProductsTable";
-import AddProjectForm from "../adminDashboard/forms/AddProjectForm";
-import ApproveProjectTable from "../adminDashboard/forms/ApproveProjectTable";
+import AllOffersTable from "../adminDashboard/forms/AllProductsTable";
+import AddOffersForm from "../adminDashboard/forms/AddProjectForm";
+import ApproveOffersTable from "../adminDashboard/forms/ApproveProjectTable";
 
 // Manage Category
 import AllCategoriesTable from "../adminDashboard/forms/AllCategoriesTable";
@@ -92,14 +92,14 @@ export default function AppRouter() {
             </RoleBasedRoute>
           }
         >
-          {/* Default route - redirect to all-products */}
-          <Route index element={<Navigate to="all-products" replace />} />
+          {/* Default route - redirect to all-Offers */}
+          <Route index element={<Navigate to="all-Offers" replace />} />
           
           {/* Manage Account routes */}
-          <Route path="manage-account" element={<Navigate to="all-products" replace />} />
-          <Route path="all-products" element={<AllProductsTable />} />
-          <Route path="add-project" element={<AddProjectForm />} />
-          <Route path="approve-project" element={<ApproveProjectTable />} />
+          <Route path="manage-account" element={<Navigate to="all-Offers" replace />} />
+          <Route path="all-Offers" element={<AllOffersTable />} />
+          <Route path="add-Offers" element={<AddOffersForm />} />
+          <Route path="approve-Offers" element={<ApproveOffersTable />} />
           
           {/* Manage Category routes */}
           <Route path="manage-category" element={<Navigate to="all-categories" replace />} />

@@ -9,11 +9,11 @@ export default function AdminLogsTable() {
     { 
       id: 1, 
       admin: "Super Admin", 
-      action: "Updated Project #145", 
+      action: "Updated Offers #145", 
       timestamp: "2024-10-18 14:32:15", 
       ip: "192.168.1.100", 
       severity: "info",
-      details: "Modified project title and description. Updated budget from $5,000 to $7,500. Changed project status from 'In Progress' to 'Under Review'."
+      details: "Modified Offers title and description. Updated budget from $5,000 to $7,500. Changed Offers status from 'In Progress' to 'Under Review'."
     },
     { 
       id: 2, 
@@ -31,7 +31,7 @@ export default function AdminLogsTable() {
       timestamp: "2024-10-18 12:20:08", 
       ip: "192.168.1.100", 
       severity: "warning",
-      details: "Permanently deleted user account for suspicious activity. User: sarah.smith@example.com. All associated data and projects have been archived."
+      details: "Permanently deleted user account for suspicious activity. User: sarah.smith@example.com. All associated data and Offerss have been archived."
     },
     { 
       id: 4, 

@@ -418,7 +418,7 @@ export default function ABCAnalytics() {
 
       {/* Status Stats Grid */}
       <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
-        <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4">Project Status Overview</h3>
+        <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4">Offers Status Overview</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {statusStats.map((stat, index) => {
             const Icon = stat.icon;

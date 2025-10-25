@@ -1,7 +1,7 @@
 import { MoreVertical, Download } from "lucide-react";
 import { useState } from "react";
 
-const products = [
+const Offers = [
   {
     id: 1,
     image:
@@ -59,7 +59,7 @@ const products = [
   },
 ];
 
-export default function ProductsTable() {
+export default function OffersTable() {
   const [expandedRow, setExpandedRow] = useState(null);
 
   return (
@@ -112,7 +112,7 @@ export default function ProductsTable() {
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
+              {Offers.map((product) => (
                 <tr
                   key={product.id}
                   className="border-b border-border hover:bg-muted/30 transition-colors"
