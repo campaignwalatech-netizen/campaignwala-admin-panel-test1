@@ -41,6 +41,12 @@ import AdminLogsTable from "../adminDashboard/forms/AdminLogsTable";
 import UserQueriesTable from "../adminDashboard/forms/UserQueriesTable";
 import KYCReview from "../adminDashboard/forms/KYCReview";
 
+// Notifications
+import AdminDashboard from "../adminDashboard/notifications/AdminDashboard";
+import IncompleteProfilePage from "../adminDashboard/notifications/IncompleteProfilePage";
+import HotOffersPage from "../adminDashboard/notifications/HotOffersPage";
+import HistoryPage from "../adminDashboard/notifications/HistoryPage";
+
 // User Dashboard
 import { UserDashboardLayout } from "../userDashboard/pages";
 import Dashboard from "../userDashboard/components/Dashboard";
@@ -127,6 +133,12 @@ export default function AppRouter() {
           
           {/* Payment Withdrawal */}
           <Route path="payment-withdrawal" element={<PaymentWithdrawalTable />} />
+          
+          {/* Notifications routes */}
+          <Route path="notifications" element={<AdminDashboard />} />
+          <Route path="notifications/incomplete-profile" element={<IncompleteProfilePage />} />
+          <Route path="notifications/hot-offers" element={<HotOffersPage />} />
+          <Route path="notifications/history" element={<HistoryPage />} />
           
           {/* Miscellaneous routes */}
           <Route path="miscellaneous" element={<ResetPasswordForm />} />

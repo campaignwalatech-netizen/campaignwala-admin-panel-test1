@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, Users, Package, Users2, MoreVertical, Database, Menu, X, Grid, ChevronDown, ChevronRight
+  LayoutDashboard, Users, Package, Users2, MoreVertical, Database, Menu, X, Grid, ChevronDown, ChevronRight, Bell
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
@@ -65,6 +65,18 @@ const menuItems = [
     icon: Package,
     label: "Payment Withdrawal List",
     key: "payment-withdrawal"
+  },
+  {
+    id: "notifications",
+    icon: Bell,
+    label: "Notifications",
+    key: "notifications",
+    submenu: [
+      { key: "notifications", label: "Dashboard", icon: Bell },
+      { key: "notifications/incomplete-profile", label: "Incomplete Profile", icon: Bell },
+      { key: "notifications/hot-offers", label: "Hot Offers", icon: Bell },
+      { key: "notifications/history", label: "History", icon: Bell },
+    ]
   },
   {
     id: "miscellaneous",

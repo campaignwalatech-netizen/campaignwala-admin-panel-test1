@@ -1,65 +1,35 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AlertCircle } from "lucide-react";
-import { createOffer } from "../../services/offerService";
-import { getAllCategories } from "../../services/categoryService";
 
 export default function AddOffersForm() {
   const [formData, setFormData] = useState({
-    name: "",
+    OffersName: "",
     category: "",
     description: "",
     commission1: "", // mandatory
     commission1Comment: "", // comment for commission 1
     commission2: "", // optional
     commission2Comment: "", // comment for commission 2
+<<<<<<< Updated upstream
     link: "",
     image: "",
     video: "",
     videoLink: "",
     termsAndConditions: ""
+=======
+>>>>>>> Stashed changes
   });
 
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-
-  // Fetch categories on component mount
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const fetchCategories = async () => {
-    try {
-      setLoadingCategories(true);
-      const response = await getAllCategories({ 
-        status: 'active',
-        limit: 100,
-        sortBy: 'name',
-        order: 'asc'
-      });
-      
-      if (response.success && response.data.categories) {
-        setCategories(response.data.categories);
-      }
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      setErrorMessage("Failed to load categories");
-    } finally {
-      setLoadingCategories(false);
-    }
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // Check if commission1 is filled
     if (!formData.commission1) {
-      setErrorMessage("⚠️ Commission 1 is required!");
+      alert("⚠️ Commission 1 is required!");
       return;
     }
 
+<<<<<<< Updated upstream
     try {
       setLoading(true);
       setErrorMessage("");
@@ -95,29 +65,19 @@ export default function AddOffersForm() {
     } finally {
       setLoading(false);
     }
+=======
+    console.log("Offers Data:", formData);
+    alert("✅ Offers added successfully!");
+>>>>>>> Stashed changes
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
     <div className="h-full flex flex-col p-3 sm:p-4">
       <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Add New Offers</h2>
-      
-      {/* Alert Messages */}
-      {successMessage && (
-        <div className="mb-4 p-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
-          <p className="text-sm text-green-800 dark:text-green-200">{successMessage}</p>
-        </div>
-      )}
-      
-      {errorMessage && (
-        <div className="mb-4 p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg">
-          <p className="text-sm text-red-800 dark:text-red-200">{errorMessage}</p>
-        </div>
-      )}
       
       {/* Alert Message */}
       <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -137,14 +97,18 @@ export default function AddOffersForm() {
       <form onSubmit={handleSubmit} className="bg-card rounded-lg border border-border p-4 sm:p-6 max-w-4xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Offer Name</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Offers Name</label>
             <input
               type="text"
-              name="name"
-              value={formData.name}
+              name="OffersName"
+              value={formData.OffersName}
               onChange={handleChange}
               className="w-full px-3 sm:px-4 py-2 text-sm bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+<<<<<<< Updated upstream
               placeholder="Enter offer name"
+=======
+              placeholder="Enter Offers name"
+>>>>>>> Stashed changes
               required
             />
           </div>
@@ -157,19 +121,17 @@ export default function AddOffersForm() {
               onChange={handleChange}
               className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               required
-              disabled={loadingCategories}
             >
-              <option value="">
-                {loadingCategories ? "Loading categories..." : "Select Category"}
-              </option>
-              {categories.map((cat) => (
-                <option key={cat._id} value={cat.name}>
-                  {cat.name}
-                </option>
-              ))}
+              <option value="">Select Category</option>
+              <option value="marketing">Marketing</option>
+              <option value="social-media">Social Media</option>
+              <option value="seo">SEO</option>
+              <option value="content">Content Creation</option>
+              <option value="email">Email Marketing</option>
             </select>
           </div>
 
+<<<<<<< Updated upstream
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">Link</label>
             <input
@@ -182,6 +144,8 @@ export default function AddOffersForm() {
             />
           </div>
 
+=======
+>>>>>>> Stashed changes
           {/* Commission 1 (Mandatory) */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
@@ -244,14 +208,14 @@ export default function AddOffersForm() {
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-foreground mb-2">Offer Description</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Offers Description</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
               rows={4}
               className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="Enter offer description..."
+              placeholder="Enter Offers description..."
               required
             />
           </div>
@@ -286,13 +250,13 @@ export default function AddOffersForm() {
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6">
           <button
             type="submit"
-            disabled={loading}
-            className="w-full sm:w-auto px-6 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto px-6 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold whitespace-nowrap"
           >
-            {loading ? "Adding Offer..." : "Add Offer"}
+            Add Offers
           </button>
           <button
             type="button"
+<<<<<<< Updated upstream
             onClick={() => {
               setFormData({
                 name: "",
@@ -311,6 +275,8 @@ export default function AddOffersForm() {
               setErrorMessage("");
               setSuccessMessage("");
             }}
+=======
+>>>>>>> Stashed changes
             className="w-full sm:w-auto px-6 py-2 text-sm bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/80 transition-colors whitespace-nowrap"
           >
             Cancel
