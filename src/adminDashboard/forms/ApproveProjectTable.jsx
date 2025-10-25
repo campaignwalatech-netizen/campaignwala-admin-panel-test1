@@ -1,79 +1,100 @@
-import { useState, useRef } from "react";
-import { Upload, FileText, CheckCircle, AlertCircle, FileSpreadsheet, ToggleLeft, ToggleRight, UserCheck, UserX } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Upload, FileText, CheckCircle, AlertCircle, FileSpreadsheet, ToggleLeft, ToggleRight, UserCheck, UserX, Loader2 } from "lucide-react";
+import { getAllOffers, approveOffer, rejectOffer } from "../../services/offerService";
 
 export default function ApproveOffersTable() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState(""); // success, error, or empty
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
+  const [offers, setOffers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [processingIds, setProcessingIds] = useState(new Set());
 
-  // Sample accounts data with approval status
-  const [accounts, setAccounts] = useState([
-    { 
-      id: 1, 
-      leadId: "LEAD001", 
-      customerContact: "+91 9876543210", 
-      name: "Rajesh Kumar", 
-      email: "rajesh@example.com", 
-      company: "Tech Solutions Pvt Ltd", 
-      budget: 250000, 
-      date: "2024-10-20", 
-      isApproved: false 
-    },
-    { 
-      id: 2, 
-      leadId: "LEAD002", 
-      customerContact: "+91 8765432109", 
-      name: "Priya Sharma", 
-      email: "priya@example.com", 
-      company: "Digital Marketing Co", 
-      budget: 150000, 
-      date: "2024-10-21", 
-      isApproved: true 
-    },
-    { 
-      id: 3, 
-      leadId: "LEAD003", 
-      customerContact: "+91 7654321098", 
-      name: "Amit Patel", 
-      email: "amit@example.com", 
-      company: "Startup Hub", 
-      budget: 75000, 
-      date: "2024-10-22", 
-      isApproved: false 
-    },
-    { 
-      id: 4, 
-      leadId: "LEAD004", 
-      customerContact: "+91 6543210987", 
-      name: "Sneha Gupta", 
-      email: "sneha@example.com", 
-      company: "E-commerce Plus", 
-      budget: 320000, 
-      date: "2024-10-23", 
-      isApproved: true 
+  // Fetch offers on component mount
+  useEffect(() => {
+    fetchOffers();
+  }, []);
+
+  const fetchOffers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Fetch offers with lead information (offers that have lead data)
+      const response = await getAllOffers({
+        page: 1,
+        limit: 100,
+        sortBy: 'createdAt',
+        order: 'desc'
+      });
+      
+      if (response.success && response.data.offers) {
+        // Filter offers that have lead information
+        const offersWithLeads = response.data.offers.filter(offer => 
+          offer.leadId || offer.customerContact || offer.email || offer.company
+        );
+        setOffers(offersWithLeads);
+      } else {
+        setError(response.message || 'Failed to fetch offers');
+      }
+    } catch (err) {
+      console.error('Error fetching offers:', err);
+      setError(err.response?.data?.message || 'Failed to load offers. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  ]);
-
-  // Toggle approval status
-  const toggleApproval = (accountId) => {
-    setAccounts(accounts.map(acc => 
-      acc.id === accountId ? {...acc, isApproved: !acc.isApproved} : acc
-    ));
   };
 
-  // Export accounts to Excel/CSV
+  // Toggle approval status
+  const toggleApproval = async (offerId, currentStatus) => {
+    if (processingIds.has(offerId)) return;
+    
+    try {
+      setProcessingIds(prev => new Set([...prev, offerId]));
+      
+      let response;
+      if (currentStatus) {
+        // If currently approved, reject it
+        response = await rejectOffer(offerId, 'Unapproved by admin');
+      } else {
+        // If currently not approved, approve it
+        response = await approveOffer(offerId);
+      }
+      
+      if (response.success) {
+        // Update local state
+        setOffers(offers.map(offer => 
+          offer._id === offerId ? response.data : offer
+        ));
+      } else {
+        alert(response.message || 'Failed to update approval status');
+      }
+    } catch (err) {
+      console.error('Error toggling approval:', err);
+      alert(err.response?.data?.message || 'Failed to update approval status');
+    } finally {
+      setProcessingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(offerId);
+        return newSet;
+      });
+    }
+  };
+
+  // Export offers to Excel/CSV
   const exportToExcel = () => {
     const csvContent = "Lead ID,Customer Contact,Name,Email,Company,Budget,Date,Status\n" + 
-      accounts.map(acc => 
-        `${acc.leadId},${acc.customerContact},"${acc.name}",${acc.email},"${acc.company}",${acc.budget},${acc.date},${acc.isApproved ? 'Approved' : 'Pending'}`
+      offers.map(offer => 
+        `${offer.leadId || 'N/A'},${offer.customerContact || 'N/A'},"${offer.name || 'N/A'}",${offer.email || 'N/A'},"${offer.company || 'N/A'}",${offer.budget || 0},${new Date(offer.createdAt).toISOString().split('T')[0]},${offer.isApproved ? 'Approved' : 'Pending'}`
       ).join('\n');
     
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Accounts_${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `Offers_Approval_${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
@@ -166,17 +187,30 @@ export default function ApproveOffersTable() {
           
           {/* Right side with title and toggle */}
           <div className="flex items-center gap-4">
-            {/* Unapprove Account Toggle */}
+            {/* Export Button */}
+            <button
+              onClick={exportToExcel}
+              disabled={loading || offers.length === 0}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold disabled:opacity-50 flex items-center gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              Export to CSV
+            </button>
+            
+            {/* Bulk Toggle */}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-foreground">Unapprove Account</span>
+              <span className="text-sm font-medium text-foreground">Bulk Approve/Unapprove</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input 
                   type="checkbox" 
                   className="sr-only peer"
-                  checked={accounts.some(acc => acc.isApproved)}
-                  onChange={() => {
-                    const hasApproved = accounts.some(acc => acc.isApproved);
-                    setAccounts(accounts.map(acc => ({...acc, isApproved: !hasApproved})));
+                  checked={offers.some(offer => offer.isApproved)}
+                  disabled={loading}
+                  onChange={async () => {
+                    const hasApproved = offers.some(offer => offer.isApproved);
+                    // Bulk approval/unapproval could be implemented here
+                    // For now, we'll just show a message
+                    alert('Bulk approval/unapproval will process all offers. This feature requires backend support for bulk operations.');
                   }}
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
@@ -449,6 +483,121 @@ export default function ApproveOffersTable() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Offers Table */}
+          <div className="mt-8 bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+            <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-4 border-b border-border">
+              <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <UserCheck className="w-5 h-5 text-primary" />
+                Offers for Approval
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Review and approve offers with lead information
+              </p>
+            </div>
+
+            <div className="overflow-x-auto">
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <span className="ml-3 text-foreground">Loading offers...</span>
+                </div>
+              ) : error ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <AlertCircle className="w-16 h-16 text-destructive mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Error Loading Offers</h3>
+                  <p className="text-muted-foreground mb-4">{error}</p>
+                  <button
+                    onClick={fetchOffers}
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              ) : offers.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <FileText className="w-16 h-16 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No Offers Found</h3>
+                  <p className="text-muted-foreground">
+                    No offers with lead information are available for approval
+                  </p>
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead className="bg-muted">
+                    <tr className="border-b border-border">
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Lead ID</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Contact</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Name</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Email</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Company</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Budget</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Date</th>
+                      <th className="px-4 py-3 text-center text-sm font-semibold">Status</th>
+                      <th className="px-4 py-3 text-center text-sm font-semibold">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {offers.map((offer) => (
+                      <tr key={offer._id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                        <td className="px-4 py-3 text-sm font-medium">{offer.leadId || 'N/A'}</td>
+                        <td className="px-4 py-3 text-sm">{offer.customerContact || 'N/A'}</td>
+                        <td className="px-4 py-3 text-sm font-medium">{offer.name}</td>
+                        <td className="px-4 py-3 text-sm">{offer.email || 'N/A'}</td>
+                        <td className="px-4 py-3 text-sm">{offer.company || 'N/A'}</td>
+                        <td className="px-4 py-3 text-sm font-semibold">
+                          {offer.budget ? `₹${offer.budget.toLocaleString('en-IN')}` : 'N/A'}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">
+                          {new Date(offer.createdAt).toLocaleDateString('en-IN')}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${
+                            offer.isApproved 
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
+                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                          }`}>
+                            {offer.isApproved ? (
+                              <>
+                                <UserCheck className="w-3 h-3" />
+                                Approved
+                              </>
+                            ) : (
+                              <>
+                                <UserX className="w-3 h-3" />
+                                Pending
+                              </>
+                            )}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <button
+                            onClick={() => toggleApproval(offer._id, offer.isApproved)}
+                            disabled={processingIds.has(offer._id)}
+                            className={`relative inline-flex items-center h-6 w-11 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 ${
+                              offer.isApproved 
+                                ? 'bg-green-600' 
+                                : 'bg-gray-200 dark:bg-gray-700'
+                            }`}
+                          >
+                            {processingIds.has(offer._id) ? (
+                              <Loader2 className="w-4 h-4 animate-spin absolute left-1/2 -translate-x-1/2" />
+                            ) : (
+                              <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                  offer.isApproved ? 'translate-x-6' : 'translate-x-1'
+                                }`}
+                              />
+                            )}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         </div>
