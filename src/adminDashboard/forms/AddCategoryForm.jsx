@@ -1,10 +1,17 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function AddCategoryForm() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const editCategory = location.state?.editCategory;
+  const isEditMode = !!editCategory;
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    earnUpto: "",
     icon: "",
     iconImage: null,
     status: "active"
@@ -13,11 +20,42 @@ export default function AddCategoryForm() {
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
 
+  // Populate form data when in edit mode
+  useEffect(() => {
+    if (editCategory) {
+      setFormData({
+        name: editCategory.name || "",
+        description: editCategory.description || "",
+        earnUpto: editCategory.earnUpto || "",
+        icon: editCategory.icon || "",
+        iconImage: null,
+        status: editCategory.status || "active"
+      });
+    }
+  }, [editCategory]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Category Data:", formData);
     console.log("Icon Image:", formData.iconImage);
-    alert("Category added successfully!");
+    
+    if (isEditMode) {
+      alert("Category updated successfully!");
+      // Navigate back to categories list
+      navigate('/admin/categories');
+    } else {
+      alert("Category added successfully!");
+      // Reset form for new category
+      setFormData({
+        name: "",
+        description: "",
+        earnUpto: "",
+        icon: "",
+        iconImage: null,
+        status: "active"
+      });
+      setImagePreview(null);
+    }
   };
 
   const handleChange = (e) => {
@@ -64,7 +102,9 @@ export default function AddCategoryForm() {
 
   return (
     <div className="h-full flex flex-col p-3 sm:p-4">
-      <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Add New Category</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
+        {isEditMode ? "Edit Category" : "Add New Category"}
+      </h2>
       
       <div className="flex-1 overflow-y-auto scrollbar-custom min-h-0">
       <form onSubmit={handleSubmit} className="bg-card rounded-lg border border-border p-4 sm:p-6 max-w-2xl">
@@ -91,6 +131,19 @@ export default function AddCategoryForm() {
               rows={4}
               className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="Enter category description..."
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">Earn Upto</label>
+            <input
+              type="text"
+              name="earnUpto"
+              value={formData.earnUpto}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="e.g., ₹5000 per month"
               required
             />
           </div>
@@ -186,10 +239,11 @@ export default function AddCategoryForm() {
             type="submit"
             className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold"
           >
-            Add Category
+            {isEditMode ? "Update Category" : "Add Category"}
           </button>
           <button
             type="button"
+            onClick={() => navigate('/admin/categories')}
             className="px-6 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/80 transition-colors"
           >
             Cancel

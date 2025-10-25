@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { AlertCircle } from "lucide-react";
 
-export default function AddProjectForm() {
+export default function AddOffersForm() {
   const [formData, setFormData] = useState({
-    projectName: "",
+    OffersName: "",
     category: "",
-    duration: "",
     description: "",
-    startDate: "",
     clientName: "",
     status: "pending",
     commission1: "", // mandatory
+    commission1Comment: "", // comment for commission 1
     commission2: "", // optional
+    commission2Comment: "", // comment for commission 2
   });
 
   const handleSubmit = (e) => {
@@ -23,8 +23,8 @@ export default function AddProjectForm() {
       return;
     }
 
-    console.log("Project Data:", formData);
-    alert("✅ Project added successfully!");
+    console.log("Offers Data:", formData);
+    alert("✅ Offers added successfully!");
   };
 
   const handleChange = (e) => {
@@ -33,7 +33,7 @@ export default function AddProjectForm() {
 
   return (
     <div className="h-full flex flex-col p-3 sm:p-4">
-      <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Add New Project</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Add New Offers</h2>
       
       {/* Alert Message */}
       <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -53,14 +53,14 @@ export default function AddProjectForm() {
       <form onSubmit={handleSubmit} className="bg-card rounded-lg border border-border p-4 sm:p-6 max-w-4xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Project Name</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Offers Name</label>
             <input
               type="text"
-              name="projectName"
-              value={formData.projectName}
+              name="OffersName"
+              value={formData.OffersName}
               onChange={handleChange}
               className="w-full px-3 sm:px-4 py-2 text-sm bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="Enter project name"
+              placeholder="Enter Offers name"
               required
             />
           </div>
@@ -96,75 +96,6 @@ export default function AddProjectForm() {
             </select>
           </div>
 
-            {/* Commission 1 (Mandatory) */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Commission 1 (%) <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                name="commission1"
-                value={formData.commission1}
-                onChange={handleChange}
-                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="e.g., 10"
-                required
-              />
-            </div>
-
-            {/* Commission 2 (Optional) */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Commission 2 (%) <span className="text-gray-400">(optional)</span>
-              </label>
-              <input
-                type="number"
-                name="commission2"
-                value={formData.commission2}
-                onChange={handleChange}
-                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="e.g., 15"
-              />
-            </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Start Date</label>
-            <input
-              type="date"
-              name="startDate"
-              value={formData.startDate}
-              onChange={handleChange}
-              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Duration (Days)</label>
-            <input
-              type="number"
-              name="duration"
-              value={formData.duration}
-              onChange={handleChange}
-              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="30"
-              required
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-foreground mb-2">Project Description</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows={4}
-              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="Enter project description..."
-              required
-            />
-          </div>
-
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">Status</label>
             <select
@@ -178,6 +109,80 @@ export default function AddProjectForm() {
               <option value="completed">Completed</option>
             </select>
           </div>
+
+          {/* Commission 1 (Mandatory) */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Commission 1 (%) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              name="commission1"
+              value={formData.commission1}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="e.g., 10"
+              required
+            />
+            
+            {/* Commission 1 Comment */}
+            <div className="mt-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-1">
+                Commission 1 Comment
+              </label>
+              <textarea
+                name="commission1Comment"
+                value={formData.commission1Comment}
+                onChange={handleChange}
+                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                placeholder="e.g., From Amazon affiliate program offer"
+                rows="2"
+              />
+            </div>
+          </div>
+
+          {/* Commission 2 (Optional) */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Commission 2 (%) <span className="text-gray-400">(optional)</span>
+            </label>
+            <input
+              type="number"
+              name="commission2"
+              value={formData.commission2}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="e.g., 15"
+            />
+            
+            {/* Commission 2 Comment */}
+            <div className="mt-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-1">
+                Commission 2 Comment <span className="text-gray-400">(optional)</span>
+              </label>
+              <textarea
+                name="commission2Comment"
+                value={formData.commission2Comment}
+                onChange={handleChange}
+                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                placeholder="e.g., From Flipkart bonus offer"
+                rows="2"
+              />
+            </div>
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-foreground mb-2">Offers Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows={4}
+              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="Enter Offers description..."
+              required
+            />
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6">
@@ -185,7 +190,7 @@ export default function AddProjectForm() {
             type="submit"
             className="w-full sm:w-auto px-6 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold whitespace-nowrap"
           >
-            Add Project
+            Add Offers
           </button>
           <button
             type="button"

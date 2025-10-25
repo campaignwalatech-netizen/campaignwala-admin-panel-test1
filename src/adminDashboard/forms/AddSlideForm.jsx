@@ -5,7 +5,7 @@ export default function AddSlideForm() {
   const [formData, setFormData] = useState({
     offerTitle: "",
     category: "",
-    projectId: "",
+    OffersId: "",
     backgroundImage: null
   });
 
@@ -21,7 +21,7 @@ export default function AddSlideForm() {
     setFormData({
       offerTitle: "",
       category: "",
-      projectId: "",
+      OffersId: "",
       backgroundImage: null
     });
     setImagePreview(null);
@@ -128,15 +128,15 @@ export default function AddSlideForm() {
               </select>
             </div>
 
-            {/* Project ID */}
+            {/* Offers ID */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Project ID *
+                Offers ID *
               </label>
               <input
                 type="text"
-                name="projectId"
-                value={formData.projectId}
+                name="OffersId"
+                value={formData.OffersId}
                 onChange={handleInputChange}
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="e.g., PROJ001"
@@ -202,7 +202,7 @@ export default function AddSlideForm() {
                 setFormData({
                   offerTitle: "",
                   category: "",
-                  projectId: "",
+                  OffersId: "",
                   backgroundImage: null
                 });
                 setImagePreview(null);

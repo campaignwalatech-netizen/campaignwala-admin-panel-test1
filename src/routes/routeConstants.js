@@ -16,7 +16,7 @@ export const PUBLIC_ROUTES = {
 // Admin Routes
 export const ADMIN_ROUTES = {
   DASHBOARD: '/admin',
-  PRODUCTS: '/admin/products',
+  Offers: '/admin/Offers',
   USERS: '/admin/users',
   CATEGORIES: '/admin/categories',
   LEADS: '/admin/leads',
@@ -117,9 +117,9 @@ export const NAVIGATION_MENU = {
       label: 'Manage Account',
       icon: 'account',
       children: [
-        { key: 'all-products', label: 'All Products', path: '/admin/products/all' },
-        { key: 'add-project', label: 'Add Project', path: '/admin/products/add' },
-        { key: 'approve-project', label: 'Approve Project', path: '/admin/products/approve' }
+        { key: 'all-Offers', label: 'All Offers', path: '/admin/Offers/all' },
+        { key: 'add-Offers', label: 'Add Offers', path: '/admin/Offers/add' },
+        { key: 'approve-Offers', label: 'Approve Offers', path: '/admin/Offers/approve' }
       ]
     },
     {

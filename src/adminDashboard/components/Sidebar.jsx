@@ -11,9 +11,9 @@ const menuItems = [
     label: "Manage Account",
     key: "manage-account",
     submenu: [
-      { key: "all-products", label: "All Products", icon: Package },
-      { key: "add-project", label: "Add Project", icon: Grid },
-      { key: "approve-project", label: "Approve Project", icon: Database },
+      { key: "all-Offers", label: "All Offers", icon: Package },
+      { key: "add-Offers", label: "Add Offers", icon: Grid },
+      { key: "approve-Offers", label: "Approve Offers", icon: Database },
     ]
   },
   {

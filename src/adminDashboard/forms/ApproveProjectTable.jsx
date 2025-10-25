@@ -1,19 +1,97 @@
 import { useState, useRef } from "react";
-import { Upload, Download, FileText, CheckCircle, AlertCircle } from "lucide-react";
+import { Upload, FileText, CheckCircle, AlertCircle, FileSpreadsheet, ToggleLeft, ToggleRight, UserCheck, UserX } from "lucide-react";
 
-export default function ApproveProjectTable() {
+export default function ApproveOffersTable() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState(""); // success, error, or empty
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Sample accounts data with approval status
+  const [accounts, setAccounts] = useState([
+    { 
+      id: 1, 
+      leadId: "LEAD001", 
+      customerContact: "+91 9876543210", 
+      name: "Rajesh Kumar", 
+      email: "rajesh@example.com", 
+      company: "Tech Solutions Pvt Ltd", 
+      budget: 250000, 
+      date: "2024-10-20", 
+      isApproved: false 
+    },
+    { 
+      id: 2, 
+      leadId: "LEAD002", 
+      customerContact: "+91 8765432109", 
+      name: "Priya Sharma", 
+      email: "priya@example.com", 
+      company: "Digital Marketing Co", 
+      budget: 150000, 
+      date: "2024-10-21", 
+      isApproved: true 
+    },
+    { 
+      id: 3, 
+      leadId: "LEAD003", 
+      customerContact: "+91 7654321098", 
+      name: "Amit Patel", 
+      email: "amit@example.com", 
+      company: "Startup Hub", 
+      budget: 75000, 
+      date: "2024-10-22", 
+      isApproved: false 
+    },
+    { 
+      id: 4, 
+      leadId: "LEAD004", 
+      customerContact: "+91 6543210987", 
+      name: "Sneha Gupta", 
+      email: "sneha@example.com", 
+      company: "E-commerce Plus", 
+      budget: 320000, 
+      date: "2024-10-23", 
+      isApproved: true 
+    }
+  ]);
+
+  // Toggle approval status
+  const toggleApproval = (accountId) => {
+    setAccounts(accounts.map(acc => 
+      acc.id === accountId ? {...acc, isApproved: !acc.isApproved} : acc
+    ));
+  };
+
+  // Export accounts to Excel/CSV
+  const exportToExcel = () => {
+    const csvContent = "Lead ID,Customer Contact,Name,Email,Company,Budget,Date,Status\n" + 
+      accounts.map(acc => 
+        `${acc.leadId},${acc.customerContact},"${acc.name}",${acc.email},"${acc.company}",${acc.budget},${acc.date},${acc.isApproved ? 'Approved' : 'Pending'}`
+      ).join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Accounts_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  };
+
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      // Validate file type
-      if (file.type !== "text/csv" && !file.name.endsWith('.csv')) {
+      // Validate file type - support both CSV and Excel
+      const isValidFile = file.type === "text/csv" || 
+                         file.name.endsWith('.csv') || 
+                         file.name.endsWith('.xlsx') || 
+                         file.name.endsWith('.xls');
+      
+      if (!isValidFile) {
         setUploadStatus("error");
-        alert("Please select a valid CSV file");
+        alert("Please select a valid CSV or Excel file (.csv, .xlsx, .xls)");
         return;
       }
 
@@ -45,11 +123,16 @@ export default function ApproveProjectTable() {
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       const file = files[0];
-      if (file.type === "text/csv" || file.name.endsWith('.csv')) {
+      const isValidFile = file.type === "text/csv" || 
+                         file.name.endsWith('.csv') || 
+                         file.name.endsWith('.xlsx') || 
+                         file.name.endsWith('.xls');
+      
+      if (isValidFile) {
         const event = { target: { files: [file] } };
         handleFileUpload(event);
       } else {
-        alert("Please drop a CSV file");
+        alert("Please drop a CSV or Excel file");
       }
     }
   };
@@ -62,20 +145,7 @@ export default function ApproveProjectTable() {
     }
   };
 
-  const downloadTemplate = () => {
-    // Create sample CSV content
-    const csvContent = "Project ID,Project Name,Client Name,Budget,Date,Status\n1,Sample Project,Sample Client,50000,2024-10-24,Pending\n2,Demo Campaign,Demo Corp,75000,2024-10-25,Approved";
-    
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'project_template.csv';
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-  };
+
 
   return (
     <div className="h-full flex flex-col bg-background">
@@ -87,19 +157,32 @@ export default function ApproveProjectTable() {
               <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
                 <FileText className="w-5 h-5 text-white" />
               </div>
-              Project Approval Center
+              Account Approval Center
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              Streamline your project approval workflow with bulk CSV processing
+              Manage account approvals with Excel/CSV import and individual toggle controls
             </p>
           </div>
-          <button
-            onClick={downloadTemplate}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-          >
-            <Download className="w-4 h-4" />
-            Download Template
-          </button>
+          
+          {/* Right side with title and toggle */}
+          <div className="flex items-center gap-4">
+            {/* Unapprove Account Toggle */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-foreground">Unapprove Account</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer"
+                  checked={accounts.some(acc => acc.isApproved)}
+                  onChange={() => {
+                    const hasApproved = accounts.some(acc => acc.isApproved);
+                    setAccounts(accounts.map(acc => ({...acc, isApproved: !hasApproved})));
+                  }}
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -113,10 +196,10 @@ export default function ApproveProjectTable() {
             <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-4 border-b border-border">
               <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                 <Upload className="w-5 h-5 text-primary" />
-                CSV File Upload
+                Excel/CSV File Upload
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Upload your project data file for bulk processing
+                Upload your account data file (.csv, .xlsx, .xls) for bulk processing
               </p>
             </div>
 
@@ -194,39 +277,78 @@ export default function ApproveProjectTable() {
                         Upload Different File
                       </button>
                       <button className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02]">
-                        Process Projects
+                        Process Accounts
                       </button>
                     </div>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center">
-                    <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-200">
-                      <Upload className="h-10 w-10 text-white" />
-                    </div>
-                    <h4 className="text-xl font-bold text-foreground mb-3">
-                      Drop your CSV file here
+                    <h4 className="text-xl font-bold text-foreground mb-8">
+                      Choose File Type to Upload
                     </h4>
-                    <p className="text-muted-foreground mb-6 max-w-md text-center leading-relaxed">
-                      Drag and drop your project data file, or{" "}
-                      <span className="text-primary font-semibold cursor-pointer hover:underline">
-                        click to browse
-                      </span>{" "}
-                      and select from your computer
-                    </p>
-                    <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span>CSV Format</span>
+                    
+                    {/* File Type Selection Icons */}
+                    <div className="flex items-center gap-8 mb-8">
+                      {/* XLS File Upload */}
+                      <div 
+                        className="flex flex-col items-center cursor-pointer group"
+                        onClick={() => {
+                          const input = document.createElement('input');
+                          input.type = 'file';
+                          input.accept = '.xlsx,.xls';
+                          input.onchange = handleFileUpload;
+                          input.click();
+                        }}
+                      >
+                        <div className="w-24 h-32 bg-gray-600 rounded-lg flex items-center justify-center mb-3 group-hover:scale-105 transition-transform duration-200 shadow-lg relative overflow-hidden">
+                          {/* File corner fold */}
+                          <div className="absolute top-0 right-0 w-6 h-6 bg-gray-500 transform rotate-45 translate-x-3 -translate-y-3"></div>
+                          <div className="absolute top-0 right-0 w-4 h-4 border-l border-b border-gray-400"></div>
+                          
+                          {/* XLS text */}
+                          <span className="text-white font-bold text-lg">XLS</span>
+                          
+                          {/* Upload arrows */}
+                          <div className="absolute right-2 top-8 space-y-1">
+                            <div className="w-0 h-0 border-l-2 border-r-2 border-b-3 border-transparent border-b-orange-400"></div>
+                            <div className="w-0 h-0 border-l-2 border-r-2 border-b-3 border-transparent border-b-orange-400"></div>
+                            <div className="w-0 h-0 border-l-2 border-r-2 border-b-3 border-transparent border-b-orange-400"></div>
+                          </div>
+                        </div>
+                        <span className="text-sm font-medium text-foreground group-hover:text-primary">Upload Excel File</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span>Max 10MB</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                        <span>Secure Upload</span>
+
+                      {/* CSV File Upload */}
+                      <div 
+                        className="flex flex-col items-center cursor-pointer group"
+                        onClick={() => {
+                          const input = document.createElement('input');
+                          input.type = 'file';
+                          input.accept = '.csv';
+                          input.onchange = handleFileUpload;
+                          input.click();
+                        }}
+                      >
+                        <div className="w-24 h-32 bg-slate-600 rounded-lg flex flex-col items-center justify-center mb-3 group-hover:scale-105 transition-transform duration-200 shadow-lg relative">
+                          {/* Cloud icon */}
+                          <div className="bg-white rounded-full p-2 mb-2">
+                            <div className="w-8 h-6 bg-slate-600 rounded-t-full relative">
+                              <div className="absolute inset-x-0 top-2 h-2 bg-slate-600 rounded-full"></div>
+                              <div className="absolute left-1/2 transform -translate-x-1/2 top-4 w-0 h-0 border-l-2 border-r-2 border-t-3 border-transparent border-t-slate-600"></div>
+                            </div>
+                          </div>
+                          
+                          {/* CSV text */}
+                          <span className="text-white font-bold text-sm">CSV</span>
+                        </div>
+                        <span className="text-sm font-medium text-foreground group-hover:text-primary">Upload CSV File</span>
                       </div>
                     </div>
+                    
+                    <p className="text-muted-foreground text-center text-sm max-w-md">
+                      Click on Excel (XLS) or CSV icon to upload your account data file. 
+                      Maximum file size: 10MB
+                    </p>
                   </div>
                 )}
               </div>
@@ -243,7 +365,7 @@ export default function ApproveProjectTable() {
                     Upload Complete
                   </p>
                   <p className="text-xs text-green-700 dark:text-green-300">
-                    Your CSV file has been processed and is ready for project approval
+                    Your CSV file has been processed and is ready for Offers approval
                   </p>
                 </div>
               </div>
@@ -266,12 +388,14 @@ export default function ApproveProjectTable() {
             )}
           </div>
 
+
+
           {/* Professional Instructions Card */}
           <div className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800 shadow-sm">
             <div className="p-6">
               <h4 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-blue-600" />
-                CSV Format Requirements
+                <FileSpreadsheet className="w-5 h-5 text-blue-600" />
+                Excel/CSV Format Requirements
               </h4>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
@@ -279,38 +403,48 @@ export default function ApproveProjectTable() {
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-xs">
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span className="font-medium">Project ID</span>
+                      <span className="font-medium">Lead ID</span>
                       <span className="text-muted-foreground">(Unique identifier)</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="font-medium">Project Name</span>
-                      <span className="text-muted-foreground">(Text)</span>
+                      <span className="font-medium">Customer Contact</span>
+                      <span className="text-muted-foreground">(Phone number)</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs">
                       <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                      <span className="font-medium">Client Name</span>
-                      <span className="text-muted-foreground">(Text)</span>
+                      <span className="font-medium">Name</span>
+                      <span className="text-muted-foreground">(Full name)</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
+                      <span className="font-medium">Email</span>
+                      <span className="text-muted-foreground">(Email address)</span>
                     </div>
                   </div>
                 </div>
                 <div>
-                  <h5 className="text-sm font-semibold text-foreground mb-3">Data Formats</h5>
+                  <h5 className="text-sm font-semibold text-foreground mb-3">Additional Fields</h5>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-xs">
                       <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      <span className="font-medium">Company</span>
+                      <span className="text-muted-foreground">(Company name)</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
                       <span className="font-medium">Budget</span>
                       <span className="text-muted-foreground">(Numeric only)</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs">
-                      <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
                       <span className="font-medium">Date</span>
                       <span className="text-muted-foreground">(YYYY-MM-DD)</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs">
-                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                       <span className="font-medium">Status</span>
-                      <span className="text-muted-foreground">(Pending/Approved/Rejected)</span>
+                      <span className="text-muted-foreground">(Pending/Approved)</span>
                     </div>
                   </div>
                 </div>

@@ -2,8 +2,7 @@ import { useState } from "react";
 
 export default function ResetPasswordForm() {
   const [formData, setFormData] = useState({
-    userId: "",
-    email: "",
+    phoneNumber: "",
     newPassword: "",
     confirmPassword: "",
     otp: ""
@@ -39,14 +38,14 @@ export default function ResetPasswordForm() {
       <form onSubmit={handleSubmit} className="bg-card rounded-lg border border-border p-4 sm:p-6 max-w-2xl">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">User ID or Email</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Phone Number</label>
             <input
               type="text"
               name="userId"
               value={formData.userId}
               onChange={handleChange}
               className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="Enter user ID or email"
+              placeholder="Enter Phone Number"
               required
             />
           </div>

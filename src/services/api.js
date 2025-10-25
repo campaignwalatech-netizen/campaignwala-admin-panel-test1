@@ -225,7 +225,7 @@ export const endpoints = {
   admin: {
     dashboard: '/admin/dashboard',
     users: '/admin/users',
-    products: '/admin/products',
+    Offers: '/admin/Offers',
     categories: '/admin/categories',
     leads: '/admin/leads',
     slides: '/admin/slides',

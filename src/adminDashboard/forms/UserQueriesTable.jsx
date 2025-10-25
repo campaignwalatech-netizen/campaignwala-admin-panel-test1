@@ -13,7 +13,8 @@ export default function UserQueriesTable() {
       message: "I am having trouble with the login button. It's not working properly and I'm unable to access my account. I need help to change my password", 
       date: "2025-10-18", 
       status: "Open",
-      hasReplied: false
+      hasReplied: false,
+      replies: []
     },
     { 
       id: 2, 
@@ -23,7 +24,15 @@ export default function UserQueriesTable() {
       message: "When will the new features be released? I'm particularly interested in the advanced analytics dashboard. We've been waiting for these features. This started happening advanced analytics dashboard", 
       date: "2024-01-14", 
       status: "Replied",
-      hasReplied: true
+      hasReplied: true,
+      replies: [
+        {
+          id: 1,
+          message: "Thank you for your inquiry. The new features will be released next month.",
+          date: "2024-01-15",
+          time: "10:30 AM"
+        }
+      ]
     },
     { 
       id: 3, 
@@ -33,7 +42,8 @@ export default function UserQueriesTable() {
       message: "I need help with account verification process. My documents have been submitted but the status hasn't changed for weeks.", 
       date: "2024-01-12", 
       status: "Open",
-      hasReplied: false
+      hasReplied: false,
+      replies: []
     },
     { 
       id: 4, 
@@ -43,7 +53,8 @@ export default function UserQueriesTable() {
       message: "Having issues with payment processing. The transaction keeps failing even though my card is valid and has sufficient funds.", 
       date: "2024-01-10", 
       status: "Open",
-      hasReplied: false
+      hasReplied: false,
+      replies: []
     }
   ]);
 
@@ -59,8 +70,20 @@ export default function UserQueriesTable() {
 
   const handleSendReply = () => {
     if (replyMessage.trim()) {
+      const newReply = {
+        id: Date.now(), // Simple ID generation
+        message: replyMessage.trim(),
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      
       setQueries(queries.map(q => 
-        q.id === selectedQuery.id ? {...q, status: "Replied", hasReplied: true} : q
+        q.id === selectedQuery.id ? {
+          ...q, 
+          status: "Replied", 
+          hasReplied: true,
+          replies: [...(q.replies || []), newReply]
+        } : q
       ));
       setShowReplyModal(false);
       setReplyMessage("");
@@ -98,27 +121,37 @@ export default function UserQueriesTable() {
                 onClick={() => handleReply(query)}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   query.hasReplied 
-                    ? 'bg-green-100 text-green-700 cursor-default' 
+                    ? 'bg-green-100 text-green-700 hover:bg-green-200' 
                     : 'text-white hover:opacity-90'
                 }`}
                 style={{
                   backgroundColor: query.hasReplied ? undefined : '#561ED0'
                 }}
-                disabled={query.hasReplied}
               >
-                {query.hasReplied ? 'Replied' : 'Reply'}
+                {query.hasReplied ? 'Reply Again' : 'Reply'}
               </button>
             </div>
             
             {/* Query Subject */}
-            <h4 className="text-base font-medium text-gray-800 mb-2">{query.subject}</h4>
+            <h4 className={`text-base font-medium mb-2 ${query.hasReplied ? 'text-green-600' : 'text-gray-800'}`}>
+              {query.subject}
+            </h4>
             
             {/* Query Message */}
-            <p className="text-gray-700 text-sm leading-relaxed mb-3">{query.message}</p>
+            <p className={`text-sm leading-relaxed mb-3 ${query.hasReplied ? 'text-green-700' : 'text-gray-700'}`}>
+              {query.message}
+            </p>
             
-            {/* Email Info */}
-            <div className="text-xs text-gray-500">
-              Email: {query.email}
+            {/* Email Info and Reply Count */}
+            <div className="flex justify-between items-center">
+              <div className="text-xs text-gray-500">
+                Email: {query.email}
+              </div>
+              {query.hasReplied && query.replies && query.replies.length > 0 && (
+                <div className="text-xs text-green-600 font-medium">
+                  {query.replies.length} {query.replies.length === 1 ? 'Reply' : 'Replies'} Sent
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -151,9 +184,29 @@ export default function UserQueriesTable() {
                 </div>
               </div>
 
+              {/* Previous Replies */}
+              {selectedQuery.replies && selectedQuery.replies.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-gray-600 mb-2">Previous Replies:</h3>
+                  <div className="space-y-3 max-h-40 overflow-y-auto">
+                    {selectedQuery.replies.map((reply) => (
+                      <div key={reply.id} className="bg-green-50 border-l-4 border-green-500 p-3 rounded-r-lg">
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="text-xs text-green-600 font-medium">Admin Reply</span>
+                          <span className="text-xs text-green-500">{reply.date} at {reply.time}</span>
+                        </div>
+                        <p className="text-sm text-green-700">{reply.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Reply Input */}
               <div className="mb-6">
-                <h3 className="text-sm font-semibold text-gray-600 mb-2">Your Reply:</h3>
+                <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                  {selectedQuery.hasReplied ? 'Send Another Reply:' : 'Your Reply:'}
+                </h3>
                 <textarea
                   value={replyMessage}
                   onChange={(e) => setReplyMessage(e.target.value)}
