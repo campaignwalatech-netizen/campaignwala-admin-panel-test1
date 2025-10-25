@@ -1,17 +1,13 @@
-import { useState, useRef, useEffect } from "react";
-import { Upload, FileText, CheckCircle, AlertCircle, FileSpreadsheet, ToggleLeft, ToggleRight, UserCheck, UserX, Loader2 } from "lucide-react";
-import { getAllOffers, approveOffer, rejectOffer } from "../../services/offerService";
+import { useState, useRef } from "react";
+import { Upload, FileText, CheckCircle, AlertCircle, FileSpreadsheet, ToggleLeft, ToggleRight, UserCheck, UserX } from "lucide-react";
 
 export default function ApproveOffersTable() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState(""); // success, error, or empty
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
-  const [offers, setOffers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [processingIds, setProcessingIds] = useState(new Set());
 
+<<<<<<< Updated upstream
   // Fetch offers on component mount
   useEffect(() => {
     fetchOffers();
@@ -44,57 +40,81 @@ export default function ApproveOffersTable() {
       setError(err.response?.data?.message || 'Failed to load offers. Please try again.');
     } finally {
       setLoading(false);
+=======
+  // Sample accounts data with approval status
+  const [accounts, setAccounts] = useState([
+    { 
+      id: 1, 
+      leadId: "LEAD001", 
+      customerContact: "+91 9876543210", 
+      name: "Rajesh Kumar", 
+      email: "rajesh@example.com", 
+      company: "Tech Solutions Pvt Ltd", 
+      budget: 250000, 
+      date: "2024-10-20", 
+      isApproved: false 
+    },
+    { 
+      id: 2, 
+      leadId: "LEAD002", 
+      customerContact: "+91 8765432109", 
+      name: "Priya Sharma", 
+      email: "priya@example.com", 
+      company: "Digital Marketing Co", 
+      budget: 150000, 
+      date: "2024-10-21", 
+      isApproved: true 
+    },
+    { 
+      id: 3, 
+      leadId: "LEAD003", 
+      customerContact: "+91 7654321098", 
+      name: "Amit Patel", 
+      email: "amit@example.com", 
+      company: "Startup Hub", 
+      budget: 75000, 
+      date: "2024-10-22", 
+      isApproved: false 
+    },
+    { 
+      id: 4, 
+      leadId: "LEAD004", 
+      customerContact: "+91 6543210987", 
+      name: "Sneha Gupta", 
+      email: "sneha@example.com", 
+      company: "E-commerce Plus", 
+      budget: 320000, 
+      date: "2024-10-23", 
+      isApproved: true 
+>>>>>>> Stashed changes
     }
-  };
+  ]);
 
   // Toggle approval status
-  const toggleApproval = async (offerId, currentStatus) => {
-    if (processingIds.has(offerId)) return;
-    
-    try {
-      setProcessingIds(prev => new Set([...prev, offerId]));
-      
-      let response;
-      if (currentStatus) {
-        // If currently approved, reject it
-        response = await rejectOffer(offerId, 'Unapproved by admin');
-      } else {
-        // If currently not approved, approve it
-        response = await approveOffer(offerId);
-      }
-      
-      if (response.success) {
-        // Update local state
-        setOffers(offers.map(offer => 
-          offer._id === offerId ? response.data : offer
-        ));
-      } else {
-        alert(response.message || 'Failed to update approval status');
-      }
-    } catch (err) {
-      console.error('Error toggling approval:', err);
-      alert(err.response?.data?.message || 'Failed to update approval status');
-    } finally {
-      setProcessingIds(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(offerId);
-        return newSet;
-      });
-    }
+  const toggleApproval = (accountId) => {
+    setAccounts(accounts.map(acc => 
+      acc.id === accountId ? {...acc, isApproved: !acc.isApproved} : acc
+    ));
   };
 
-  // Export offers to Excel/CSV
+  // Export accounts to Excel/CSV
   const exportToExcel = () => {
+<<<<<<< Updated upstream
     const csvContent = "Lead ID,Name,Category,Commission 1,Commission 2,Date,Approval Status\n" + 
       offers.map(offer => 
         `${offer.leadId || 'N/A'},"${offer.name || 'N/A'}",${offer.category || 'N/A'},${offer.commission1 || 'N/A'},${offer.commission2 || 'N/A'},${new Date(offer.createdAt).toISOString().split('T')[0]},${offer.isApproved ? 'Approved' : 'Pending'}`
+=======
+    const csvContent = "Lead ID,Customer Contact,Name,Email,Company,Budget,Date,Status\n" + 
+      accounts.map(acc => 
+        `${acc.leadId},${acc.customerContact},"${acc.name}",${acc.email},"${acc.company}",${acc.budget},${acc.date},${acc.isApproved ? 'Approved' : 'Pending'}`
+>>>>>>> Stashed changes
       ).join('\n');
     
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Offers_Approval_${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `Accounts_${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
@@ -187,30 +207,17 @@ export default function ApproveOffersTable() {
           
           {/* Right side with title and toggle */}
           <div className="flex items-center gap-4">
-            {/* Export Button */}
-            <button
-              onClick={exportToExcel}
-              disabled={loading || offers.length === 0}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold disabled:opacity-50 flex items-center gap-2"
-            >
-              <FileText className="w-4 h-4" />
-              Export to CSV
-            </button>
-            
-            {/* Bulk Toggle */}
+            {/* Unapprove Account Toggle */}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-foreground">Bulk Approve/Unapprove</span>
+              <span className="text-sm font-medium text-foreground">Unapprove Account</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input 
                   type="checkbox" 
                   className="sr-only peer"
-                  checked={offers.some(offer => offer.isApproved)}
-                  disabled={loading}
-                  onChange={async () => {
-                    const hasApproved = offers.some(offer => offer.isApproved);
-                    // Bulk approval/unapproval could be implemented here
-                    // For now, we'll just show a message
-                    alert('Bulk approval/unapproval will process all offers. This feature requires backend support for bulk operations.');
+                  checked={accounts.some(acc => acc.isApproved)}
+                  onChange={() => {
+                    const hasApproved = accounts.some(acc => acc.isApproved);
+                    setAccounts(accounts.map(acc => ({...acc, isApproved: !hasApproved})));
                   }}
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>

@@ -1,7 +1,13 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function AddSlideForm() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const editSlide = location.state?.editSlide;
+  const isEditMode = Boolean(editSlide);
+
   const [formData, setFormData] = useState({
     offerTitle: "",
     category: "",
@@ -12,12 +18,32 @@ export default function AddSlideForm() {
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
 
+  // Populate form with slide data when in edit mode
+  useEffect(() => {
+    if (editSlide) {
+      setFormData({
+        offerTitle: editSlide.title || "",
+        category: editSlide.category || "",
+        OffersId: editSlide.id?.toString() || "",
+        backgroundImage: editSlide.image || null
+      });
+      if (editSlide.image) {
+        setImagePreview(editSlide.image);
+      }
+    }
+  }, [editSlide]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Slide Data:", formData);
-    alert("Slide added successfully!");
     
-    // Reset form after submission
+    if (isEditMode) {
+      alert("Slide updated successfully!");
+    } else {
+      alert("Slide added successfully!");
+    }
+    
+    // Reset form after submission and navigate back
     setFormData({
       offerTitle: "",
       category: "",
@@ -28,6 +54,9 @@ export default function AddSlideForm() {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    
+    // Navigate back to all slides
+    navigate('/admin/slides');
   };
 
   const handleInputChange = (e) => {
@@ -80,7 +109,9 @@ export default function AddSlideForm() {
 
   return (
     <div className="h-full flex flex-col p-3 sm:p-4">
-      <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Add New Slide</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
+        {isEditMode ? 'Edit Slide' : 'Add New Slide'}
+      </h2>
       
       <div className="flex-1 overflow-y-auto scrollbar-custom min-h-0">
         <form onSubmit={handleSubmit} className="bg-card rounded-lg border border-border p-4 sm:p-6 max-w-2xl">
@@ -218,7 +249,7 @@ export default function AddSlideForm() {
               type="submit"
               className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
             >
-              Add Slide
+              {isEditMode ? 'Update Slide' : 'Add Slide'}
             </button>
           </div>
         </form>

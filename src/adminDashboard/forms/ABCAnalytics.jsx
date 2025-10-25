@@ -1,506 +1,725 @@
-import { BarChart3, TrendingUp, Users, DollarSign, Download, Filter, Calendar, CheckCircle, XCircle, Clock, Ban, CalendarDays, ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
+import {
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 
-export default function ABCAnalytics() {
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [selectedStartDate, setSelectedStartDate] = useState(null);
-  const [selectedEndDate, setSelectedEndDate] = useState(null);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [isSelectingEndDate, setIsSelectingEndDate] = useState(false);
-  const [selectionMode, setSelectionMode] = useState('range'); // 'single' or 'range'
-  const [showManualInput, setShowManualInput] = useState(false);
-  const [manualStartDate, setManualStartDate] = useState('');
-  const [manualEndDate, setManualEndDate] = useState('');
-  const calendarRef = useRef(null);
+// Simple Card components for the dashboard
+const Card = ({ className = "", children }) => (
+  <div className={`bg-card border border-border rounded-lg shadow-sm ${className}`}>
+    {children}
+  </div>
+);
 
-  // Search functionality state
-  const [searchTerm, setSearchTerm] = useState('');
+const CardHeader = ({ className = "", children }) => (
+  <div className={`p-4 pb-2 ${className}`}>
+    {children}
+  </div>
+);
 
-  // Calendar helper functions
-  const formatDate = (date) => {
-    if (!date) return "";
-    return date.toLocaleDateString('en-IN', { 
-      day: '2-digit', 
-      month: 'short', 
-      year: 'numeric' 
-    });
+const CardTitle = ({ className = "", children }) => (
+  <h3 className={`font-semibold text-lg ${className}`}>
+    {children}
+  </h3>
+);
+
+const CardDescription = ({ className = "", children }) => (
+  <p className={`text-sm mt-1 ${className}`}>
+    {children}
+  </p>
+);
+
+const CardContent = ({ className = "", children }) => (
+  <div className={`p-4 pt-2 ${className}`}>
+    {children}
+  </div>
+);
+
+// Theme-aware chart colors that work in both light and dark themes
+const getChartColors = () => {
+  return {
+    // For axis text - uses CSS variables that automatically adapt
+    axisText: 'hsl(var(--foreground))',
+    // For dots - white in dark, primary color in light
+    dotFill: 'hsl(var(--background))',
+    dotStroke: 'hsl(var(--primary))',
+    // Grid lines
+    gridStroke: 'hsl(var(--border))'
   };
+};
 
-  const getDaysInMonth = (date) => {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-  };
+// Custom label renderer for better visibility in dark theme
+const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, name, percent }) => {
+  const RADIAN = Math.PI / 180;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-  const getFirstDayOfMonth = (date) => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-  };
-
-  const isSameDay = (date1, date2) => {
-    return date1 && date2 && 
-           date1.getDate() === date2.getDate() && 
-           date1.getMonth() === date2.getMonth() && 
-           date1.getFullYear() === date2.getFullYear();
-  };
-
-  const isDateInRange = (date) => {
-    if (!selectedStartDate || !selectedEndDate) return false;
-    return date >= selectedStartDate && date <= selectedEndDate;
-  };
-
-  const handleDateClick = (day) => {
-    const clickedDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-    
-    if (selectionMode === 'single') {
-      // Single date selection mode
-      setSelectedStartDate(clickedDate);
-      setSelectedEndDate(null);
-      setIsSelectingEndDate(false);
-    } else {
-      // Range selection mode
-      if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
-        // Start new selection
-        setSelectedStartDate(clickedDate);
-        setSelectedEndDate(null);
-        setIsSelectingEndDate(true);
-      } else if (isSelectingEndDate) {
-        // Set end date
-        if (clickedDate >= selectedStartDate) {
-          setSelectedEndDate(clickedDate);
-          setIsSelectingEndDate(false);
-        } else {
-          // If clicked date is before start date, make it the new start date
-          setSelectedStartDate(clickedDate);
-          setSelectedEndDate(null);
-        }
-      }
-    }
-  };
-
-  const clearDateSelection = () => {
-    setSelectedStartDate(null);
-    setSelectedEndDate(null);
-    setIsSelectingEndDate(false);
-  };
-
-  const toggleSelectionMode = () => {
-    const newMode = selectionMode === 'single' ? 'range' : 'single';
-    setSelectionMode(newMode);
-    // Clear selections when switching modes
-    clearDateSelection();
-  };
-
-  const handleManualDateInput = (value, isEndDate = false) => {
-    if (isEndDate) {
-      setManualEndDate(value);
-      if (value) {
-        const date = new Date(value);
-        if (!isNaN(date.getTime())) {
-          setSelectedEndDate(date);
-        }
-      }
-    } else {
-      setManualStartDate(value);
-      if (value) {
-        const date = new Date(value);
-        if (!isNaN(date.getTime())) {
-          setSelectedStartDate(date);
-          if (selectionMode === 'single') {
-            setSelectedEndDate(null);
-          }
-        }
-      }
-    }
-  };
-
-  const applyManualDates = () => {
-    setShowManualInput(false);
-    setShowCalendar(false);
-  };
-
-  const toggleInputMethod = () => {
-    setShowManualInput(!showManualInput);
-    if (!showManualInput) {
-      // When switching to manual input, populate with current selected dates
-      if (selectedStartDate) {
-        setManualStartDate(selectedStartDate.toISOString().split('T')[0]);
-      }
-      if (selectedEndDate) {
-        setManualEndDate(selectedEndDate.toISOString().split('T')[0]);
-      }
-    }
-  };
-
-  const navigateMonth = (direction) => {
-    const newMonth = new Date(currentMonth);
-    newMonth.setMonth(newMonth.getMonth() + direction);
-    setCurrentMonth(newMonth);
-  };
-
-  // Close calendar when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (calendarRef.current && !calendarRef.current.contains(event.target)) {
-        setShowCalendar(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleExport = () => {
-    console.log("Exporting analytics...");
-    alert("Export functionality will be implemented soon!");
-  };
-
-  const stats = [
-    { label: "Total Leads", value: "1,234", change: "+12%", icon: Users, color: "bg-blue-500" },
-    { label: "Conversion Rate", value: "68%", change: "+5%", icon: TrendingUp, color: "bg-green-500" },
-    { label: "Revenue", value: "₹12,50,000", change: "+18%", icon: DollarSign, color: "bg-purple-500" },
-    { label: "Active Campaigns", value: "45", change: "+3", icon: BarChart3, color: "bg-orange-500" },
-  ];
-
-  const statusStats = [
-    { label: "Approved", value: "856", change: "+8%", icon: CheckCircle, color: "bg-green-500" },
-    { label: "Pending", value: "234", change: "-2%", icon: Clock, color: "bg-yellow-500" },
-    { label: "Rejected", value: "89", change: "+5%", icon: XCircle, color: "bg-red-500" },
-    { label: "Cancelled", value: "55", change: "-10%", icon: Ban, color: "bg-gray-500" },
-  ];
-
-  const leadData = [
-    { month: "Jan", leads: 85, conversions: 58 },
-    { month: "Feb", leads: 92, conversions: 65 },
-    { month: "Mar", leads: 78, conversions: 52 },
-    { month: "Apr", leads: 105, conversions: 72 },
-    { month: "May", leads: 120, conversions: 85 },
-    { month: "Jun", leads: 135, conversions: 95 },
-  ];
-
-  // Sample user data for search
-  const sampleUsers = [
-    { id: 'U001', name: 'Rajesh Kumar', email: 'rajesh@example.com', phone: '+91 9876543210', location: 'Mumbai, Maharashtra', totalSpent: '₹15,000', campaigns: 8 },
-    { id: 'U002', name: 'Priya Sharma', email: 'priya.sharma@gmail.com', phone: '+91 8765432109', location: 'Delhi, Delhi', totalSpent: '₹8,500', campaigns: 5 },
-    { id: 'U003', name: 'Amit Singh', email: 'amit.singh@yahoo.com', phone: '+91 7654321098', location: 'Bangalore, Karnataka', totalSpent: '₹22,300', campaigns: 12 },
-    { id: 'U004', name: 'Sneha Gupta', email: 'sneha@hotmail.com', phone: '+91 6543210987', location: 'Pune, Maharashtra', totalSpent: '₹5,200', campaigns: 3 },
-    { id: 'U005', name: 'Vikash Patel', email: 'vikash.patel@gmail.com', phone: '+91 5432109876', location: 'Ahmedabad, Gujarat', totalSpent: '₹18,700', campaigns: 9 }
-  ];
-
-  // Filter data based on search term
-  const filteredUsers = sampleUsers.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.phone.includes(searchTerm) ||
-    user.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.location.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  if (percent < 0.05) return null; // Don't show labels for very small segments
 
   return (
-    <div className="h-full flex flex-col p-3 sm:p-4">
-      {/* Header with Title */}
-      <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">ABC Analytics Dashboard</h2>
+    <text 
+      x={x} 
+      y={y} 
+      fill="hsl(var(--background))" 
+      textAnchor={x > cx ? 'start' : 'end'} 
+      dominantBaseline="central"
+      fontSize={11}
+      fontWeight="bold"
+    >
+      {`${(percent * 100).toFixed(0)}%`}
+    </text>
+  );
+};
 
-      {/* Filters and Export in one line */}
-      <div className="flex flex-wrap items-center gap-4 mb-6">
-        {/* Date Range Filter with Calendar */}
-        <div className="relative" ref={calendarRef}>
-          <button
-            onClick={() => setShowCalendar(!showCalendar)}
-            className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl text-foreground hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/40 dark:hover:to-indigo-900/40 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
-          >
-            <CalendarDays className="w-5 h-5 text-blue-600" />
-            <div className="text-left">
-              <div className="text-sm font-semibold">
-                {selectionMode === 'single' ? 'Single Date' : 'Date Range'}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {selectionMode === 'single' 
-                  ? (selectedStartDate 
-                    ? formatDate(selectedStartDate) 
-                    : "Select a date")
-                  : (selectedStartDate && selectedEndDate 
-                    ? `${formatDate(selectedStartDate)} - ${formatDate(selectedEndDate)}`
-                    : selectedStartDate 
-                    ? `From ${formatDate(selectedStartDate)}`
-                    : "Select date range")
-                }
-              </div>
-            </div>
-            <Filter className="w-4 h-4 text-blue-600" />
-          </button>
+// Custom tooltip component with proper dark theme styling
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div 
+        className="bg-card border border-border rounded-lg p-3 shadow-lg"
+        style={{ 
+          backgroundColor: "hsl(var(--card))", 
+          border: "1px solid hsl(var(--border))",
+          color: "hsl(var(--foreground))"
+        }}
+      >
+        {/* Show label if it exists (for LineChart) */}
+        {label && (
+          <div className="text-foreground font-medium mb-2 border-b border-border pb-1">
+            {label}
+          </div>
+        )}
+        
+        {payload.map((entry, index) => (
+          <div key={index} className="flex items-center gap-2">
+            <div 
+              className="w-3 h-3 rounded-full" 
+              style={{ backgroundColor: entry.color }}
+            ></div>
+            <span className="text-foreground font-medium">
+              {entry.name || entry.dataKey}: {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
 
-          {/* Calendar Popup */}
-          {showCalendar && (
-            <div className="absolute top-full left-0 mt-2 bg-card border border-border rounded-xl shadow-xl z-50 p-4 w-80">
-              {/* Selection Mode Toggle */}
-              <div className="flex items-center justify-center mb-4">
-                <div className="bg-muted rounded-lg p-1 flex">
-                  <button
-                    onClick={() => setSelectionMode('single')}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                      selectionMode === 'single' 
-                        ? 'bg-primary text-primary-foreground shadow-sm' 
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    Single Date
-                  </button>
-                  <button
-                    onClick={() => setSelectionMode('range')}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                      selectionMode === 'range' 
-                        ? 'bg-primary text-primary-foreground shadow-sm' 
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    Date Range
-                  </button>
-                </div>
-              </div>
 
-              {/* Input Method Toggle */}
-              <div className="flex items-center justify-center mb-4">
-                <button
-                  onClick={toggleInputMethod}
-                  className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
-                >
-                  {showManualInput ? '📅 Use Calendar' : '✏️ Manual Input'}
-                </button>
-              </div>
 
-              {/* Manual Input Section */}
-              {showManualInput ? (
-                <div className="space-y-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      {selectionMode === 'single' ? 'Select Date' : 'Start Date'}
-                    </label>
-                    <input
-                      type="date"
-                      value={manualStartDate}
-                      onChange={(e) => handleManualDateInput(e.target.value, false)}
-                      className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                    />
-                  </div>
-                  
-                  {selectionMode === 'range' && (
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        End Date
-                      </label>
-                      <input
-                        type="date"
-                        value={manualEndDate}
-                        onChange={(e) => handleManualDateInput(e.target.value, true)}
-                        className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                      />
-                    </div>
-                  )}
-                  
-                  <div className="flex gap-2 pt-2">
-                    <button
-                      onClick={applyManualDates}
-                      className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
-                    >
-                      Apply Dates
-                    </button>
-                    <button
-                      onClick={clearDateSelection}
-                      className="px-4 py-2 border border-border text-muted-foreground rounded-lg text-sm hover:text-foreground hover:bg-muted transition-colors"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {/* Calendar Header */}
-                  <div className="flex items-center justify-between mb-4">
-                    <button 
-                      onClick={() => navigateMonth(-1)}
-                      className="p-2 hover:bg-muted rounded-lg transition-colors"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <h3 className="text-lg font-semibold text-foreground">
-                      {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                    </h3>
-                    <button 
-                      onClick={() => navigateMonth(1)}
-                      className="p-2 hover:bg-muted rounded-lg transition-colors"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
+const tlData = {
+  "Abhinandan Shukla": {
+    dateWiseCount: 45,
+    totalCount: 3200,
+    pending: 2800,
+    approved: 350,
+    completed: 50,
+  },
+  "Akshat Kashyap": {
+    dateWiseCount: 38,
+    totalCount: 2900,
+    pending: 2400,
+    approved: 420,
+    completed: 80,
+  },
+  "Aryan Gupta": {
+    dateWiseCount: 52,
+    totalCount: 3500,
+    pending: 3100,
+    approved: 320,
+    completed: 80,
+  },
+  "Tanmoy jana": {
+    dateWiseCount: 31,
+    totalCount: 2591,
+    pending: 2586,
+    approved: 5,
+    completed: 0,
+  },
+  "Ankit Kumar Singh": {
+    dateWiseCount: 42,
+    totalCount: 3100,
+    pending: 2700,
+    approved: 350,
+    completed: 50,
+  },
+  "Suhani Mishra": {
+    dateWiseCount: 48,
+    totalCount: 3400,
+    pending: 2950,
+    approved: 380,
+    completed: 70,
+  },
+  "Sejal sharma": {
+    dateWiseCount: 35,
+    totalCount: 2800,
+    pending: 2500,
+    approved: 250,
+    completed: 50,
+  },
+  "Amit Sahani": {
+    dateWiseCount: 40,
+    totalCount: 3000,
+    pending: 2650,
+    approved: 300,
+    completed: 50,
+  },
+  "Pallivi kumari": {
+    dateWiseCount: 44,
+    totalCount: 3300,
+    pending: 2900,
+    approved: 350,
+    completed: 50,
+  },
+}
 
-                  {/* Calendar Grid */}
-                  <div className="grid grid-cols-7 gap-1 mb-4">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                  <div key={day} className="text-center text-xs font-medium text-muted-foreground py-2">
-                    {day}
-                  </div>
-                ))}
-                
-                {/* Empty cells for days before month starts */}
-                {Array.from({ length: getFirstDayOfMonth(currentMonth) }).map((_, index) => (
-                  <div key={`empty-${index}`} className="h-8"></div>
-                ))}
-                
-                {/* Days of the month */}
-                {Array.from({ length: getDaysInMonth(currentMonth) }).map((_, index) => {
-                  const day = index + 1;
-                  const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-                  const isStart = isSameDay(date, selectedStartDate);
-                  const isEnd = isSameDay(date, selectedEndDate);
-                  const isInRange = selectionMode === 'range' && isDateInRange(date);
-                  const isSelected = selectionMode === 'single' && isStart;
-                  const isToday = isSameDay(date, new Date());
-                  
-                  return (
-                    <button
-                      key={day}
-                      onClick={() => handleDateClick(day)}
-                      className={`h-8 w-8 text-sm rounded-lg transition-all duration-150 ${
-                        isSelected || isStart || isEnd
-                          ? 'bg-primary text-primary-foreground font-semibold shadow-md'
-                          : isInRange
-                          ? 'bg-primary/20 text-primary font-medium'
-                          : isToday
-                          ? 'bg-muted text-foreground font-semibold border-2 border-primary'
-                          : 'hover:bg-muted text-foreground'
-                      }`}
-                    >
-                      {day}
-                    </button>
-                  );
-                })}
-                  </div>
+const dateWiseData = [
+  { date: "2025-09-25", count: 250 },
+  { date: "2025-09-26", count: 180 },
+  { date: "2025-09-27", count: 320 },
+  { date: "2025-09-28", count: 220 },
+  { date: "2025-09-29", count: 290 },
+  { date: "2025-09-30", count: 150 },
+  { date: "2025-10-01", count: 280 },
+  { date: "2025-10-02", count: 310 },
+  { date: "2025-10-03", count: 200 },
+  { date: "2025-10-04", count: 270 },
+  { date: "2025-10-05", count: 240 },
+  { date: "2025-10-25", count: 190 },
+]
 
-                  {/* Calendar Actions */}
-                  <div className="flex items-center justify-between pt-3 border-t border-border">
-                    <button
-                      onClick={clearDateSelection}
-                      className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      Clear
-                    </button>
-                    <div className="text-xs text-muted-foreground">
-                      {selectionMode === 'single' 
-                        ? 'Select a date' 
-                        : (isSelectingEndDate ? 'Select end date' : 'Select start date')
-                      }
-                    </div>
-                    <button
-                      onClick={() => setShowCalendar(false)}
-                      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
-                    >
-                      Done
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+const accountDistribution = [
+  { name: "ANGELONE", value: 8500, color: "#a855f7" },
+  { name: "MSTOCK", value: 6200, color: "#06b6d4" },
+  { name: "GROWW", value: 5800, color: "#3b82f6" },
+  { name: "LEMON", value: 4300, color: "#10b981" },
+  { name: "UPSTOX", value: 3200, color: "#f97316" },
+  { name: "BAJAJ", value: 2100, color: "#84cc16" },
+]
+
+const pendingByAccount = [
+  { name: "ANGELONE", value: 12500, color: "#a855f7" },
+  { name: "MSTOCK", value: 9800, color: "#06b6d4" },
+  { name: "GROWW", value: 7600, color: "#3b82f6" },
+  { name: "LEMON", value: 3200, color: "#10b981" },
+  { name: "UPSTOX", value: 2100, color: "#f97316" },
+  { name: "BAJAJ INSTA", value: 1100, color: "#84cc16" },
+]
+
+const approvedByAccount = [
+  { name: "BAJAJ", value: 1200, color: "#3b82f6" },
+  { name: "ANGELONE", value: 650, color: "#a855f7" },
+  { name: "GROWW", value: 320, color: "#06b6d4" },
+  { name: "LEMON", value: 124, color: "#10b981" },
+]
+
+const tlNames = [
+  "Abhinandan Shukla",
+  "Akshat Kashyap",
+  "Aryan Gupta",
+  "Tanmoy jana",
+  "Ankit Kumar Singh",
+  "Suhani Mishra",
+  "Sejal sharma",
+  "Amit Sahani",
+  "Pallivi kumari",
+]
+
+function Calendar({ month, year, onDateSelect, onMonthChange, startDate, endDate }) {
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const firstDay = new Date(year, month, 1).getDay()
+  const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+
+  const days = []
+  for (let i = 0; i < firstDay; i++) {
+    days.push(null)
+  }
+  for (let i = 1; i <= daysInMonth; i++) {
+    days.push(i)
+  }
+
+  return (
+    <div className="bg-card border border-border rounded-lg p-4">
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={() => onMonthChange(-1)} className="p-1 hover:bg-muted rounded">
+          <ChevronLeft className="w-5 h-5 text-muted-foreground" />
+        </button>
+        <div className="text-center">
+          <div className="text-foreground font-semibold">{monthNames[month]}</div>
+          <div className="text-muted-foreground text-sm">{year}</div>
         </div>
-
-        {/* Search Filter */}
-        <div className="relative flex-1 min-w-[200px] max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search users, categories..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-
-        {/* Export Button */}
-        <button
-          onClick={handleExport}
-          className="flex items-center gap-2 px-6 py-3 text-white rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-          style={{ 
-            backgroundColor: '#4406CB',
-            borderColor: '#4406CB'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#3905B8'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#4406CB'}
-        >
-          <Download className="w-4 h-4" />
-          Export Data
+        <button onClick={() => onMonthChange(1)} className="p-1 hover:bg-muted rounded">
+          <ChevronRight className="w-5 h-5 text-muted-foreground" />
         </button>
       </div>
 
-      {/* Content with scroll */}
-      <div className="flex-1 overflow-y-auto scrollbar-custom min-h-0 space-y-4">
-      {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
+      <div className="grid grid-cols-7 gap-2 mb-2">
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+          <div key={day} className="text-center text-xs text-muted-foreground font-semibold py-2">
+            {day}
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-2">
+        {days.map((day, idx) => {
+          let isInRange = false
+          if (day && startDate && endDate) {
+            const currentDate = new Date(year, month, day)
+            isInRange = currentDate >= startDate && currentDate <= endDate
+          }
+
           return (
-            <div key={index} className="bg-card rounded-lg border border-border p-4 sm:p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-center justify-between mb-3 sm:mb-4">
-                <div className={`${stat.color} w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center`}>
-                  <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
-                <span className={`text-xs sm:text-sm font-semibold whitespace-nowrap ${stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>{stat.change}</span>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-1 whitespace-nowrap">{stat.value}</h3>
-              <p className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">{stat.label}</p>
-            </div>
-          );
+            <button
+              key={idx}
+              onClick={() => day && onDateSelect(new Date(year, month, day))}
+              className={`py-2 text-sm rounded ${
+                isInRange
+                  ? "bg-primary text-primary-foreground"
+                  : day
+                    ? "text-foreground hover:bg-primary hover:text-primary-foreground cursor-pointer"
+                    : "text-muted-foreground"
+              }`}
+            >
+              {day}
+            </button>
+          )
         })}
       </div>
+    </div>
+  )
+}
 
-      {/* Status Stats Grid */}
-      <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
-        <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4">Offers Status Overview</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {statusStats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <div key={index} className="bg-background rounded-lg border border-border p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-3">
-                  <div className={`${stat.color} w-10 h-10 rounded-lg flex items-center justify-center`}>
-                    <Icon className="w-5 h-5 text-white" />
+export default function AnalyticsDashboard() {
+  const [startDate, setStartDate] = useState(new Date(2025, 8, 25))
+  const [endDate, setEndDate] = useState(new Date(2025, 9, 25))
+  const [calendarMonth, setCalendarMonth] = useState(9)
+  const [calendarYear, setCalendarYear] = useState(2025)
+  const [selectedHR, setSelectedHR] = useState("All HR")
+  const [selectedTL, setSelectedTL] = useState("All TL")
+  const [showCalendar, setShowCalendar] = useState(false)
+  const [manualStartDate, setManualStartDate] = useState("2025-09-25")
+  const [manualEndDate, setManualEndDate] = useState("2025-10-25")
+
+  const applyQuickFilter = (days) => {
+    const end = new Date()
+    const start = new Date()
+    start.setDate(end.getDate() - days)
+    setStartDate(start)
+    setEndDate(end)
+    setManualStartDate(start.toISOString().split("T")[0])
+    setManualEndDate(end.toISOString().split("T")[0])
+  }
+
+  const handleDateSelect = (date) => {
+    if (!startDate || (startDate && endDate)) {
+      setStartDate(date)
+      setEndDate(null)
+      setManualStartDate(date.toISOString().split("T")[0])
+      setManualEndDate("")
+    } else {
+      if (date < startDate) {
+        setEndDate(startDate)
+        setStartDate(date)
+        setManualStartDate(date.toISOString().split("T")[0])
+        setManualEndDate(startDate.toISOString().split("T")[0])
+      } else {
+        setEndDate(date)
+        setManualEndDate(date.toISOString().split("T")[0])
+      }
+    }
+  }
+
+  const handleManualDateChange = (type, value) => {
+    if (type === "start") {
+      setManualStartDate(value)
+      if (value) {
+        setStartDate(new Date(value))
+      }
+    } else {
+      setManualEndDate(value)
+      if (value) {
+        setEndDate(new Date(value))
+      }
+    }
+  }
+
+  const handleMonthChange = (direction) => {
+    let newMonth = calendarMonth + direction
+    let newYear = calendarYear
+    if (newMonth > 11) {
+      newMonth = 0
+      newYear++
+    } else if (newMonth < 0) {
+      newMonth = 11
+      newYear--
+    }
+    setCalendarMonth(newMonth)
+    setCalendarYear(newYear)
+  }
+
+  const formatDate = (date) => {
+    if (!date) return ""
+    return date.toISOString().split("T")[0]
+  }
+
+  const dateRangeText = endDate ? `${formatDate(startDate)} ~ ${formatDate(endDate)}` : `${formatDate(startDate)}`
+
+  const getMetrics = () => {
+    if (selectedTL === "All TL") {
+      return [
+        { label: "DateWise Count", value: "31", icon: "📅" },
+        { label: "Total Count", value: "2591", icon: "📊", subtext: "Database" },
+        { label: "Pending", value: "2586", icon: "⏳" },
+        { label: "Approved", value: "5", icon: "✓" },
+        { label: "Completed", value: "0", icon: "✓" },
+      ]
+    }
+
+    const data = tlData[selectedTL]
+    return [
+      { label: "DateWise Count", value: data.dateWiseCount.toString(), icon: "📅" },
+      { label: "Total Count", value: data.totalCount.toString(), icon: "📊", subtext: "Database" },
+      { label: "Pending", value: data.pending.toString(), icon: "⏳" },
+      { label: "Approved", value: data.approved.toString(), icon: "✓" },
+      { label: "Completed", value: data.completed.toString(), icon: "✓" },
+    ]
+  }
+
+  const metrics = getMetrics()
+
+  return (
+    <div className="h-full flex flex-col p-3 sm:p-4 bg-background">
+      <div className="max-w-7xl mx-auto w-full">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Analytics Dashboard</h1>
+          <p className="text-muted-foreground">Account management and performance metrics</p>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-wrap gap-4 mb-8">
+          <div className="relative flex-1 min-w-[250px]">
+            <button
+              onClick={() => setShowCalendar(!showCalendar)}
+              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-left"
+            >
+              {dateRangeText}
+            </button>
+
+            {showCalendar && (
+              <div className="absolute top-full left-0 mt-2 z-50 bg-card border border-border rounded-lg p-4 shadow-lg">
+                <div className="flex gap-4">
+                  {/* Quick filters */}
+                  <div className="flex flex-col gap-2 pr-4 border-r border-border">
+                    <button
+                      onClick={() => {
+                        applyQuickFilter(0)
+                        setShowCalendar(false)
+                      }}
+                      className="text-left px-3 py-2 text-primary hover:bg-muted rounded text-sm"
+                    >
+                      Today
+                    </button>
+                    <button
+                      onClick={() => {
+                        applyQuickFilter(1)
+                        setShowCalendar(false)
+                      }}
+                      className="text-left px-3 py-2 text-primary hover:bg-muted rounded text-sm"
+                    >
+                      Yesterday
+                    </button>
+                    <button
+                      onClick={() => {
+                        applyQuickFilter(7)
+                        setShowCalendar(false)
+                      }}
+                      className="text-left px-3 py-2 text-primary hover:bg-muted rounded text-sm"
+                    >
+                      Last 7 days
+                    </button>
+                    <button
+                      onClick={() => {
+                        applyQuickFilter(30)
+                        setShowCalendar(false)
+                      }}
+                      className="text-left px-3 py-2 text-primary hover:bg-muted rounded text-sm"
+                    >
+                      Last 30 days
+                    </button>
+                    <button
+                      onClick={() => {
+                        const today = new Date()
+                        setStartDate(new Date(today.getFullYear(), today.getMonth(), 1))
+                        setEndDate(today)
+                        setManualStartDate(
+                          new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split("T")[0],
+                        )
+                        setManualEndDate(today.toISOString().split("T")[0])
+                        setShowCalendar(false)
+                      }}
+                      className="text-left px-3 py-2 text-primary hover:bg-muted rounded text-sm"
+                    >
+                      This month
+                    </button>
+                    <button
+                      onClick={() => {
+                        const today = new Date()
+                        const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1)
+                        setStartDate(new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1))
+                        setEndDate(new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0))
+                        setManualStartDate(
+                          new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1).toISOString().split("T")[0],
+                        )
+                        setManualEndDate(
+                          new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0).toISOString().split("T")[0],
+                        )
+                        setShowCalendar(false)
+                      }}
+                      className="text-left px-3 py-2 text-primary hover:bg-muted rounded text-sm"
+                    >
+                      Last month
+                    </button>
+
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <p className="text-xs text-muted-foreground mb-2 font-semibold">Manual Date Input</p>
+                      <div className="flex flex-col gap-2">
+                        <input
+                          type="date"
+                          value={manualStartDate}
+                          onChange={(e) => handleManualDateChange("start", e.target.value)}
+                          className="px-2 py-1 bg-background border border-border rounded text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                        <input
+                          type="date"
+                          value={manualEndDate}
+                          onChange={(e) => handleManualDateChange("end", e.target.value)}
+                          className="px-2 py-1 bg-background border border-border rounded text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <span className={`text-xs font-semibold whitespace-nowrap ${stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>{stat.change}</span>
+
+                  {/* Calendar */}
+                  <Calendar
+                    month={calendarMonth}
+                    year={calendarYear}
+                    onDateSelect={handleDateSelect}
+                    onMonthChange={handleMonthChange}
+                    startDate={startDate}
+                    endDate={endDate}
+                  />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-1 whitespace-nowrap">{stat.value}</h3>
-                <p className="text-xs text-muted-foreground whitespace-nowrap">{stat.label}</p>
               </div>
-            );
-          })}
+            )}
+          </div>
+
+          <select
+            value={selectedHR}
+            onChange={(e) => setSelectedHR(e.target.value)}
+            className="px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option>All HR</option>
+            <option>HR 1</option>
+            <option>HR 2</option>
+          </select>
+
+          <select
+            value={selectedTL}
+            onChange={(e) => setSelectedTL(e.target.value)}
+            className="px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option>All TL</option>
+            {tlNames.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Metrics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+          {metrics.map((metric, idx) => (
+            <div key={idx} className="bg-card border border-border hover:border-primary transition-colors rounded-lg p-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-muted-foreground text-sm mb-1">{metric.label}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-primary">{metric.value}</p>
+                  {metric.subtext && <p className="text-xs text-muted-foreground mt-1">{metric.subtext}</p>}
+                </div>
+                <span className="text-xl sm:text-2xl">{metric.icon}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Charts Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Date Wise Account Created */}
+          <div className="bg-card border border-border rounded-lg">
+            <div className="p-4 border-b border-border">
+              <h3 className="text-lg font-semibold text-foreground">Date Wise Account Created</h3>
+              <p className="text-muted-foreground text-sm">Account creation trend over time</p>
+            </div>
+            <div className="p-4">
+              <ResponsiveContainer width="100%" height={350}>
+                <LineChart data={dateWiseData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={getChartColors().gridStroke} />
+                  <XAxis 
+                    dataKey="date" 
+                    stroke={getChartColors().axisText}
+                    tick={{ fill: getChartColors().axisText, fontSize: 12 }}
+                    style={{ fontSize: "12px" }} 
+                  />
+                  <YAxis 
+                    stroke={getChartColors().axisText}
+                    tick={{ fill: getChartColors().axisText, fontSize: 12 }}
+                    style={{ fontSize: "12px" }} 
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line
+                    type="monotone"
+                    dataKey="count"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={3}
+                    dot={{ 
+                      fill: getChartColors().dotFill, 
+                      stroke: getChartColors().dotStroke,
+                      strokeWidth: 2,
+                      r: 6 
+                    }}
+                    activeDot={{ 
+                      fill: getChartColors().dotFill, 
+                      stroke: getChartColors().dotStroke,
+                      strokeWidth: 2,
+                      r: 8 
+                    }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Pending Account Distribution */}
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="text-foreground">Pending Account 2586</CardTitle>
+              <CardDescription className="text-muted-foreground">Distribution by account type</CardDescription>
+            </CardHeader>
+            <CardContent className="flex justify-center">
+              <ResponsiveContainer width="100%" height={350}>
+                <PieChart>
+                  <Pie
+                    data={pendingByAccount}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={80}
+                    outerRadius={140}
+                    paddingAngle={2}
+                    dataKey="value"
+                    label={renderCustomLabel}
+                    labelLine={false}
+                  >
+                    {pendingByAccount.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Bottom Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Total Pending Account */}
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="text-foreground">Total Pending Account 36296</CardTitle>
+              <CardDescription className="text-muted-foreground">Account breakdown</CardDescription>
+            </CardHeader>
+            <CardContent className="flex justify-center">
+              <ResponsiveContainer width="100%" height={350}>
+                <PieChart>
+                  <Pie
+                    data={pendingByAccount}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={80}
+                    outerRadius={140}
+                    paddingAngle={2}
+                    dataKey="value"
+                    label={renderCustomLabel}
+                    labelLine={false}
+                  >
+                    {pendingByAccount.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Total Approved Account */}
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="text-foreground">Total Approved Account 2294</CardTitle>
+              <CardDescription className="text-muted-foreground">Approved accounts distribution</CardDescription>
+            </CardHeader>
+            <CardContent className="flex justify-center">
+              <ResponsiveContainer width="100%" height={350}>
+                <PieChart>
+                  <Pie
+                    data={approvedByAccount}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={80}
+                    outerRadius={140}
+                    paddingAngle={2}
+                    dataKey="value"
+                    label={renderCustomLabel}
+                    labelLine={false}
+                  >
+                    {approvedByAccount.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Legend */}
+        <div className="mt-8 p-4 bg-card border border-border rounded-lg">
+          <div className="flex flex-wrap gap-6">
+            {accountDistribution.map((account, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: account.color }}></div>
+                <span className="text-foreground text-sm">{account.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-
-      {/* Lead Performance Table */}
-      <div className="bg-card rounded-lg border border-border p-4 sm:p-6 overflow-x-auto scrollbar-custom">
-        <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4 whitespace-nowrap">Monthly Lead Performance</h3>
-        <table className="w-full min-w-[480px]">
-          <thead className="bg-muted">
-            <tr>
-              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase whitespace-nowrap">Month</th>
-              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase whitespace-nowrap">Total Leads</th>
-              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase whitespace-nowrap">Conversions</th>
-              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase whitespace-nowrap">Conversion Rate</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {leadData.map((data, index) => (
-              <tr key={index} className="hover:bg-muted/50">
-                <td className="px-3 sm:px-4 py-3 text-sm font-medium text-foreground whitespace-nowrap">{data.month}</td>
-                <td className="px-3 sm:px-4 py-3 text-sm text-foreground whitespace-nowrap">{data.leads}</td>
-                <td className="px-3 sm:px-4 py-3 text-sm text-foreground whitespace-nowrap">{data.conversions}</td>
-                <td className="px-3 sm:px-4 py-3 text-sm whitespace-nowrap">
-                  <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-xs font-semibold whitespace-nowrap">
-                    {Math.round((data.conversions / data.leads) * 100)}%
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      </div>
-
     </div>
-  );
+  )
 }
