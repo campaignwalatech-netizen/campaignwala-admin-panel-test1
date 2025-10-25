@@ -11,7 +11,6 @@ export default function AddCategoryForm() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    earnUpto: "",
     icon: "",
     iconImage: null,
     status: "active"
@@ -26,7 +25,6 @@ export default function AddCategoryForm() {
       setFormData({
         name: editCategory.name || "",
         description: editCategory.description || "",
-        earnUpto: editCategory.earnUpto || "",
         icon: editCategory.icon || "",
         iconImage: null,
         status: editCategory.status || "active"
@@ -49,7 +47,6 @@ export default function AddCategoryForm() {
       setFormData({
         name: "",
         description: "",
-        earnUpto: "",
         icon: "",
         iconImage: null,
         status: "active"
@@ -131,19 +128,6 @@ export default function AddCategoryForm() {
               rows={4}
               className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="Enter category description..."
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Earn Upto</label>
-            <input
-              type="text"
-              name="earnUpto"
-              value={formData.earnUpto}
-              onChange={handleChange}
-              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="e.g., ₹5000 per month"
               required
             />
           </div>
