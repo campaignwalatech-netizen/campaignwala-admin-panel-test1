@@ -7,7 +7,6 @@ export default function ApproveOffersTable() {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
 
-<<<<<<< Updated upstream
   // Fetch offers on component mount
   useEffect(() => {
     fetchOffers();
@@ -40,7 +39,6 @@ export default function ApproveOffersTable() {
       setError(err.response?.data?.message || 'Failed to load offers. Please try again.');
     } finally {
       setLoading(false);
-=======
   // Sample accounts data with approval status
   const [accounts, setAccounts] = useState([
     { 
@@ -86,7 +84,6 @@ export default function ApproveOffersTable() {
       budget: 320000, 
       date: "2024-10-23", 
       isApproved: true 
->>>>>>> Stashed changes
     }
   ]);
 
@@ -99,15 +96,9 @@ export default function ApproveOffersTable() {
 
   // Export accounts to Excel/CSV
   const exportToExcel = () => {
-<<<<<<< Updated upstream
     const csvContent = "Lead ID,Name,Category,Commission 1,Commission 2,Date,Approval Status\n" + 
       offers.map(offer => 
         `${offer.leadId || 'N/A'},"${offer.name || 'N/A'}",${offer.category || 'N/A'},${offer.commission1 || 'N/A'},${offer.commission2 || 'N/A'},${new Date(offer.createdAt).toISOString().split('T')[0]},${offer.isApproved ? 'Approved' : 'Pending'}`
-=======
-    const csvContent = "Lead ID,Customer Contact,Name,Email,Company,Budget,Date,Status\n" + 
-      accounts.map(acc => 
-        `${acc.leadId},${acc.customerContact},"${acc.name}",${acc.email},"${acc.company}",${acc.budget},${acc.date},${acc.isApproved ? 'Approved' : 'Pending'}`
->>>>>>> Stashed changes
       ).join('\n');
     
     const blob = new Blob([csvContent], { type: 'text/csv' });

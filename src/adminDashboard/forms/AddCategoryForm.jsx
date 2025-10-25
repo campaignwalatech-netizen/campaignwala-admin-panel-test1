@@ -51,7 +51,6 @@ export default function AddCategoryForm() {
     console.log("🖼️ Icon image:", formData.iconImage);
     console.log("🔧 Is edit mode:", isEditMode);
     
-<<<<<<< Updated upstream
     try {
       setLoading(true);
       setErrorMessage("");
@@ -118,7 +117,6 @@ export default function AddCategoryForm() {
       );
     } finally {
       setLoading(false);
-=======
     if (isEditMode) {
       alert("Category updated successfully!");
       // Navigate back to categories list
@@ -135,7 +133,6 @@ export default function AddCategoryForm() {
         status: "active"
       });
       setImagePreview(null);
->>>>>>> Stashed changes
     }
   };
 
