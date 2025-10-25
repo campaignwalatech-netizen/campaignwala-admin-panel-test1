@@ -1,38 +1,81 @@
-import { useState } from "react";
-import { Edit2, Trash2, X, Download, Search, Filter } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Edit2, Trash2, X, Download, Search, Filter, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getAllCategories, deleteCategory } from "../../services/categoryService";
 
 export default function AllCategoriesTable() {
   const navigate = useNavigate();
-  const [categories, setCategories] = useState([
-    { id: 1, name: "Marketing", description: "Digital marketing services", earnUpto: "₹5000 per month", count: 15, status: "Active" },
-    { id: 2, name: "Social Media", description: "Social media campaigns", earnUpto: "₹4000 per month", count: 12, status: "Active" },
-    { id: 3, name: "SEO", description: "Search engine optimization", earnUpto: "₹6000 per month", count: 8, status: "Active" },
-    { id: 4, name: "Content Creation", description: "Content writing and design", earnUpto: "₹3500 per month", count: 20, status: "Active" },
-    { id: 5, name: "Email Marketing", description: "Email campaign management", earnUpto: "₹4500 per month", count: 10, status: "Inactive" },
-  ]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [addForm, setAddForm] = useState({
-    name: "",
-    description: "",
-    earnUpto: "",
-    count: 0,
-    status: "Active"
-  });
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [deleting, setDeleting] = useState(false);
+
+  // Fetch categories on component mount and when filters change
+  useEffect(() => {
+    fetchCategories();
+  }, [searchTerm, filterStatus]);
+
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const params = {
+        status: filterStatus,
+        search: searchTerm,
+        page: 1,
+        limit: 100,
+        sortBy: 'createdAt',
+        order: 'desc'
+      };
+
+      const response = await getAllCategories(params);
+      
+      if (response.success) {
+        setCategories(response.data.categories);
+      } else {
+        setError(response.message || 'Failed to fetch categories');
+      }
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+      setError(err.response?.data?.message || 'Failed to load categories. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDelete = (category) => {
     setSelectedCategory(category);
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
-    setCategories(categories.filter(c => c.id !== selectedCategory.id));
-    setShowDeleteModal(false);
-    setSelectedCategory(null);
+  const confirmDelete = async () => {
+    if (!selectedCategory) return;
+
+    try {
+      setDeleting(true);
+      const response = await deleteCategory(selectedCategory._id);
+      
+      if (response.success) {
+        // Remove from local state
+        setCategories(categories.filter(c => c._id !== selectedCategory._id));
+        setShowDeleteModal(false);
+        setSelectedCategory(null);
+        // Show success message
+        alert('Category deleted successfully!');
+      } else {
+        alert(response.message || 'Failed to delete category');
+      }
+    } catch (err) {
+      console.error('Error deleting category:', err);
+      alert(err.response?.data?.message || 'Failed to delete category. Please try again.');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const handleEdit = (category) => {
@@ -41,28 +84,10 @@ export default function AllCategoriesTable() {
   };
 
   const handleAddNew = () => {
-    setAddForm({
-      name: "",
-      description: "",
-      earnUpto: "",
-      count: 0,
-      status: "Active"
-    });
-    setShowAddModal(true);
-  };
-
-  const confirmAdd = () => {
-    const newCategory = {
-      id: categories.length + 1,
-      ...addForm,
-      count: parseInt(addForm.count) || 0
-    };
-    setCategories([...categories, newCategory]);
-    setShowAddModal(false);
+    navigate('/admin/add-category');
   };
 
   const handleExport = () => {
-<<<<<<< Updated upstream
     try {
       const csvData = categories.map(cat => ({
         Name: cat.name,
@@ -87,19 +112,9 @@ export default function AllCategoriesTable() {
       console.error('Error exporting categories:', err);
       alert('Failed to export categories');
     }
-=======
-    console.log("Exporting categories...");
-    alert("Export functionality will be implemented soon!");
->>>>>>> Stashed changes
   };
 
-  // Filter categories based on search term and status
-  const filteredCategories = categories.filter(category => {
-    const matchesSearch = category.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         category.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === "all" || category.status.toLowerCase() === filterStatus.toLowerCase();
-    return matchesSearch && matchesFilter;
-  });
+  const filteredCategories = categories;
 
   return (
     <div className="h-full flex flex-col p-3 sm:p-4">
@@ -146,7 +161,6 @@ export default function AllCategoriesTable() {
 
       {/* Categories Grid with fixed height */}
       <div className="flex-1 overflow-y-auto scrollbar-custom min-h-0">
-<<<<<<< Updated upstream
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -214,54 +228,11 @@ export default function AllCategoriesTable() {
                   className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                 >
                   Add New Category
-=======
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredCategories.length > 0 ? (
-          filteredCategories.map((category) => (
-            <div key={category.id} className="bg-card rounded-lg border border-border p-4 sm:p-6 hover:shadow-lg transition-shadow">
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="text-base sm:text-lg font-bold text-foreground break-words">{category.name}</h3>
-                <span className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-                  category.status === 'Active' 
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                }`}>
-                  {category.status}
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground mb-2 break-words">{category.description}</p>
-              <p className="text-sm text-green-600 font-semibold mb-4">Earn Upto: {category.earnUpto}</p>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-foreground whitespace-nowrap">
-                  <span className="font-bold">{category.count}</span> Offers
-                </span>
-              <div className="flex gap-2">
-                <button onClick={() => handleEdit(category)} className="text-primary hover:text-primary/80 text-sm font-semibold inline-flex items-center gap-1">
-                  <Edit2 className="w-4 h-4" />
-                  Edit
-                </button>
-                <button onClick={() => handleDelete(category)} className="text-destructive hover:text-destructive/80 text-sm font-semibold inline-flex items-center gap-1">
-                  <Trash2 className="w-4 h-4" />
-                  Delete
->>>>>>> Stashed changes
                 </button>
               </div>
-            </div>
-          </div>
-          ))
-        ) : (
-          <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-            <Search className="w-16 h-16 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">No categories found</h3>
-            <p className="text-muted-foreground mb-4">
-              {searchTerm 
-                ? `No categories match "${searchTerm}". Try adjusting your search.`
-                : "No categories match the selected filter."
-              }
-            </p>
+            )}
           </div>
         )}
-        </div>
       </div>
 
       {/* Delete Modal */}
@@ -270,16 +241,37 @@ export default function AllCategoriesTable() {
           <div className="bg-card rounded-lg border border-border p-4 sm:p-6 max-w-md w-full">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-foreground">Confirm Delete</h3>
-              <button onClick={() => setShowDeleteModal(false)} className="text-muted-foreground hover:text-foreground">
+              <button 
+                onClick={() => setShowDeleteModal(false)} 
+                className="text-muted-foreground hover:text-foreground"
+                disabled={deleting}
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-sm text-foreground mb-6">Are you sure you want to delete <strong>{selectedCategory?.name}</strong> category?</p>
+            <p className="text-sm text-foreground mb-6">
+              Are you sure you want to delete <strong>{selectedCategory?.name}</strong> category?
+            </p>
             <div className="flex gap-3">
-              <button onClick={confirmDelete} className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-lg hover:bg-destructive/90 whitespace-nowrap">
-                Delete
+              <button 
+                onClick={confirmDelete} 
+                disabled={deleting}
+                className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-lg hover:bg-destructive/90 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete'
+                )}
               </button>
-              <button onClick={() => setShowDeleteModal(false)} className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-lg hover:bg-destructive/80">
+              <button 
+                onClick={() => setShowDeleteModal(false)} 
+                disabled={deleting}
+                className="flex-1 px-4 py-2 bg-muted text-foreground text-sm rounded-lg hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Cancel
               </button>
             </div>
@@ -287,92 +279,14 @@ export default function AllCategoriesTable() {
         </div>
       )}
 
-      {/* Add New Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-2xl border max-w-md w-full">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-lg font-bold text-gray-900">Add New Category</h3>
-              <button 
-                onClick={() => setShowAddModal(false)}
-                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <X size={16} className="text-gray-500" />
-              </button>
-            </div>
-            <div className="p-4 space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category Name</label>
-                <input 
-                  type="text"
-                  value={addForm.name}
-                  onChange={(e) => setAddForm({...addForm, name: e.target.value})}
-                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                  placeholder="Enter category name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea 
-                  value={addForm.description}
-                  onChange={(e) => setAddForm({...addForm, description: e.target.value})}
-                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                  placeholder="Enter category description"
-                  rows="2"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Earn Upto</label>
-                <input 
-                  type="text"
-                  value={addForm.earnUpto}
-                  onChange={(e) => setAddForm({...addForm, earnUpto: e.target.value})}
-                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                  placeholder="e.g., ₹5000 per month"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Count</label>
-                <input 
-                  type="number"
-                  value={addForm.count}
-                  onChange={(e) => setAddForm({...addForm, count: e.target.value})}
-                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                  placeholder="0"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select 
-                  value={addForm.status}
-                  onChange={(e) => setAddForm({...addForm, status: e.target.value})}
-                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex gap-2 p-4 pt-0">
-              <button 
-                onClick={confirmAdd}
-                className="flex-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
-              >
-                Add Category
-              </button>
-              <button 
-                onClick={() => setShowAddModal(false)}
-                className="flex-1 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-semibold"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Add New Floating Button */}
+      <button
+        onClick={handleAddNew}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-all hover:scale-110 flex items-center justify-center z-40"
+        title="Add New Category"
+      >
+        <span className="text-2xl font-bold">+</span>
+      </button>
     </div>
   );
 }

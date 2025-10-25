@@ -117,22 +117,6 @@ export default function AddCategoryForm() {
       );
     } finally {
       setLoading(false);
-    if (isEditMode) {
-      alert("Category updated successfully!");
-      // Navigate back to categories list
-      navigate('/admin/categories');
-    } else {
-      alert("Category added successfully!");
-      // Reset form for new category
-      setFormData({
-        name: "",
-        description: "",
-        EarnUpto:"",
-        icon: "",
-        iconImage: null,
-        status: "active"
-      });
-      setImagePreview(null);
     }
   };
 
