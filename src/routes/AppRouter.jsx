@@ -62,7 +62,7 @@ import WalletAndWithdrawl from "../userDashboard/layouts/Wallet&Withdrawl";
 import ProfileOverview from "../userDashboard/layouts/ProfileOverview";
 import KYCDetails from "../userDashboard/layouts/KYCDetails";
 import TotalBalance from "../userDashboard/layouts/TotalBalance";
-
+import NotificationsPage from "../userDashboard/layouts/NotificationPage";
 // Route Components
 import ProtectedRoute from "./ProtectedRoute";
 import RoleBasedRoute from "./RoleBasedRoute";
@@ -170,6 +170,7 @@ export default function AppRouter() {
           <Route path="profile-overview" element={<ProfileOverview darkMode={darkMode} />} />
           <Route path="kyc-details" element={<KYCDetails darkMode={darkMode} />} />
           <Route path="total-balance" element={<TotalBalance darkMode={darkMode} />} />
+          <Route path="notification-page" element={<NotificationsPage darkMode={darkMode} />} />
         </Route>
 
         {/* Fallback Route */}

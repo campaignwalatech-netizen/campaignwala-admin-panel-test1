@@ -108,16 +108,6 @@ const DematAccount = ({ darkMode }) => {
           </button>
         </div>
       </div>
-
-      {/* Footer Links */}
-      <footer className="mt-16 text-center space-x-4 sm:space-x-8">
-        <a href="#" className="text-sm hover:underline">
-          Contact Us
-        </a>
-        <a href="#" className="text-sm hover:underline">
-          Company
-        </a>
-      </footer>
     </div>
   );
 };
