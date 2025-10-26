@@ -8,7 +8,7 @@ export function DeleteModal({ isOpen, onClose, onConfirm, itemName, itemType = "
       <div className="bg-card rounded-lg border border-border p-4 sm:p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-base sm:text-lg font-bold text-foreground whitespace-nowrap">Confirm Delete</h3>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground" aria-label="Close">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -36,7 +36,7 @@ export function EditModal({ isOpen, onClose, onConfirm, title, children }) {
       <div className="bg-card rounded-lg border border-border p-4 sm:p-6 max-w-md w-full my-8">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-base sm:text-lg font-bold text-foreground whitespace-nowrap">{title}</h3>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground" aria-label="Close">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -68,7 +68,7 @@ export function ConfirmModal({ isOpen, onClose, onConfirm, title, message, confi
       <div className="bg-card rounded-lg border border-border p-4 sm:p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-base sm:text-lg font-bold text-foreground whitespace-nowrap">{title}</h3>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground" aria-label="Close">
             <X className="w-5 h-5" />
           </button>
         </div>
