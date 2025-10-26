@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import ActivityFeed from './ActivityFeed';
+import ActivityFeed from '../src/adminDashboard/components/ActivityFeed';
 
 describe('ActivityFeed Component', () => {
   const mockActivities = [
