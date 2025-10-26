@@ -11,6 +11,7 @@ export default function AdminHeader({ setSidebarOpen }) {
           <button
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden text-gray-500 dark:text-gray-400"
+            aria-label="Open menu"
           >
             <Menu size={24} />
           </button>
@@ -23,6 +24,7 @@ export default function AdminHeader({ setSidebarOpen }) {
         <button
           onClick={toggleTheme}
           className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+          aria-label="Toggle theme"
         >
           {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
         </button>
