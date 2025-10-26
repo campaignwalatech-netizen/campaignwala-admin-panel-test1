@@ -148,3 +148,18 @@ export const bulkUploadOffers = async (offers) => {
     throw error;
   }
 };
+
+/**
+ * Get offers by category
+ * @param {string} categoryId - Category ID
+ * @returns {Promise} API response with offers
+ */
+export const getOffersByCategory = async (categoryId) => {
+  try {
+    const response = await api.get(`/offers/category/${categoryId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching offers by category:', error);
+    throw error;
+  }
+};
