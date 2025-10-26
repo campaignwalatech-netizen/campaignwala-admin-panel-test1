@@ -63,6 +63,7 @@ import ProfileOverview from "../userDashboard/layouts/ProfileOverview";
 import KYCDetails from "../userDashboard/layouts/KYCDetails";
 import TotalBalance from "../userDashboard/layouts/TotalBalance";
 import NotificationsPage from "../userDashboard/layouts/NotificationPage";
+import SharedOfferForm from "../userDashboard/pages/SharedOfferForm";
 // Route Components
 import ProtectedRoute from "./ProtectedRoute";
 import RoleBasedRoute from "./RoleBasedRoute";
@@ -88,6 +89,9 @@ export default function AppRouter() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/verify-otp" element={<OtpVerification />} />
+
+        {/* Public Share Link Route */}
+        <Route path="/share/:offerId/:hrUserId" element={<SharedOfferForm darkMode={darkMode} />} />
 
         {/* Admin Dashboard Routes */}
         <Route 
@@ -158,6 +162,7 @@ export default function AppRouter() {
           }
         >
           <Route index element={<Dashboard darkMode={darkMode} />} />
+          <Route path="dashboard" element={<Dashboard darkMode={darkMode} />} />
           <Route path="all-leads" element={<AllLeads darkMode={darkMode} />} />
           <Route path="pending-leads" element={<PendingLeads darkMode={darkMode} />} />
           <Route path="approved-leads" element={<ApprovedLeads darkMode={darkMode} />} />
@@ -165,7 +170,9 @@ export default function AppRouter() {
           <Route path="wallet" element={<Wallet darkMode={darkMode} />} />
           <Route path="profile" element={<Profile darkMode={darkMode} />} />
           <Route path="demat-account" element={<DematAccount darkMode={darkMode} />} />
+          <Route path="category-offers/:categoryId" element={<DematAccount darkMode={darkMode} />} />
           <Route path="zerofee-demat" element={<ZeroFeeDemat darkMode={darkMode} />} />
+          <Route path="zerofee-demat/:offerId" element={<ZeroFeeDemat darkMode={darkMode} />} />
           <Route path="wallet-withdrawl" element={<WalletAndWithdrawl darkMode={darkMode} />} />
           <Route path="profile-overview" element={<ProfileOverview darkMode={darkMode} />} />
           <Route path="kyc-details" element={<KYCDetails darkMode={darkMode} />} />
