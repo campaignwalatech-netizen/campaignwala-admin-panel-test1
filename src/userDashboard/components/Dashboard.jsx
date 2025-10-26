@@ -103,37 +103,37 @@ const Dashboard = ({ darkMode }) => {
         {[
           {
             title: 'Industrial Bank Credit Card',
-            reward: 'Earn ₹ 1,100 per successful opening',
+            reward: 'Earn ₹ 1,100',
             color: 'from-yellow-400 to-orange-400',
             img: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400&h=300&fit=crop',
           },
           {
             title: 'Bajaj EMI Card',
-            reward: 'Earn ₹ 800 per successful lead',
+            reward: 'Earn ₹ 800 ',
             color: 'from-blue-100 to-blue-200',
             img: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=300&fit=crop',
           },
           {
             title: 'Demat Account',
-            reward: 'Earn ₹ 750 per successful opening',
+            reward: 'Earn ₹ 750 ',
             color: 'from-gray-800 to-gray-900',
             img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=300&fit=crop',
           },
           {
             title: 'MoneyTap Personal Loan',
-            reward: 'Earn ₹ 2,100 per successful opening',
+            reward: 'Earn ₹ 2,100 ',
             color: 'from-teal-400 to-cyan-500',
             img: 'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=400&h=300&fit=crop',
           },
           {
             title: 'Savings Account',
-            reward: 'Earn ₹ 750 per successful opening',
+            reward: 'Earn ₹ 750 ',
             color: 'from-gray-800 to-gray-900',
             img: 'https://images.unsplash.com/photo-1633158829875-e5316a358c6f?w=400&h=300&fit=crop',
           },
           {
             title: 'Bajaj EMI Card (Offer 2)',
-            reward: 'Earn ₹ 700 per successful opening',
+            reward: 'Earn ₹ 700',
             color: 'from-gray-800 to-gray-900',
             img: 'https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?w=400&h=300&fit=crop',
           },

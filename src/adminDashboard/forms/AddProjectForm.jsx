@@ -124,15 +124,17 @@ export default function AddOffersForm() {
         <div className="flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
           <div className="text-sm">
-            <p className="font-semibold text-blue-800 dark:text-blue-200 mb-1">Bonus & Commission Information</p>
+            <p className="font-semibold text-blue-800 dark:text-blue-200 mb-1">
+              Bonus & Commission Information
+            </p>
             <p className="text-blue-700 dark:text-blue-300">
-              <span className="font-medium">Total Bonus: ₹500</span> | 
+              <span className="font-medium">Total Bonus: ₹500</span> |{" "}
               <span className="font-medium ml-2">Per Task: ₹100</span>
             </p>
           </div>
         </div>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto scrollbar-custom min-h-0">
       <form onSubmit={handleSubmit} className="bg-card rounded-lg border border-border p-4 sm:p-6 max-w-4xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

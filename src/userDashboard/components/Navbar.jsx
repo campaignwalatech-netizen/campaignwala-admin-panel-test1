@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Bell, Search, User, Menu, Sun, Moon, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = ({ darkMode, setDarkMode, toggleSidebar }) => {
   const [showSearch, setShowSearch] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileRef = useRef(null);
+  const navigate = useNavigate();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -20,7 +22,7 @@ const Navbar = ({ darkMode, setDarkMode, toggleSidebar }) => {
   // Logout handler
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = "/";
+    navigate("/"); // logout redirect
   };
 
   return (
@@ -45,7 +47,7 @@ const Navbar = ({ darkMode, setDarkMode, toggleSidebar }) => {
           </button>
 
           {/* Brand Logo */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
             <div
               className={`w-8 h-8 sm:w-10 sm:h-10 rounded-md flex items-center justify-center font-bold text-sm sm:text-base ${
                 darkMode ? "bg-blue-600 text-white" : "bg-blue-500 text-white"
@@ -58,7 +60,7 @@ const Navbar = ({ darkMode, setDarkMode, toggleSidebar }) => {
                 darkMode ? "text-white" : "text-gray-800"
               }`}
             >
-              Campaign Wala
+              Campaignwala
             </h1>
           </div>
         </div>
@@ -106,6 +108,7 @@ const Navbar = ({ darkMode, setDarkMode, toggleSidebar }) => {
 
           {/* Notifications */}
           <button
+          onClick={() => navigate("/user/notification-page")}
             className={`relative p-2 rounded-full transition-all ${
               darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
             }`}
@@ -123,7 +126,7 @@ const Navbar = ({ darkMode, setDarkMode, toggleSidebar }) => {
           <div className="relative" ref={profileRef}>
             <div
               className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-r from-orange-400 to-red-400 rounded-full flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
-              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              onClick={() => setShowProfileMenu(!showProfileMenu)}    
             >
               <User className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
@@ -135,6 +138,19 @@ const Navbar = ({ darkMode, setDarkMode, toggleSidebar }) => {
                   darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
                 }`}
               >
+                {/* Profile Button */}
+                <button
+                  onClick={() => navigate("/user/profile")}
+                  className={`flex items-center gap-2 w-full text-left px-4 py-2 text-sm rounded-md transition-colors ${
+                    darkMode
+                      ? "text-gray-300 hover:bg-gray-700"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  <User className="w-4 h-4" /> Profile
+                </button>
+
+                {/* Logout Button */}
                 <button
                   onClick={handleLogout}
                   className={`flex items-center gap-2 w-full text-left px-4 py-2 text-sm rounded-md transition-colors ${

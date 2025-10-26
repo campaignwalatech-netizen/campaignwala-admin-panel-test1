@@ -27,7 +27,7 @@ const Footer = ({ darkMode }) => {
         </div>
 
         <div className="mt-4 text-center text-xs sm:text-sm text-gray-500">
-          © CampaignWaala by codessy
+          © Campaignwala by codessy
         </div>
       </div>
     </footer>
