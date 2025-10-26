@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { useLocation, useNavigate } from 'react-router-dom';
+import slideService from '../../services/slideService';
+import categoryService from '../../services/categoryService';
+import { getOffersByCategory } from '../../services/offerService';
 
 export default function AddSlideForm() {
   const location = useLocation();
@@ -12,55 +15,175 @@ export default function AddSlideForm() {
     offerTitle: "",
     category: "",
     OffersId: "",
-    backgroundImage: null
+    backgroundImage: null,
+    description: ""
   });
 
   const [imagePreview, setImagePreview] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [offers, setOffers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [offersLoading, setOffersLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [offersIdError, setOffersIdError] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Fetch categories on component mount
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   // Populate form with slide data when in edit mode
   useEffect(() => {
     if (editSlide) {
       setFormData({
-        offerTitle: editSlide.title || "",
-        category: editSlide.category || "",
-        OffersId: editSlide.id?.toString() || "",
-        backgroundImage: editSlide.image || null
+        offerTitle: editSlide.offerTitle || "",
+        category: editSlide.category?._id || editSlide.category || "",
+        OffersId: editSlide.OffersId || "",
+        backgroundImage: editSlide.backgroundImage || null,
+        description: editSlide.description || ""
       });
-      if (editSlide.image) {
-        setImagePreview(editSlide.image);
+      if (editSlide.backgroundImage) {
+        setImagePreview(editSlide.backgroundImage);
+      }
+      // Fetch offers for the selected category in edit mode
+      if (editSlide.category?._id || editSlide.category) {
+        fetchOffersByCategory(editSlide.category?._id || editSlide.category);
       }
     }
   }, [editSlide]);
 
-  const handleSubmit = (e) => {
+  // Fetch all categories from API
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await categoryService.getAllCategories({
+        status: 'active',
+        limit: 1000
+      });
+      if (response.success) {
+        setCategories(response.data.categories);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      alert('Failed to load categories');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch offers when category changes
+  const fetchOffersByCategory = async (categoryId) => {
+    if (!categoryId) {
+      setOffers([]);
+      setFormData(prev => ({ ...prev, OffersId: '' }));
+      return;
+    }
+
+    try {
+      console.log('📁 Fetching offers for category ID:', categoryId);
+      setOffersLoading(true);
+      const response = await getOffersByCategory(categoryId);
+      console.log('📦 API Response:', response);
+      
+      if (response.success) {
+        console.log('✅ Offers loaded:', response.data);
+        setOffers(response.data);
+      } else {
+        console.log('⚠️ No offers found');
+        setOffers([]);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching offers:', error);
+      setOffers([]);
+    } finally {
+      setOffersLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Slide Data:", formData);
     
-    if (isEditMode) {
-      alert("Slide updated successfully!");
-    } else {
-      alert("Slide added successfully!");
+    try {
+      setSubmitLoading(true);
+
+      // Validation
+      if (!formData.offerTitle || !formData.category || !formData.OffersId || !formData.backgroundImage) {
+        alert('❌ Please fill all required fields!');
+        setSubmitLoading(false);
+        return;
+      }
+
+      // Prepare data for API
+      const slideData = {
+        offerTitle: formData.offerTitle.trim(),
+        category: formData.category,
+        OffersId: formData.OffersId.trim(),
+        backgroundImage: formData.backgroundImage,
+        description: formData.description ? formData.description.trim() : ''
+      };
+
+      console.log('Submitting slide data:', slideData);
+      
+      if (isEditMode) {
+        // Update existing slide
+        const response = await slideService.updateSlide(editSlide._id, slideData);
+        if (response.success) {
+          alert("Slide updated successfully!");
+          navigate('/admin/slides');
+        }
+      } else {
+        // Create new slide
+        const response = await slideService.createSlide(slideData);
+        if (response.success) {
+          alert("Slide added successfully!");
+          navigate('/admin/slides');
+        }
+      }
+    } catch (error) {
+      console.error('Error saving slide:', error);
+      
+      // Display user-friendly error message
+      const errorMessage = error.message || error.error || 'Failed to save slide';
+      
+      if (errorMessage.includes('Offers ID already exists')) {
+        setOffersIdError(true);
+        alert('❌ Offers ID Already Exists!\n\nPlease select a different offer from the dropdown.');
+        document.querySelector('select[name="OffersId"]')?.focus();
+      } else if (errorMessage.includes('validation')) {
+        alert('❌ Validation Error!\n\nPlease check all required fields and try again.');
+      } else {
+        alert(`❌ Error: ${errorMessage}`);
+      }
+    } finally {
+      setSubmitLoading(false);
     }
-    
-    // Reset form after submission and navigate back
-    setFormData({
-      offerTitle: "",
-      category: "",
-      OffersId: "",
-      backgroundImage: null
-    });
-    setImagePreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-    
-    // Navigate back to all slides
-    navigate('/admin/slides');
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // When category changes, fetch offers for that category
+    if (name === 'category') {
+      console.log('🏷️ Category changed to:', value);
+      const selectedCategory = categories.find(cat => cat._id === value);
+      console.log('📋 Selected category details:', selectedCategory);
+      
+      fetchOffersByCategory(value);
+      setFormData(prev => ({
+        ...prev,
+        category: value,
+        OffersId: '' // Reset OffersId when category changes
+      }));
+      return;
+    }
+    
+    // Clear OffersId error when user selects
+    if (name === 'OffersId') {
+      console.log('🎯 Offer ID selected:', value);
+      setOffersIdError(false);
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -82,15 +205,15 @@ export default function AddSlideForm() {
         return;
       }
 
-      setFormData(prev => ({
-        ...prev,
-        backgroundImage: file
-      }));
-
-      // Create preview
+      // Convert to base64 for API
       const reader = new FileReader();
       reader.onload = (e) => {
-        setImagePreview(e.target.result);
+        const base64Image = e.target.result;
+        setFormData(prev => ({
+          ...prev,
+          backgroundImage: base64Image
+        }));
+        setImagePreview(base64Image);
       };
       reader.readAsDataURL(file);
     }
@@ -144,18 +267,16 @@ export default function AddSlideForm() {
                 onChange={handleInputChange}
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 required
+                disabled={loading}
               >
-                <option value="">Select Category</option>
-                <option value="electronics">Electronics</option>
-                <option value="fashion">Fashion</option>
-                <option value="home-kitchen">Home & Kitchen</option>
-                <option value="health-beauty">Health & Beauty</option>
-                <option value="sports">Sports & Fitness</option>
-                <option value="books">Books & Education</option>
-                <option value="automobiles">Automobiles</option>
-                <option value="travel">Travel & Tourism</option>
-                <option value="food-beverage">Food & Beverage</option>
-                <option value="others">Others</option>
+                <option value="">
+                  {loading ? 'Loading categories...' : 'Select Category'}
+                </option>
+                {categories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -164,15 +285,44 @@ export default function AddSlideForm() {
               <label className="block text-sm font-medium text-foreground mb-2">
                 Offers ID *
               </label>
-              <input
-                type="text"
+              <select
                 name="OffersId"
                 value={formData.OffersId}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="e.g., PROJ001"
+                className={`w-full px-4 py-2 bg-background border rounded-lg text-foreground focus:outline-none focus:ring-2 transition-colors ${
+                  offersIdError 
+                    ? 'border-red-500 focus:ring-red-500 bg-red-50 dark:bg-red-900/10' 
+                    : 'border-border focus:ring-primary'
+                }`}
                 required
-              />
+                disabled={!formData.category || offersLoading}
+              >
+                <option value="">
+                  {!formData.category 
+                    ? 'First select a category' 
+                    : offersLoading 
+                    ? 'Loading offers...' 
+                    : offers.length === 0 
+                    ? 'No offers available in this category'
+                    : 'Select Offer ID'
+                  }
+                </option>
+                {offers.map((offer) => (
+                  <option key={offer._id} value={offer.offersId || offer.leadId || offer._id}>
+                    {offer.name} - {offer.offersId || offer.leadId || 'No ID'}
+                  </option>
+                ))}
+              </select>
+              {offersIdError && (
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400 font-semibold">
+                  ⚠️ This Offers ID already exists! Please select a different offer.
+                </p>
+              )}
+              {!formData.category && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  💡 Please select a category first to see available offers
+                </p>
+              )}
             </div>
 
             {/* Background Image */}
@@ -223,6 +373,25 @@ export default function AddSlideForm() {
                 )}
               </div>
             </div>
+
+            {/* Description */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows={4}
+                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                placeholder="Enter slide description (optional)..."
+                maxLength={500}
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                {formData.description.length}/500 characters
+              </p>
+            </div>
           </div>
 
           {/* Submit Button */}
@@ -234,7 +403,8 @@ export default function AddSlideForm() {
                   offerTitle: "",
                   category: "",
                   OffersId: "",
-                  backgroundImage: null
+                  backgroundImage: null,
+                  description: ""
                 });
                 setImagePreview(null);
                 if (fileInputRef.current) {
@@ -242,14 +412,19 @@ export default function AddSlideForm() {
                 }
               }}
               className="px-6 py-2 bg-destructive text-destructive-foreground border border-destructive rounded-lg hover:bg-destructive/80 transition-colors"
+              disabled={submitLoading}
             >
               Reset
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+              className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={submitLoading}
             >
-              {isEditMode ? 'Update Slide' : 'Add Slide'}
+              {submitLoading 
+                ? (isEditMode ? 'Updating...' : 'Adding...') 
+                : (isEditMode ? 'Update Slide' : 'Add Slide')
+              }
             </button>
           </div>
         </form>

@@ -1,72 +1,64 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Edit2, Trash2, X, Eye, Image, Calendar, Upload } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import slideService from '../../services/slideService';
 
 export default function AllSlidesTable() {
   const navigate = useNavigate();
   
-  const [slides, setSlides] = useState([
-    { 
-      id: 1, 
-      title: "Zero Fee Demat Account", 
-      image: "https://picsum.photos/280/160?random=1", 
-      category: "Demat Account",
-      order: 1, 
-      status: "Active", 
-      views: 1250,
-      dateCreated: "2024-06-15",
-      description: "Officia sunt laboris elit fugiat adipisicing ex ea nulla aute duis occaecat dolore id et ess"
-    },
-    { 
-      id: 2, 
-      title: "Offer Slide 1", 
-      image: "https://picsum.photos/280/160?random=2", 
-      category: "Demat Account",
-      order: 2, 
-      status: "Active", 
-      views: 980,
-      dateCreated: "2024-07-20",
-      description: "Officia sunt laboris elit fugiat adipisicing ex ea nulla aute duis occaecat dolore id et ess"
-    },
-    { 
-      id: 3, 
-      title: "Offer Slide 2", 
-      image: "https://picsum.photos/280/160?random=3", 
-      category: "Demat Account",
-      order: 3, 
-      status: "Active", 
-      views: 750,
-      dateCreated: "2024-08-10",
-      description: "Officia sunt laboris elit fugiat adipisicing ex ea nulla aute duis occaecat dolore id et ess"
-    },
-    { 
-      id: 4, 
-      title: "Offer Slide 3", 
-      image: "https://picsum.photos/280/160?random=4", 
-      category: "Demat Account",
-      order: 4, 
-      status: "Active", 
-      views: 650,
-      dateCreated: "2024-09-05",
-      description: "Officia sunt laboris elit fugiat adipisicing ex ea nulla aute duis occaecat dolore id et ess"
-    },
-    { 
-      id: 5, 
-      title: "Special Promotion", 
-      image: "https://picsum.photos/280/160?random=5", 
-      category: "Investment",
-      order: 5, 
-      status: "Inactive", 
-      views: 1500,
-      dateCreated: "2024-10-01",
-      description: "Officia sunt laboris elit fugiat adipisicing ex ea nulla aute duis occaecat dolore id et ess"
-    },
-  ]);
-
+  const [slides, setSlides] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [selectedSlide, setSelectedSlide] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Fetch slides on component mount
+  useEffect(() => {
+    fetchSlides();
+  }, []);
+
+  // Fetch slides when search query changes (with debounce)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchSlides();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Fetch all slides from API
+  const fetchSlides = async () => {
+    try {
+      setLoading(true);
+      const params = {
+        sortBy: 'order',
+        order: 'asc',
+        limit: 1000
+      };
+
+      // Add search query if exists
+      if (searchQuery.trim()) {
+        params.search = searchQuery.trim();
+      }
+
+      console.log('🔍 Fetching slides with params:', params);
+
+      const response = await slideService.getAllSlides(params);
+      
+      console.log('✅ Slides fetched:', response.data.slides.length);
+
+      if (response.success) {
+        setSlides(response.data.slides);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching slides:', error);
+      alert('Failed to load slides');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleEdit = (slide) => {
     navigate('/admin/add-slide', { 
@@ -81,12 +73,29 @@ export default function AllSlidesTable() {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
-    setSlides(slides.filter(s => s.id !== selectedSlide.id));
-    setShowDeleteModal(false);
-    setAlertMessage(`Slide "${selectedSlide.title}" deleted successfully!`);
-    setShowSuccessAlert(true);
-    setTimeout(() => setShowSuccessAlert(false), 3000);
+  const confirmDelete = async () => {
+    try {
+      const response = await slideService.deleteSlide(selectedSlide._id);
+      if (response.success) {
+        setSlides(slides.filter(s => s._id !== selectedSlide._id));
+        setShowDeleteModal(false);
+        setAlertMessage(`Slide "${selectedSlide.offerTitle}" deleted successfully!`);
+        setShowSuccessAlert(true);
+        setTimeout(() => setShowSuccessAlert(false), 3000);
+      }
+    } catch (error) {
+      console.error('Error deleting slide:', error);
+      alert(error.message || 'Failed to delete slide');
+      setShowDeleteModal(false);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
   };
 
   return (
@@ -107,76 +116,144 @@ export default function AllSlidesTable() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground mb-1">Slide Board</h1>
+          {searchQuery && (
+            <p className="text-sm text-muted-foreground">
+              {slides.length} result{slides.length !== 1 ? 's' : ''} found for "{searchQuery}"
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
             <input
               type="text"
-              placeholder="Search category..."
-              className="pl-10 pr-4 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary w-64"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              placeholder="Search by title, ID, or description..."
+              className="pl-10 pr-10 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary w-80"
             />
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
+            {searchQuery && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       {/* Cards Grid */}
       <div className="flex-1 overflow-y-auto scrollbar-custom">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {slides.map((slide) => (
-            <div key={slide.id} className="bg-white dark:bg-card rounded-lg border border-gray-200 dark:border-border overflow-hidden hover:shadow-lg transition-all duration-200">
-              {/* Slide Image */}
-              <div className="relative">
-                <img 
-                  src={slide.image} 
-                  alt={slide.title}
-                  className="w-full h-32 object-cover"
-                  onError={(e) => {
-                    e.target.src = `https://via.placeholder.com/280x160/e2e8f0/64748b?text=${encodeURIComponent(slide.title)}`;
-                  }}
-                />
-              </div>
+        {loading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        ) : slides.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+            <Upload className="w-16 h-16 mb-4" />
+            {searchQuery ? (
+              <>
+                <p className="text-lg font-semibold">No slides found</p>
+                <p className="text-sm">No results for "{searchQuery}"</p>
+                <button
+                  onClick={clearSearch}
+                  className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-semibold"
+                >
+                  Clear Search
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-lg font-semibold">No slides found</p>
+                <p className="text-sm">Create your first slide to get started</p>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {slides.map((slide) => (
+              <div key={slide._id} className="bg-white dark:bg-card rounded-lg border border-gray-200 dark:border-border overflow-hidden hover:shadow-lg transition-all duration-200">
+                {/* Slide Image */}
+                <div className="relative">
+                  <img 
+                    src={slide.backgroundImage} 
+                    alt={slide.offerTitle}
+                    className="w-full h-32 object-cover"
+                    onError={(e) => {
+                      e.target.src = `https://via.placeholder.com/280x160/e2e8f0/64748b?text=${encodeURIComponent(slide.offerTitle)}`;
+                    }}
+                  />
+                  <div className="absolute top-2 right-2">
+                    <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                      slide.status === 'active' 
+                        ? 'bg-green-500 text-white' 
+                        : 'bg-gray-500 text-white'
+                    }`}>
+                      {slide.status}
+                    </span>
+                  </div>
+                </div>
 
-              {/* Card Content */}
-              <div className="p-4">
-                {/* Title */}
-                <h3 className="text-base font-semibold text-gray-900 dark:text-foreground mb-1">
-                  {slide.title}
-                </h3>
-                
-                {/* Category */}
-                <p className="text-sm text-gray-500 dark:text-muted-foreground mb-2">
-                  {slide.category}
-                </p>
+                {/* Card Content */}
+                <div className="p-4">
+                  {/* Title */}
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-foreground mb-1">
+                    {slide.offerTitle}
+                  </h3>
+                  
+                  {/* Category */}
+                  <p className="text-sm text-gray-500 dark:text-muted-foreground mb-2">
+                    {slide.category?.name || 'No Category'}
+                  </p>
 
-                {/* Description */}
-                <p className="text-sm text-gray-600 dark:text-muted-foreground leading-relaxed mb-4 line-clamp-3">
-                  {slide.description}
-                </p>
+                  {/* Description */}
+                  <p className="text-sm text-gray-600 dark:text-muted-foreground leading-relaxed mb-4 line-clamp-3">
+                    {slide.description || 'No description available'}
+                  </p>
 
-                {/* Action Buttons */}
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => handleEdit(slide)}
-                    className="flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors text-xs font-medium"
-                  >
-                    <Edit2 className="w-3 h-3" />
-                    Edit
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(slide)}
-                    className="flex items-center justify-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 rounded-md hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors text-xs font-medium"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                    Delete
-                  </button>
+                  {/* Stats */}
+                  <div className="flex items-center gap-4 mb-3 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-3 h-3" />
+                      <span>{slide.views || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      <span>
+                        {slide.createdAt 
+                          ? new Date(slide.createdAt).toLocaleDateString() 
+                          : 'N/A'
+                        }
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleEdit(slide)}
+                      className="flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors text-xs font-medium"
+                    >
+                      <Edit2 className="w-3 h-3" />
+                      Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(slide)}
+                      className="flex items-center justify-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 rounded-md hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors text-xs font-medium"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
 
@@ -192,7 +269,7 @@ export default function AllSlidesTable() {
               </button>
             </div>
             <p className="text-sm text-foreground mb-6">
-              Are you sure you want to delete slide <strong>"{selectedSlide?.title}"</strong>? This action cannot be undone.
+              Are you sure you want to delete slide <strong>"{selectedSlide?.offerTitle}"</strong>? This action cannot be undone.
             </p>
             <div className="flex gap-3">
               <button
