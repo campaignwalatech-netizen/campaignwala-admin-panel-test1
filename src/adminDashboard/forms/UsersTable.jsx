@@ -1,5 +1,6 @@
 import { Download, Search, Filter, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import userService from "../../services/userService";
 
 export default function UsersTable({ userType }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -9,160 +10,90 @@ export default function UsersTable({ userType }) {
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-
-  const allUsers = {
-    active: [
-      { 
-        id: 1, 
-        name: "Rajesh Kumar", 
-        email: "rajesh@example.com", 
-        phone: "+91 9876543210", 
-        status: "Active",
-        joinedOn: "2024-01-15",
-        totalLeads: 45,
-        approved: 32,
-        rejected: 5,
-        completed: 28,
-        pending: 12,
-        totalEarnings: "₹45,280",
-        totalBalance: "₹38,450",
-        currentBalance: "₹15,450"
-      },
-      { 
-        id: 2, 
-        name: "Pooja Agarwal", 
-        email: "pooja@example.com", 
-        phone: "+91 9876543211", 
-        status: "Active",
-        joinedOn: "2024-02-20",
-        totalLeads: 38,
-        approved: 25,
-        rejected: 8,
-        completed: 22,
-        pending: 8,
-        totalEarnings: "₹32,150",
-        totalBalance: "₹28,300",
-        currentBalance: "₹12,300"
-      },
-      { 
-        id: 3, 
-        name: "Arjun Kapoor", 
-        email: "arjun@example.com", 
-        phone: "+91 9876543212", 
-        status: "Active",
-        joinedOn: "2024-03-10",
-        totalLeads: 52,
-        approved: 41,
-        rejected: 3,
-        completed: 35,
-        pending: 14,
-        totalEarnings: "₹58,920",
-        totalBalance: "₹52,750",
-        currentBalance: "₹18,750"
-      },
-      { 
-        id: 4, 
-        name: "Neha Gupta", 
-        email: "neha@example.com", 
-        phone: "+91 9876543213", 
-        status: "Active",
-        joinedOn: "2024-04-05",
-        totalLeads: 29,
-        approved: 20,
-        rejected: 4,
-        completed: 18,
-        pending: 7,
-        totalEarnings: "₹25,680",
-        totalBalance: "₹21,850",
-        currentBalance: "₹9,850"
-      },
-    ],
-    hold: [
-      { 
-        id: 5, 
-        name: "Sandeep Kumar", 
-        email: "sandeep@example.com", 
-        phone: "+91 9876543214", 
-        status: "Hold",
-        joinedOn: "2024-05-12",
-        totalLeads: 15,
-        approved: 8,
-        rejected: 2,
-        completed: 6,
-        pending: 5,
-        totalEarnings: "₹12,480",
-        totalBalance: "₹8,200",
-        currentBalance: "₹4,200"
-      },
-      { 
-        id: 6, 
-        name: "Meera Singh", 
-        email: "meera@example.com", 
-        phone: "+91 9876543215", 
-        status: "Hold",
-        joinedOn: "2024-06-18",
-        totalLeads: 12,
-        approved: 5,
-        rejected: 3,
-        completed: 4,
-        pending: 4,
-        totalEarnings: "₹8,750",
-        totalBalance: "₹5,800",
-        currentBalance: "₹2,800"
-      },
-    ],
-    ex: [
-      { 
-        id: 7, 
-        name: "Karan Malhotra", 
-        email: "karan@example.com", 
-        phone: "+91 9876543216", 
-        status: "Ex",
-        joinedOn: "2023-08-22",
-        totalLeads: 89,
-        approved: 65,
-        rejected: 12,
-        completed: 58,
-        pending: 0,
-        totalEarnings: "₹78,420",
-        totalBalance: "₹68,000",
-        currentBalance: "₹0"
-      },
-      { 
-        id: 8, 
-        name: "Divya Iyer", 
-        email: "divya@example.com", 
-        phone: "+91 9876543217", 
-        status: "Ex",
-        joinedOn: "2023-09-30",
-        totalLeads: 34,
-        approved: 22,
-        rejected: 7,
-        completed: 20,
-        pending: 0,
-        totalEarnings: "₹35,680",
-        totalBalance: "₹28,400",
-        currentBalance: "₹0"
-      },
-    ],
-  };
-
-  // Filter users based on search term and filter criteria
-  const filteredUsers = (allUsers[userType] || []).filter(user => {
-    const matchesSearch = searchTerm === "" || 
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.phone.includes(searchTerm);
-    
-    const matchesFilter = filterRole === "all" || 
-      (filterRole === "high_leads" && user.totalLeads > 30) ||
-      (filterRole === "moderate_leads" && user.totalLeads >= 10 && user.totalLeads <= 30) ||
-      (filterRole === "low_leads" && user.totalLeads < 10);
-    
-    return matchesSearch && matchesFilter;
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pages: 1,
+    total: 0
   });
 
-  const users = filteredUsers;
+  // Fetch users from backend API
+  useEffect(() => {
+    fetchUsers();
+  }, [userType, searchTerm, filterRole]);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('🔍 Fetching users for type:', userType);
+
+      // Get all users with statistics
+      const response = await userService.getAllUsersWithStats({
+        page: 1,
+        limit: 100
+      });
+
+      if (response.success) {
+        let fetchedUsers = response.data.users || [];
+        console.log('✅ Fetched users:', fetchedUsers);
+
+        // Filter by user type (active/hold/ex)
+        if (userType === 'active') {
+          fetchedUsers = fetchedUsers.filter(user => user.isActive === true);
+        } else if (userType === 'hold') {
+          // Hold users: inactive but NOT marked as Ex
+          fetchedUsers = fetchedUsers.filter(user => 
+            user.isActive === false && !user.isEx
+          );
+        } else if (userType === 'ex') {
+          // Ex users: marked with isEx flag
+          fetchedUsers = fetchedUsers.filter(user => user.isEx === true);
+        }
+
+        // Apply search filter
+        if (searchTerm) {
+          fetchedUsers = fetchedUsers.filter(user => {
+            const search = searchTerm.toLowerCase();
+            return (
+              user.name?.toLowerCase().includes(search) ||
+              user.email?.toLowerCase().includes(search) ||
+              user.phone?.includes(searchTerm)
+            );
+          });
+        }
+
+        // Apply role/leads filter
+        if (filterRole !== 'all') {
+          if (filterRole === 'high_leads') {
+            fetchedUsers = fetchedUsers.filter(user => user.totalLeads > 30);
+          } else if (filterRole === 'moderate_leads') {
+            fetchedUsers = fetchedUsers.filter(user => user.totalLeads >= 10 && user.totalLeads <= 30);
+          } else if (filterRole === 'low_leads') {
+            fetchedUsers = fetchedUsers.filter(user => user.totalLeads < 10);
+          }
+        }
+
+        setUsers(fetchedUsers);
+        setPagination(response.data.pagination || {
+          current: 1,
+          pages: 1,
+          total: fetchedUsers.length
+        });
+      } else {
+        setError(response.message || 'Failed to fetch users');
+      }
+    } catch (err) {
+      console.error('❌ Error fetching users:', err);
+      setError(err.message || 'Failed to load users');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter users based on search term and filter criteria (this is now done in fetchUsers)
 
   const statusColors = {
     active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
@@ -191,27 +122,98 @@ export default function UsersTable({ userType }) {
     setShowEditModal(true);
   };
 
-  const handleActivateUser = (userId) => {
-    console.log(`Activating user with ID: ${userId}`);
-    // Update local state to show user as active
-    setUserStatuses(prev => ({
-      ...prev,
-      [userId]: 'Active'
-    }));
-    setHoveredUser(null); // Close dropdown
-    alert(`User ${userId} has been activated successfully!`);
+  const handleActivateUser = async (userId) => {
+    try {
+      console.log(`Activating user with ID: ${userId}`);
+      
+      // Call backend API to toggle user status
+      const response = await userService.toggleUserStatus(userId);
+      
+      if (response.success) {
+        // Refresh the user list
+        await fetchUsers();
+        setHoveredUser(null); // Close dropdown
+        alert(`User has been activated successfully!`);
+      } else {
+        alert(`Failed to activate user: ${response.message}`);
+      }
+    } catch (error) {
+      console.error('❌ Error activating user:', error);
+      alert(`Failed to activate user: ${error.message}`);
+    }
   };
 
-  const handleDeactivateUser = (userId) => {
-    console.log(`Putting user on hold with ID: ${userId}`);
-    // Update local state to show user as hold
-    setUserStatuses(prev => ({
-      ...prev,
-      [userId]: 'Hold'
-    }));
-    setHoveredUser(null); // Close dropdown
-    alert(`User ${userId} has been put on hold!`);
+  const handleDeactivateUser = async (userId) => {
+    try {
+      console.log(`Putting user on hold with ID: ${userId}`);
+      
+      // Call backend API to toggle user status
+      const response = await userService.toggleUserStatus(userId);
+      
+      if (response.success) {
+        // Refresh the user list
+        await fetchUsers();
+        setHoveredUser(null); // Close dropdown
+        alert(`User has been put on hold!`);
+      } else {
+        alert(`Failed to deactivate user: ${response.message}`);
+      }
+    } catch (error) {
+      console.error('❌ Error deactivating user:', error);
+      alert(`Failed to deactivate user: ${error.message}`);
+    }
   };
+
+  const handleMarkAsEx = async (userId) => {
+    try {
+      console.log(`Marking user as Ex with ID: ${userId}`);
+      
+      // Call backend API to mark user as Ex
+      const response = await userService.markUserAsEx(userId);
+      
+      if (response.success) {
+        // Refresh the user list
+        await fetchUsers();
+        setHoveredUser(null); // Close dropdown
+        alert(`User has been marked as Ex!`);
+      } else {
+        alert(`Failed to mark user as Ex: ${response.message}`);
+      }
+    } catch (error) {
+      console.error('❌ Error marking user as Ex:', error);
+      alert(`Failed to mark user as Ex: ${error.message}`);
+    }
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <p className="mt-4 text-muted-foreground">Loading users...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="h-full flex items-center justify-center p-4">
+        <div className="text-center">
+          <p className="text-red-500 font-semibold mb-2">Error loading users</p>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <button
+            onClick={fetchUsers}
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col p-3 sm:p-4">
@@ -279,7 +281,7 @@ export default function UsersTable({ userType }) {
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Completed</th>
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Pending</th>
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Total Earnings</th>
-              <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Total Balance</th>
+              <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Current Balance</th>
               <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Actions</th>
             </tr>
           </thead>
@@ -306,7 +308,7 @@ export default function UsersTable({ userType }) {
                           {!isHovered ? (
                             // Show normal status badge when not hovered
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold cursor-pointer transition-colors ${
-                              currentStatus === 'Active' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                              currentStatus === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
                               currentStatus === 'Hold' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
                               'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
                             }`}>
@@ -317,8 +319,9 @@ export default function UsersTable({ userType }) {
                             <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg overflow-hidden">
                               {/* Current Status */}
                               <div className={`px-2 py-1 text-xs font-semibold cursor-pointer transition-colors text-center ${
-                                currentStatus === 'Active' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                                currentStatus === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                                currentStatus === 'Hold' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+                                'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
                               }`}>
                                 {currentStatus}
                               </div>
@@ -326,17 +329,35 @@ export default function UsersTable({ userType }) {
                               {/* Separator line */}
                               <div className="border-t border-gray-200 dark:border-gray-600"></div>
                               
-                              {/* Alternative Status */}
-                              <button
-                                onClick={() => currentStatus === 'Active' ? handleDeactivateUser(user.id) : handleActivateUser(user.id)}
-                                className={`w-full px-2 py-1 text-xs font-semibold cursor-pointer transition-colors text-center ${
-                                  currentStatus === 'Active' 
-                                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 hover:bg-yellow-200' 
-                                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 hover:bg-red-200'
-                                }`}
-                              >
-                                {currentStatus === 'Active' ? 'Hold' : 'Active'}
-                              </button>
+                              {/* Option 1: Active */}
+                              {currentStatus !== 'Active' && (
+                                <>
+                                  <button
+                                    onClick={() => handleActivateUser(user.id)}
+                                    className="w-full px-2 py-1 text-xs font-semibold cursor-pointer transition-colors text-center bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 hover:bg-green-200"
+                                  >
+                                    Active
+                                  </button>
+                                  <div className="border-t border-gray-200 dark:border-gray-600"></div>
+                                </>
+                              )}
+                              
+                              {/* Option 2: Hold/Ex (for inactive users) */}
+                              {currentStatus === 'Active' ? (
+                                <button
+                                  onClick={() => handleDeactivateUser(user.id)}
+                                  className="w-full px-2 py-1 text-xs font-semibold cursor-pointer transition-colors text-center bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 hover:bg-yellow-200"
+                                >
+                                  Hold
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleMarkAsEx(user.id)}
+                                  className="w-full px-2 py-1 text-xs font-semibold cursor-pointer transition-colors text-center bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 hover:bg-gray-200"
+                                >
+                                  Ex
+                                </button>
+                              )}
                             </div>
                           )}
                         </div>

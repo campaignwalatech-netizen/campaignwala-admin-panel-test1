@@ -1,7 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../redux/slices/authSlice";
+import walletService from "../../services/walletService";
 
 const WalletAndWithdrawl = ({ darkMode }) => {
+  const user = useSelector(selectUser);
   const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [wallet, setWallet] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [withdrawals, setWithdrawals] = useState([
     { id: "WDR-001", amount: 500, date: "2024-07-20", status: "Approved", reason: "Processed successfully" },
     { id: "WDR-002", amount: 120, date: "2024-07-18", status: "Pending", reason: "Awaiting admin approval" },
@@ -9,6 +15,26 @@ const WalletAndWithdrawl = ({ darkMode }) => {
     { id: "WDR-004", amount: 300, date: "2024-07-12", status: "Approved", reason: "Processed successfully" },
     { id: "WDR-005", amount: 80, date: "2024-07-10", status: "Pending", reason: "Awaiting admin approval" },
   ]);
+
+  useEffect(() => {
+    if (user?._id) {
+      fetchWallet();
+    }
+  }, [user]);
+
+  const fetchWallet = async () => {
+    try {
+      setLoading(true);
+      const response = await walletService.getWalletByUserId(user._id);
+      if (response.success) {
+        setWallet(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching wallet:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const generateReceipt = (withdrawal) => {
     const canvas = document.createElement('canvas');
@@ -60,7 +86,7 @@ const WalletAndWithdrawl = ({ darkMode }) => {
     ctx.fillText('Amount:', 60, 360);
     ctx.font = 'bold 24px Arial';
     ctx.fillStyle = '#2563eb';
-    ctx.fillText(`$${withdrawal.amount.toFixed(2)} USD`, 60, 395);
+    ctx.fillText(`₹${withdrawal.amount.toFixed(2)} INR`, 60, 395);
 
     ctx.font = '18px Arial';
     ctx.fillStyle = '#475569';
@@ -151,8 +177,17 @@ const WalletAndWithdrawl = ({ darkMode }) => {
           }`}
         >
           <p className="text-sm text-gray-500 mb-1">Current Available Balance</p>
-          <h2 className="text-4xl font-semibold mb-1">$1,250.75</h2>
-          <p className="text-xs text-gray-400">Last updated: July 22, 2024</p>
+          {loading ? (
+            <h2 className="text-4xl font-semibold mb-1">Loading...</h2>
+          ) : (
+            <>
+              <h2 className="text-4xl font-semibold mb-1">₹{wallet?.balance?.toFixed(2) || '0.00'}</h2>
+              <p className="text-xs text-gray-400">
+                Total Earned: ₹{wallet?.totalEarned?.toFixed(2) || '0.00'} | 
+                Total Withdrawn: ₹{wallet?.totalWithdrawn?.toFixed(2) || '0.00'}
+              </p>
+            </>
+          )}
         </div>
 
         {/* Withdrawal Section */}
@@ -165,7 +200,7 @@ const WalletAndWithdrawl = ({ darkMode }) => {
           >
             <h3 className="text-lg font-semibold mb-4">Initiate Withdrawal</h3>
             <label className="block text-sm mb-2 text-gray-500">
-              Amount to Withdraw (USD)
+              Amount to Withdraw (INR)
             </label>
             <input
               type="text"
@@ -220,7 +255,7 @@ const WalletAndWithdrawl = ({ darkMode }) => {
                   }`}
                 >
                   <th className="py-3 px-4 font-semibold whitespace-nowrap">Request ID</th>
-                  <th className="py-3 px-4 font-semibold whitespace-nowrap">Amount (USD)</th>
+                  <th className="py-3 px-4 font-semibold whitespace-nowrap">Amount (INR)</th>
                   <th className="py-3 px-4 font-semibold whitespace-nowrap">Date</th>
                   <th className="py-3 px-4 font-semibold whitespace-nowrap">Status</th>
                   <th className="py-3 px-4 font-semibold whitespace-nowrap">Reason</th>
@@ -236,9 +271,9 @@ const WalletAndWithdrawl = ({ darkMode }) => {
                         ? "border-gray-700 hover:bg-gray-700/40"
                         : "border-gray-200"
                     }`}
-                  >
+                    >
                     <td className="py-3 px-4">{w.id}</td>
-                    <td className="py-3 px-4">${w.amount.toFixed(2)}</td>
+                    <td className="py-3 px-4">₹{w.amount.toFixed(2)}</td>
                     <td className="py-3 px-4">{w.date}</td>
                     <td className="py-3 px-4">
                       <span
