@@ -53,6 +53,7 @@ export default function AdminSidebar({
           <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden text-gray-500 dark:text-gray-400"
+            aria-label="Close sidebar"
           >
             <X size={24} />
           </button>
@@ -70,6 +71,7 @@ export default function AdminSidebar({
                       ? "bg-[#570df8] text-white"
                       : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`}
+                  aria-current={location.pathname === item.path ? "page" : undefined}
                 >
                   <item.icon size={20} />
                   <span className="font-medium">{item.label}</span>
