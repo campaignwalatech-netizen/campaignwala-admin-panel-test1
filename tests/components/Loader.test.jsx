@@ -1,26 +1,29 @@
-
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import Loader from '../../../src/components/Loader';
 
 describe('Loader Component', () => {
-  it('should render a medium-sized loader with default text', () => {
+  it('should render with default props', () => {
     render(<Loader />);
+    const loaderContainer = screen.getByText('Loading...').parentElement;
+    const loaderSpinner = loaderContainer.firstChild;
+
     expect(screen.getByText('Loading...')).toBeInTheDocument();
-    const loader = screen.getByText('Loading...').previousSibling;
-    expect(loader).toHaveClass('w-8 h-8');
+    expect(loaderSpinner).toHaveClass('w-8', 'h-8'); // md
+    expect(screen.getByText('Loading...')).toHaveClass('text-base'); // md
   });
 
-  it('should render a small loader', () => {
-    render(<Loader size="sm" />);
-    const loader = screen.getByText('Loading...').previousSibling;
-    expect(loader).toHaveClass('w-4 h-4');
-  });
+  it.each([
+    ['sm', 'w-4 h-4', 'text-sm'],
+    ['md', 'w-8 h-8', 'text-base'],
+    ['lg', 'w-12 h-12', 'text-lg'],
+  ])('should render with size "%s"', (size, loaderClass, textClass) => {
+    render(<Loader size={size} />);
+    const loaderContainer = screen.getByText('Loading...').parentElement;
+    const loaderSpinner = loaderContainer.firstChild;
 
-  it('should render a large loader', () => {
-    render(<Loader size="lg" />);
-    const loader = screen.getByText('Loading...').previousSibling;
-    expect(loader).toHaveClass('w-12 h-12');
+    expect(loaderSpinner).toHaveClass(...loaderClass.split(' '));
+    expect(screen.getByText('Loading...')).toHaveClass(textClass);
   });
 
   it('should display custom text', () => {
@@ -28,8 +31,17 @@ describe('Loader Component', () => {
     expect(screen.getByText('Please wait')).toBeInTheDocument();
   });
 
-  it('should render without text if the text prop is an empty string', () => {
-    render(<Loader text="" />);
-    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+  it('should not render text when the text prop is null or empty', () => {
+    const { rerender } = render(<Loader text="" />);
+    expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
+
+    rerender(<Loader text={null} />);
+    expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
+  });
+
+  it('should apply a custom className', () => {
+    render(<Loader className="my-custom-loader" />);
+    const loaderContainer = screen.getByText('Loading...').parentElement;
+    expect(loaderContainer).toHaveClass('my-custom-loader');
   });
 });
