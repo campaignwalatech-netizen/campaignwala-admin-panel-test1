@@ -21,7 +21,7 @@ export default function UserQueriesTable() {
       user: "Sarah Smith", 
       email: "sarah@example.com", 
       subject: "New Features Inquiry", 
-      message: "When will the new features be released? I'm particularly interested in the advanced analytics dashboard. We've been waiting for these features. This started happening advanced analytics dashboard", 
+      message: "When will the new features be released? I'm particularly interested in the advanced analytics dashboard. We've been waiting for these features.", 
       date: "2024-01-14", 
       status: "Replied",
       hasReplied: true,
@@ -31,22 +31,64 @@ export default function UserQueriesTable() {
           message: "Thank you for your inquiry. The new features will be released next month.",
           date: "2024-01-15",
           time: "10:30 AM"
+        },
+        {
+          id: 2,
+          message: "Update: The features are now in final testing phase.",
+          date: "2024-01-20",
+          time: "3:30 PM"
         }
       ]
     },
     { 
       id: 3, 
+      user: "Sarah Smith", 
+      email: "sarah@example.com", 
+      subject: "Follow-up on Features", 
+      message: "Hi, I submitted a query about new features last month. Any updates? Also, I'm facing some performance issues with the current dashboard.", 
+      date: "2024-02-10", 
+      status: "Replied",
+      hasReplied: true,
+      replies: [
+        {
+          id: 1,
+          message: "The features are still in development. Performance issues have been noted and will be fixed in the next update.",
+          date: "2024-02-11",
+          time: "2:15 PM"
+        }
+      ]
+    },
+    { 
+      id: 4, 
       user: "Michael Johnson", 
       email: "michael@example.com", 
       subject: "Account Verification", 
       message: "I need help with account verification process. My documents have been submitted but the status hasn't changed for weeks.", 
       date: "2024-01-12", 
+      status: "Replied",
+      hasReplied: true,
+      replies: [
+        {
+          id: 1,
+          message: "Your documents are being reviewed. You will receive an update within 3-5 business days.",
+          date: "2024-01-13",
+          time: "11:20 AM"
+        }
+      ]
+    },
+    { 
+      id: 5, 
+      user: "Michael Johnson", 
+      email: "michael@example.com", 
+      subject: "Still Waiting for Verification", 
+      message: "It's been 2 weeks since my last query about account verification. My account is still not verified. Please help urgently.", 
+      date: "2024-01-26", 
       status: "Open",
       hasReplied: false,
       replies: []
     },
     { 
-      id: 4, 
+      id: 6, 
       user: "Emily Davis", 
       email: "emily@example.com", 
       subject: "Payment Processing", 
@@ -160,9 +202,9 @@ export default function UserQueriesTable() {
       {/* Reply Modal */}
       {showReplyModal && selectedQuery && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-            {/* Modal Header */}
-            <div className="text-white px-6 py-4 flex items-center justify-between" style={{ backgroundColor: '#561ED0' }}>
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            {/* Modal Header - Fixed */}
+            <div className="text-white px-6 py-4 flex items-center justify-between flex-shrink-0" style={{ backgroundColor: '#561ED0' }}>
               <h2 className="text-xl font-semibold">Reply to Query</h2>
               <button 
                 onClick={handleCloseModal}
@@ -172,15 +214,16 @@ export default function UserQueriesTable() {
               </button>
             </div>
 
-            {/* Modal Content */}
-            <div className="p-6">
+            {/* Modal Content - Scrollable */}
+            <div className="flex-1 overflow-y-auto p-6">
               {/* Original Query Info */}
               <div className="mb-6">
                 <h3 className="text-sm font-semibold text-gray-600 mb-2">Original Query:</h3>
                 <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                   <div><span className="font-medium">From:</span> {selectedQuery.user} ({selectedQuery.email})</div>
                   <div><span className="font-medium">Date:</span> {selectedQuery.date}</div>
-                  <div><span className="font-medium">Query:</span> {selectedQuery.subject}</div>
+                  <div><span className="font-medium">Subject:</span> {selectedQuery.subject}</div>
+                  <div><span className="font-medium">Message:</span> {selectedQuery.message}</div>
                 </div>
               </div>
 
@@ -188,7 +231,7 @@ export default function UserQueriesTable() {
               {selectedQuery.replies && selectedQuery.replies.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-sm font-semibold text-gray-600 mb-2">Previous Replies:</h3>
-                  <div className="space-y-3 max-h-40 overflow-y-auto">
+                  <div className="space-y-3 max-h-60 overflow-y-auto border rounded-lg p-3 bg-gray-50">
                     {selectedQuery.replies.map((reply) => (
                       <div key={reply.id} className="bg-green-50 border-l-4 border-green-500 p-3 rounded-r-lg">
                         <div className="flex justify-between items-start mb-2">

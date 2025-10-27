@@ -1,8 +1,50 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import api from '../../services/api';
 
 const Dashboard = ({ darkMode }) => {
-   const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Default colors for categories
+  const categoryColors = [
+    'from-yellow-400 to-orange-400',
+    'from-blue-100 to-blue-200',
+    'from-gray-800 to-gray-900',
+    'from-teal-400 to-cyan-500',
+    'from-purple-400 to-pink-400',
+    'from-green-400 to-blue-400',
+    'from-red-400 to-orange-400',
+    'from-indigo-400 to-purple-400',
+  ];
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/categories', {
+        params: {
+          status: 'active',
+          limit: 10
+        }
+      });
+      
+      console.log('Categories Response:', response.data); // Debug
+      
+      if (response.data.success) {
+        setCategories(response.data.data.categories || []);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const openPopup = (title, img, description) => {
     alert(`${title}\n\n${description}`);
   };
@@ -100,82 +142,137 @@ const Dashboard = ({ darkMode }) => {
 
       {/* Product Cards */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {[
-          {
-            title: 'Industrial Bank Credit Card',
-            reward: 'Earn ₹ 1,100 per successful opening',
-            color: 'from-yellow-400 to-orange-400',
-            img: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400&h=300&fit=crop',
-          },
-          {
-            title: 'Bajaj EMI Card',
-            reward: 'Earn ₹ 800 per successful lead',
-            color: 'from-blue-100 to-blue-200',
-            img: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=300&fit=crop',
-          },
-          {
-            title: 'Demat Account',
-            reward: 'Earn ₹ 750 per successful opening',
-            color: 'from-gray-800 to-gray-900',
-            img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=300&fit=crop',
-          },
-          {
-            title: 'MoneyTap Personal Loan',
-            reward: 'Earn ₹ 2,100 per successful opening',
-            color: 'from-teal-400 to-cyan-500',
-            img: 'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=400&h=300&fit=crop',
-          },
-          {
-            title: 'Savings Account',
-            reward: 'Earn ₹ 750 per successful opening',
-            color: 'from-gray-800 to-gray-900',
-            img: 'https://images.unsplash.com/photo-1633158829875-e5316a358c6f?w=400&h=300&fit=crop',
-          },
-          {
-            title: 'Bajaj EMI Card (Offer 2)',
-            reward: 'Earn ₹ 700 per successful opening',
-            color: 'from-gray-800 to-gray-900',
-            img: 'https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?w=400&h=300&fit=crop',
-          },
-        ].map((card) => (
-          <div
-            key={card.title}
-            onClick={() => {
-                if (card.title === "Demat Account") {
-                navigate("/user/demat-account");
-                } else {
-                openPopup(card.title, card.img, card.reward);
-                }
-                }}
-            className={`rounded-lg border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer ${
-              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-            }`}
-          >
+        {loading ? (
+          // Loading state
+          <div className="col-span-full text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-500">Loading categories...</p>
+          </div>
+        ) : categories.length > 0 ? (
+          // Categories from backend
+          categories.map((category, index) => (
             <div
-              className={`bg-gradient-to-br ${card.color} h-24 sm:h-28 md:h-32 flex items-center justify-center`}
+              key={category._id || index}
+              onClick={() => {
+                // Navigate to category offers page with category ID and name
+                navigate(`/user/category-offers/${category._id}`, {
+                  state: { 
+                    categoryId: category._id,
+                    categoryName: category.name,
+                    categoryDescription: category.description
+                  }
+                });
+              }}
+              className={`rounded-lg border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer ${
+                darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+              }`}
             >
-              <div className="text-white text-lg font-bold text-center px-2">
-                {card.title.split(' ')[0]}
+              <div
+                className={`bg-gradient-to-br ${categoryColors[index % categoryColors.length]} h-24 sm:h-28 md:h-32 flex items-center justify-center`}
+              >
+                <div className="text-white text-lg font-bold text-center px-2">
+                  {category.name?.split(' ')[0] || 'Category'}
+                </div>
+              </div>
+              <div className="p-4">
+                <h3
+                  className={`font-semibold mb-1 ${
+                    darkMode ? 'text-white' : 'text-gray-800'
+                  }`}
+                >
+                  {category.name}
+                </h3>
+                <p
+                  className={`text-sm ${
+                    darkMode ? 'text-gray-400' : 'text-gray-600'
+                  }`}
+                >
+                  {category.description || 'Available offers'}
+                </p>
               </div>
             </div>
-            <div className="p-4">
-              <h3
-                className={`font-semibold mb-1 ${
-                  darkMode ? 'text-white' : 'text-gray-800'
-                }`}
+          ))
+        ) : (
+          // Fallback - no categories found
+          [
+            {
+              title: 'Industrial Bank Credit Card',
+              reward: 'Earn ₹ 1,100',
+              color: 'from-yellow-400 to-orange-400',
+              img: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400&h=300&fit=crop',
+            },
+            {
+              title: 'Bajaj EMI Card',
+              reward: 'Earn ₹ 800 ',
+              color: 'from-blue-100 to-blue-200',
+              img: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=300&fit=crop',
+            },
+            {
+              title: 'Demat Account',
+              reward: 'Earn ₹ 750 ',
+              color: 'from-gray-800 to-gray-900',
+              img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=300&fit=crop',
+            },
+            {
+              title: 'MoneyTap Personal Loan',
+              reward: 'Earn ₹ 2,100 ',
+              color: 'from-teal-400 to-cyan-500',
+              img: 'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=400&h=300&fit=crop',
+            },
+            {
+              title: 'Savings Account',
+              reward: 'Earn ₹ 750 ',
+              color: 'from-gray-800 to-gray-900',
+              img: 'https://images.unsplash.com/photo-1633158829875-e5316a358c6f?w=400&h=300&fit=crop',
+            },
+            {
+              title: 'Bajaj EMI Card (Offer 2)',
+              reward: 'Earn ₹ 700',
+              color: 'from-gray-800 to-gray-900',
+              img: 'https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?w=400&h=300&fit=crop',
+            },
+          ].map((card) => (
+            <div
+              key={card.title}
+              onClick={() => {
+                // Fallback navigation - use title as category name
+                navigate(`/user/category-offers/fallback`, {
+                  state: { 
+                    categoryName: card.title,
+                    categoryDescription: card.reward
+                  }
+                });
+              }}
+              className={`rounded-lg border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer ${
+                darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+              }`}
+            >
+              <div
+                className={`bg-gradient-to-br ${card.color} h-24 sm:h-28 md:h-32 flex items-center justify-center`}
               >
-                {card.title}
-              </h3>
-              <p
-                className={`text-sm ${
-                  darkMode ? 'text-gray-400' : 'text-gray-600'
-                }`}
-              >
-                {card.reward}
-              </p>
+                <div className="text-white text-lg font-bold text-center px-2">
+                  {card.title.split(' ')[0]}
+                </div>
+              </div>
+              <div className="p-4">
+                <h3
+                  className={`font-semibold mb-1 ${
+                    darkMode ? 'text-white' : 'text-gray-800'
+                  }`}
+                >
+                  {card.title}
+                </h3>
+                <p
+                  className={`text-sm ${
+                    darkMode ? 'text-gray-400' : 'text-gray-600'
+                  }`}
+                >
+                  {card.reward}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </section>
     </div>
   );
