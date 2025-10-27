@@ -135,7 +135,7 @@ export default function KYCReview() {
             <h1 className="text-xl sm:text-2xl font-bold text-foreground">
               {currentView === "table" 
                 ? "KYC Review - Pending Applications" 
-                : `KYC ${actionType === "approve" ? "Approval" : "Rejection"} - ${selectedUser?.fullName}`
+                : `KYC Review - ${selectedUser?.fullName}`
               }
             </h1>
           </div>
@@ -168,7 +168,7 @@ export default function KYCReview() {
             </div>
             
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1200px] table-fixed">
+              <table className="w-full min-w-[900px] table-fixed">
                 <colgroup>
                   <col className="w-24" />
                   <col className="w-40" />
@@ -176,7 +176,7 @@ export default function KYCReview() {
                   <col className="w-32" />
                   <col className="w-28" />
                   <col className="w-24" />
-                  <col className="w-72" />
+                  <col className="w-40" />
                 </colgroup>
                 <thead className="bg-muted">
                   <tr>
@@ -227,27 +227,13 @@ export default function KYCReview() {
                         </span>
                       </td>
                       <td className="px-4 py-4 text-sm">
-                        <div className="flex items-center gap-2 whitespace-nowrap">
-                          <button
-                            onClick={() => handleViewDetails(user, "approve")}
-                            className="inline-flex items-center px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-xs font-medium"
-                          >
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => handleViewDetails(user, "reject")}
-                            className="inline-flex items-center px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-xs font-medium"
-                          >
-                            <XCircle className="w-3 h-3 mr-1" />
-                            Reject
-                          </button>
+                        <div className="flex items-center justify-center">
                           <button
                             onClick={() => handleViewDetails(user, "view")}
-                            className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-xs font-medium"
+                            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium"
                           >
-                            <Eye className="w-3 h-3 mr-1" />
-                            View
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Details
                           </button>
                         </div>
                       </td>
@@ -378,35 +364,29 @@ export default function KYCReview() {
               </div>
             </div>
 
-            {/* Action Buttons - Only show for approve/reject actions */}
-            {actionType !== "view" && (
-              <div className="mt-8 flex justify-center space-x-4">
-                <button
-                  onClick={handleBackToTable}
-                  className="px-6 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
-                >
-                  Cancel
-                </button>
-                {actionType === "approve" && (
-                  <button
-                    onClick={handleApprove}
-                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Confirm Approval</span>
-                  </button>
-                )}
-                {actionType === "reject" && (
-                  <button
-                    onClick={handleReject}
-                    className="px-6 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors flex items-center space-x-2"
-                  >
-                    <XCircle className="w-4 h-4" />
-                    <span>Confirm Rejection</span>
-                  </button>
-                )}
-              </div>
-            )}
+            {/* Action Buttons - Always show in detail view */}
+            <div className="mt-8 flex justify-center space-x-4">
+              <button
+                onClick={handleBackToTable}
+                className="px-6 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
+              >
+                Back to List
+              </button>
+              <button
+                onClick={handleReject}
+                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2"
+              >
+                <XCircle className="w-4 h-4" />
+                <span>Reject KYC</span>
+              </button>
+              <button
+                onClick={handleApprove}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+              >
+                <CheckCircle className="w-4 h-4" />
+                <span>Approve KYC</span>
+              </button>
+            </div>
           </div>
         )}
       </div>

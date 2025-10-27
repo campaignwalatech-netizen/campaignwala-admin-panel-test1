@@ -307,8 +307,8 @@ export default function AnalyticsDashboard() {
   const [endDate, setEndDate] = useState(new Date(2025, 9, 25))
   const [calendarMonth, setCalendarMonth] = useState(9)
   const [calendarYear, setCalendarYear] = useState(2025)
-  const [selectedHR, setSelectedHR] = useState("All HR")
-  const [selectedTL, setSelectedTL] = useState("All TL")
+  const [selectedHR, setSelectedHR] = useState("All Categories")
+  const [selectedTL, setSelectedTL] = useState("All Customers")
   const [showCalendar, setShowCalendar] = useState(false)
   const [manualStartDate, setManualStartDate] = useState("2025-09-25")
   const [manualEndDate, setManualEndDate] = useState("2025-10-25")
@@ -378,7 +378,7 @@ export default function AnalyticsDashboard() {
   const dateRangeText = endDate ? `${formatDate(startDate)} ~ ${formatDate(endDate)}` : `${formatDate(startDate)}`
 
   const getMetrics = () => {
-    if (selectedTL === "All TL") {
+    if (selectedTL === "All Customers") {
       return [
         { label: "DateWise Count", value: "31", icon: "📅" },
         { label: "Total Count", value: "2591", icon: "📊", subtext: "Database" },
@@ -410,8 +410,8 @@ export default function AnalyticsDashboard() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-4 mb-8">
-          <div className="relative flex-1 min-w-[250px]">
+        <div className="flex flex-wrap items-center gap-4 mb-8">
+          <div className="relative flex-1 min-w-[280px] max-w-[400px]">
             <button
               onClick={() => setShowCalendar(!showCalendar)}
               className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-left"
@@ -527,28 +527,35 @@ export default function AnalyticsDashboard() {
             )}
           </div>
 
-          <select
-            value={selectedHR}
-            onChange={(e) => setSelectedHR(e.target.value)}
-            className="px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option>All HR</option>
-            <option>HR 1</option>
-            <option>HR 2</option>
-          </select>
+          {/* Dropdowns moved to the right */}
+          <div className="flex gap-3 ml-auto">
+            <select
+              value={selectedHR}
+              onChange={(e) => setSelectedHR(e.target.value)}
+              className="px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary min-w-[150px]"
+            >
+              <option>All Categories</option>
+              <option>DEMAT Account</option>
+              <option>Bank Account</option>
+              <option>Credit Card</option>
+              <option>Personal Loan</option>
+              <option>Insurance</option>
+              <option>Mutual Fund</option>
+            </select>
 
-          <select
-            value={selectedTL}
-            onChange={(e) => setSelectedTL(e.target.value)}
-            className="px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option>All TL</option>
-            {tlNames.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
+            <select
+              value={selectedTL}
+              onChange={(e) => setSelectedTL(e.target.value)}
+              className="px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary min-w-[150px]"
+            >
+              <option>All Customers</option>
+              {tlNames.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Metrics Cards */}

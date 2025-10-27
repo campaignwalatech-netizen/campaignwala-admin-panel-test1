@@ -1,11 +1,84 @@
 import { Download, Search, Filter, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import leadService from "../../services/leadService";
 
 export default function LeadsTable({ status }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCampaign, setFilterCampaign] = useState("all");
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
+  const [leads, setLeads] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    pending: 0,
+    approved: 0,
+    completed: 0,
+    rejected: 0
+  });
+
+  useEffect(() => {
+    fetchLeads();
+    fetchStats();
+  }, [status, searchTerm, filterCampaign]);
+
+  const fetchLeads = async () => {
+    try {
+      setLoading(true);
+      const params = {
+        status: status === 'all' ? undefined : status,
+        search: searchTerm || undefined,
+        limit: 100
+      };
+      
+      const response = await leadService.getAllLeads(params);
+      
+      if (response.success) {
+        let fetchedLeads = response.data.leads || [];
+        
+        // Apply campaign filter
+        if (filterCampaign !== 'all') {
+          fetchedLeads = fetchedLeads.filter(lead => 
+            lead.category?.toLowerCase().includes(filterCampaign.toLowerCase())
+          );
+        }
+        
+        // Format leads for display
+        const formattedLeads = fetchedLeads.map(lead => ({
+          _id: lead._id,
+          leadId: lead.leadId,
+          date: new Date(lead.createdAt).toISOString().split('T')[0],
+          offerName: lead.offerName,
+          category: lead.category,
+          hrName: lead.hrName,
+          hrContact: lead.hrContact,
+          customerName: lead.customerName,
+          customerContact: lead.customerContact,
+          commission1: lead.commission1 || 'N/A',
+          commission2: lead.commission2 || 'N/A',
+          commission1Paid: lead.commission1Paid || false,
+          commission2Paid: lead.commission2Paid || false,
+          status: lead.status
+        }));
+        
+        setLeads(formattedLeads);
+      }
+    } catch (error) {
+      console.error('Error fetching leads:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await leadService.getLeadStats();
+      if (response.success) {
+        setStats(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
 
   const [allLeads, setAllLeads] = useState({
     pending: [
@@ -114,27 +187,6 @@ export default function LeadsTable({ status }) {
     ],
   });
 
-  // Enhanced filtering logic
-  const filteredLeads = (allLeads[status] || []).filter(lead => {
-    const matchesSearch = searchTerm === "" || 
-      lead.leadId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.offerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.hrName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.offer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.hrContact.includes(searchTerm) ||
-      lead.customerContact.includes(searchTerm);
-    
-    const matchesFilter = filterCampaign === "all" || 
-      (filterCampaign === "marketing" && lead.category.toLowerCase().includes("marketing")) ||
-      (filterCampaign === "seo" && lead.category.toLowerCase().includes("seo")) ||
-      (filterCampaign === "social" && lead.category.toLowerCase().includes("social"));
-    
-    return matchesSearch && matchesFilter;
-  });
-
-  const leads = filteredLeads;
   const statusColors = {
     pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
     approved: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
@@ -152,22 +204,39 @@ export default function LeadsTable({ status }) {
     setShowViewModal(true);
   };
 
-  // Function to approve pending leads
-  const handleApprove = (leadToApprove) => {
-    setAllLeads(prevLeads => {
-      // Remove from pending
-      const updatedPending = prevLeads.pending.filter(lead => lead.leadId !== leadToApprove.leadId);
+  // Function to handle status change
+  const handleStatusChange = async (lead, newStatus) => {
+    try {
+      let response;
       
-      // Add to approved with updated status
-      const approvedLead = { ...leadToApprove, status: "approved" };
-      const updatedApproved = [...prevLeads.approved, approvedLead];
+      if (newStatus === 'approved') {
+        response = await leadService.approveLead(lead._id);
+        if (response.success) {
+          alert(response.message || 'Lead approved successfully!');
+        }
+      } else if (newStatus === 'completed') {
+        response = await leadService.approveLead(lead._id);
+        if (response.success) {
+          alert(response.message || 'Lead completed successfully!');
+        }
+      } else if (newStatus === 'rejected') {
+        const reason = prompt('Enter rejection reason:');
+        if (!reason) return; // User cancelled
+        response = await leadService.rejectLead(lead._id, reason);
+      } else {
+        // For pending and completed, use updateLeadStatus
+        response = await leadService.updateLeadStatus(lead._id, { status: newStatus });
+      }
       
-      return {
-        ...prevLeads,
-        pending: updatedPending,
-        approved: updatedApproved
-      };
-    });
+      if (response.success) {
+        alert(`Lead status changed to ${newStatus} successfully!`);
+        fetchLeads(); // Refresh the leads list
+        fetchStats(); // Refresh stats
+      }
+    } catch (error) {
+      console.error('Error updating lead status:', error);
+      alert('Failed to update lead status. Please try again.');
+    }
   };
 
   return (
@@ -233,7 +302,8 @@ export default function LeadsTable({ status }) {
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">HR Contact</th>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Customer Name</th>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Customer Contact</th>
-              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Offer</th>
+              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Commission 1</th>
+              <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Commission 2</th>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Status</th>
               <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">Actions</th>
             </tr>
@@ -241,7 +311,7 @@ export default function LeadsTable({ status }) {
           <tbody className="divide-y divide-border">
             {leads.length === 0 ? (
               <tr>
-                <td colSpan={11} className="px-3 sm:px-4 md:px-6 py-6 sm:py-8 text-center text-sm text-muted-foreground">
+                <td colSpan={12} className="px-3 sm:px-4 md:px-6 py-6 sm:py-8 text-center text-sm text-muted-foreground">
                   No {status} leads found
                 </td>
               </tr>
@@ -257,22 +327,29 @@ export default function LeadsTable({ status }) {
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.customerName}</td>
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm text-foreground whitespace-nowrap">{lead.customerContact}</td>
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm font-semibold text-foreground whitespace-nowrap">
-                    <span className="text-green-600">{lead.offer}</span>
+                    <span className={lead.commission1Paid ? "text-gray-400 line-through" : "text-green-600"}>
+                      ₹{lead.commission1}
+                    </span>
+                    {lead.commission1Paid && <span className="ml-2 text-xs text-green-600">✓ Paid</span>}
+                  </td>
+                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm font-semibold text-foreground whitespace-nowrap">
+                    <span className={lead.commission2Paid ? "text-gray-400 line-through" : "text-blue-600"}>
+                      ₹{lead.commission2}
+                    </span>
+                    {lead.commission2Paid && <span className="ml-2 text-xs text-blue-600">✓ Paid</span>}
                   </td>
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm whitespace-nowrap">
-                    {lead.status === "pending" ? (
-                      <button
-                        onClick={() => handleApprove(lead)}
-                        className={`px-2 py-1 rounded-full text-xs font-semibold transition-colors hover:opacity-80 cursor-pointer ${statusColors[lead.status]}`}
-                        title="Click to approve"
-                      >
-                        {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
-                      </button>
-                    ) : (
-                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColors[lead.status]}`}>
-                        {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
-                      </span>
-                    )}
+                    <select
+                      value={lead.status}
+                      onChange={(e) => handleStatusChange(lead, e.target.value)}
+                      className={`px-2 py-1 rounded-full text-xs font-semibold border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary ${statusColors[lead.status]}`}
+                      disabled={lead.status === 'completed' || lead.status === 'rejected'}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="approved">Approved</option>
+                      <option value="completed">Completed</option>
+                      <option value="rejected">Rejected</option>
+                    </select>
                   </td>
                   <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm whitespace-nowrap">
                     <button 
@@ -334,8 +411,18 @@ export default function LeadsTable({ status }) {
                 <p className="text-sm text-muted-foreground">{selectedLead.customerContact}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Commission</label>
-                <p className="text-sm font-semibold text-green-600">{selectedLead.offer}</p>
+                <label className="block text-sm font-medium text-foreground mb-1">Commission 1</label>
+                <p className="text-sm font-semibold text-green-600">{selectedLead.commission1}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Commission 2</label>
+                <p className="text-sm font-semibold text-blue-600">{selectedLead.commission2}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Status</label>
+                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColors[selectedLead.status]}`}>
+                  {selectedLead.status.charAt(0).toUpperCase() + selectedLead.status.slice(1)}
+                </span>
               </div>
             </div>
           </div>

@@ -3,8 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import AnalyticsDashboard from '../src/adminDashboard/forms/ABCAnalytics';
 
 // Mocking recharts library
-jest.mock('recharts', () => {
-  const OriginalModule = jest.requireActual('recharts');
+vi.mock('recharts', () => {
+  const OriginalModule = vi.requireActual('recharts');
   return {
     ...OriginalModule,
     ResponsiveContainer: ({ children }) => <div data-testid="responsive-container">{children}</div>,
@@ -21,7 +21,7 @@ jest.mock('recharts', () => {
 });
 
 // Mocking lucide-react icons
-jest.mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   ChevronLeft: () => <div data-testid="chevron-left" />,
   ChevronRight: () => <div data-testid="chevron-right" />,
   Search: () => <div data-testid="search-icon" />,

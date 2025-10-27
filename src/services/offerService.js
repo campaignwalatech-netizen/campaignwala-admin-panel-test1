@@ -163,3 +163,19 @@ export const getOffersByCategory = async (categoryId) => {
     throw error;
   }
 };
+
+// Default export object with all methods
+const offerService = {
+  getAllOffers,
+  getOfferById,
+  createOffer,
+  updateOffer,
+  deleteOffer,
+  approveOffer,
+  rejectOffer,
+  getOfferStats,
+  bulkUploadOffers,
+  getOffersByCategory
+};
+
+export default offerService;
