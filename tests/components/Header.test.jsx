@@ -1,9 +1,10 @@
+
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import Header from '../src/components/Header';
+import Header from '../../../src/components/Header';
 
 // Mock the ProfileMenu component
-vi.mock('../src/components/ProfileMenu', () => ({
+vi.mock('../../../src/components/profile', () => ({
   default: () => <div data-testid="profile-menu">Profile Menu</div>,
 }));
 
@@ -18,18 +19,6 @@ describe('Header Component', () => {
     render(<Header isDark={false} onThemeToggle={() => {}} />);
     expect(screen.getByLabelText('Toggle theme')).toBeInTheDocument();
     expect(screen.getByTestId('profile-menu')).toBeInTheDocument();
-  });
-
-  it('should display the moon icon in light mode', () => {
-    render(<Header isDark={false} onThemeToggle={() => {}} />);
-    // The test DOM does not render the lucide icons in a way we can easily test.
-    // We will test the click handler instead.
-  });
-
-  it('should display the sun icon in dark mode', () => {
-    render(<Header isDark={true} onThemeToggle={() => {}} />);
-    // The test DOM does not render the lucide icons in a way we can easily test.
-    // We will test the click handler instead.
   });
 
   it('should call the theme toggle handler on click', () => {
