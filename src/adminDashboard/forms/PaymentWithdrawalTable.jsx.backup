@@ -6,7 +6,310 @@ import { toast } from "react-hot-toast";
 export default function PaymentWithdrawalTable() {
   const [withdrawals, setWithdrawals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [processing, setProcessing] = useState(false);
+  const [originalWithdrawals, setOriginalWithdrawals] = useState([
+    { 
+      leadId: "LID001", 
+      leadName: "Alice Johnson", 
+      category: "Electronics", 
+      dateRequested: "2024-07-20", 
+      amount: 800.00, 
+      status: "Approved",
+      details: "TXN: TXNQ23458",
+      bankDetails: {
+        accountNumber: "1234567890",
+        ifscCode: "HDFC0000123",
+        bankName: "HDFC Bank",
+        accountHolderName: "Alice Johnson",
+        branchName: "Mumbai Central"
+      }
+    },
+    { 
+      leadId: "LID002", 
+      leadName: "Bob Williams", 
+      category: "Apparel", 
+      dateRequested: "2024-07-19", 
+      amount: 120.50, 
+      status: "Pending",
+      details: "N/A",
+      bankDetails: {
+        accountNumber: "9876543210",
+        ifscCode: "ICIC0000456",
+        bankName: "ICICI Bank",
+        accountHolderName: "Bob Williams",
+        branchName: "Delhi Main"
+      }
+    },
+    { 
+      leadId: "LID003", 
+      leadName: "Charlie Brown", 
+      category: "Home Goods", 
+      dateRequested: "2024-07-18", 
+      amount: 75.00, 
+      status: "Rejected",
+      details: "Insufficient funds",
+      bankDetails: {
+        accountNumber: "5555666677",
+        ifscCode: "SBI0000789",
+        bankName: "State Bank of India",
+        accountHolderName: "Charlie Brown",
+        branchName: "Bangalore South"
+      }
+    },
+    { 
+      leadId: "LID004", 
+      leadName: "Diana Miller", 
+      category: "Electronics", 
+      dateRequested: "2024-07-17", 
+      amount: 300.00, 
+      status: "Approved",
+      details: "TXN: TXNB54321"
+    },
+    { 
+      leadId: "LID005", 
+      leadName: "Eve Davis", 
+      category: "Automotive", 
+      dateRequested: "2024-07-16", 
+      amount: 9000.00, 
+      status: "Pending",
+      details: "N/A"
+    },
+    { 
+      leadId: "LID006", 
+      leadName: "Frank Green", 
+      category: "Apparel", 
+      dateRequested: "2024-07-15", 
+      amount: 45.25, 
+      status: "Approved",
+      details: "TXN: TXN789012"
+    },
+    { 
+      leadId: "LID007", 
+      leadName: "Grace Hall", 
+      category: "Home Goods", 
+      dateRequested: "2024-07-14", 
+      amount: 150.00, 
+      status: "Rejected",
+      details: "Policy violation"
+    },
+    { 
+      leadId: "LID008", 
+      leadName: "Harry White", 
+      category: "Electronics", 
+      dateRequested: "2024-07-13", 
+      amount: 250.00, 
+      status: "Approved",
+      details: "TXN: TXN456878"
+    },
+    { 
+      leadId: "LID009", 
+      leadName: "Ivy Black", 
+      category: "Automotive", 
+      dateRequested: "2024-07-12", 
+      amount: 600.00, 
+      status: "Pending",
+      details: "N/A"
+    },
+    { 
+      leadId: "LID010", 
+      leadName: "Jack Taylor", 
+      category: "Apparel", 
+      dateRequested: "2024-07-11", 
+      amount: 88.75, 
+      status: "Approved",
+      details: "TXN: TXNRQ1234"
+    },
+    { 
+      leadId: "LID011", 
+      leadName: "Kelly Smith", 
+      category: "Electronics", 
+      dateRequested: "2024-07-10", 
+      amount: 450.00, 
+      status: "Pending",
+      details: "N/A"
+    },
+    { 
+      leadId: "LID012", 
+      leadName: "Liam Anderson", 
+      category: "Sports", 
+      dateRequested: "2024-07-09", 
+      amount: 320.75, 
+      status: "Approved",
+      details: "TXN: TXN987654"
+    },
+    { 
+      leadId: "LID013", 
+      leadName: "Maya Rodriguez", 
+      category: "Beauty", 
+      dateRequested: "2024-07-08", 
+      amount: 95.50, 
+      status: "Rejected",
+      details: "Duplicate request"
+    },
+    { 
+      leadId: "LID014", 
+      leadName: "Noah Wilson", 
+      category: "Automotive", 
+      dateRequested: "2024-07-07", 
+      amount: 1200.00, 
+      status: "Approved",
+      details: "TXN: TXN123987"
+    },
+    { 
+      leadId: "LID015", 
+      leadName: "Olivia Garcia", 
+      category: "Home Goods", 
+      dateRequested: "2024-07-06", 
+      amount: 185.25, 
+      status: "Pending",
+      details: "N/A"
+    },
+    { 
+      leadId: "LID016", 
+      leadName: "Paul Martinez", 
+      category: "Electronics", 
+      dateRequested: "2024-07-05", 
+      amount: 675.00, 
+      status: "Approved",
+      details: "TXN: TXN456123"
+    },
+    { 
+      leadId: "LID017", 
+      leadName: "Quinn Thompson", 
+      category: "Apparel", 
+      dateRequested: "2024-07-04", 
+      amount: 225.80, 
+      status: "Rejected",
+      details: "Account verification failed"
+    },
+    { 
+      leadId: "LID018", 
+      leadName: "Rachel Davis", 
+      category: "Books", 
+      dateRequested: "2024-07-03", 
+      amount: 65.00, 
+      status: "Approved",
+      details: "TXN: TXN789456",
+      bankDetails: {
+        accountNumber: "7777888899",
+        ifscCode: "CANR0000789",
+        bankName: "Canara Bank",
+        accountHolderName: "Rachel Davis",
+        branchName: "Chennai Central"
+      }
+    },
+    { 
+      leadId: "LID019", 
+      leadName: "Sam Johnson", 
+      category: "Sports", 
+      dateRequested: "2024-07-02", 
+      amount: 890.00, 
+      status: "Pending",
+      details: "N/A",
+      bankDetails: {
+        accountNumber: "8888999900",
+        ifscCode: "AXIS0000456",
+        bankName: "Axis Bank",
+        accountHolderName: "Sam Johnson",
+        branchName: "Pune Main"
+      }
+    },
+    { 
+      leadId: "LID020", 
+      leadName: "Tina Brown", 
+      category: "Beauty", 
+      dateRequested: "2024-07-01", 
+      amount: 155.75, 
+      status: "Approved",
+      details: "TXN: TXN321654",
+      bankDetails: {
+        accountNumber: "9999000011",
+        ifscCode: "KOTAK000789",
+        bankName: "Kotak Bank",
+        accountHolderName: "Tina Brown",
+        branchName: "Kolkata Park Street"
+      }
+    },
+    { 
+      leadId: "LID021", 
+      leadName: "Uma Patel", 
+      category: "Electronics", 
+      dateRequested: "2024-06-30", 
+      amount: 1450.00, 
+      status: "Rejected",
+      details: "Exceeds limit",
+      bankDetails: {
+        accountNumber: "1111222233",
+        ifscCode: "BOB0000456",
+        bankName: "Bank of Baroda",
+        accountHolderName: "Uma Patel",
+        branchName: "Ahmedabad CG Road"
+      }
+    },
+    { 
+      leadId: "LID022", 
+      leadName: "Victor Lee", 
+      category: "Automotive", 
+      dateRequested: "2024-06-29", 
+      amount: 2100.50, 
+      status: "Pending",
+      details: "N/A",
+      bankDetails: {
+        accountNumber: "2222333344",
+        ifscCode: "UNION0000789",
+        bankName: "Union Bank",
+        accountHolderName: "Victor Lee",
+        branchName: "Hyderabad Banjara Hills"
+      }
+    },
+    { 
+      leadId: "LID023", 
+      leadName: "Wendy Clark", 
+      category: "Home Goods", 
+      dateRequested: "2024-06-28", 
+      amount: 340.25, 
+      status: "Approved",
+      details: "TXN: TXN654987",
+      bankDetails: {
+        accountNumber: "3333444455",
+        ifscCode: "IDBI000456",
+        bankName: "IDBI Bank",
+        accountHolderName: "Wendy Clark",
+        branchName: "Bangalore Koramangala"
+      }
+    },
+    { 
+      leadId: "LID024", 
+      leadName: "Xavier Kim", 
+      category: "Sports", 
+      dateRequested: "2024-06-27", 
+      amount: 725.00, 
+      status: "Approved",
+      details: "TXN: TXN852741",
+      bankDetails: {
+        accountNumber: "4444555566",
+        ifscCode: "VIJB000123",
+        bankName: "Vijaya Bank",
+        accountHolderName: "Xavier Kim",
+        branchName: "Gurgaon Cyber City"
+      }
+    },
+    { 
+      leadId: "LID025", 
+      leadName: "Yara Singh", 
+      category: "Books", 
+      dateRequested: "2024-06-26", 
+      amount: 45.90, 
+      status: "Rejected",
+      details: "Invalid documentation",
+      bankDetails: {
+        accountNumber: "5555666677",
+        ifscCode: "PNB0000789",
+        bankName: "Punjab National Bank",
+        accountHolderName: "Yara Singh",
+        branchName: "Chandigarh Sector 17"
+      }
+    }
+  ]);
   const [showModal, setShowModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
@@ -14,50 +317,14 @@ export default function PaymentWithdrawalTable() {
   const [transactionId, setTransactionId] = useState("");
   const [rejectReason, setRejectReason] = useState("");
   const [comments, setComments] = useState("");
-  const [selectedAction, setSelectedAction] = useState("");
+  const [selectedAction, setSelectedAction] = useState(""); // "approve" or "reject"
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All Statuses");
 
-  // Fetch withdrawals on component mount
-  useEffect(() => {
-    console.log('🔄 PaymentWithdrawalTable: Component mounted, fetching withdrawals...');
-    fetchWithdrawals();
-  }, []);
-
-  const fetchWithdrawals = async () => {
-    try {
-      console.log('🌐 withdrawalService.getAllWithdrawals called');
-      setLoading(true);
-      const response = await withdrawalService.getAllWithdrawals({
-        sortBy: 'requestDate',
-        order: 'desc',
-        limit: 100
-      });
-      console.log('📥 withdrawalService.getAllWithdrawals response:', response);
-      
-      if (response.success) {
-        console.log('✅ Withdrawals data:', response.data.withdrawals);
-        console.log('📊 Total withdrawals:', response.data.withdrawals.length);
-        setWithdrawals(response.data.withdrawals);
-      } else {
-        console.error('❌ API returned success: false');
-        toast.error('Failed to fetch withdrawals');
-      }
-    } catch (error) {
-      console.error('❌ Error fetching withdrawals:', error);
-      console.error('❌ Error details:', error.message);
-      toast.error(error.message || 'Failed to fetch withdrawals');
-    } finally {
-      setLoading(false);
-      console.log('✅ Loading complete');
-    }
-  };
-
   const statusColors = {
-    pending: "bg-yellow-50 text-yellow-600 border-yellow-200",
-    approved: "bg-green-50 text-green-600 border-green-200",
-    rejected: "bg-red-50 text-red-600 border-red-200",
-    processing: "bg-blue-50 text-blue-600 border-blue-200",
+    Pending: "bg-yellow-50 text-yellow-600 border-yellow-200",
+    Approved: "bg-green-50 text-green-600 border-green-200",
+    Rejected: "bg-red-50 text-red-600 border-red-200",
   };
 
   const handleAction = (withdrawal, action) => {
@@ -67,112 +334,66 @@ export default function PaymentWithdrawalTable() {
   };
 
   const handleViewDetails = (withdrawal) => {
-    console.log('📋 View Details clicked for:', withdrawal.withdrawalId);
     setSelectedWithdrawal(withdrawal);
     setShowDetailsModal(true);
-    setSelectedAction("");
     setTransactionId("");
     setRejectReason("");
     setComments("");
   };
 
-  const handleApprove = async () => {
+  const handleApprove = () => {
     if (!transactionId.trim()) {
-      toast.error("Please enter transaction ID");
+      alert("Please enter transaction ID");
       return;
     }
     
-    try {
-      console.log('🌐 withdrawalService.approveWithdrawal called for:', selectedWithdrawal.withdrawalId);
-      console.log('📤 Approve data:', { transactionId: transactionId.trim(), adminNotes: comments.trim() });
-      setProcessing(true);
-      
-      const response = await withdrawalService.approveWithdrawal(selectedWithdrawal.withdrawalId, {
-        transactionId: transactionId.trim(),
-        adminNotes: comments.trim()
-      });
-      
-      console.log('📥 Approve withdrawal response:', response);
-      
-      if (response.success) {
-        console.log('✅ Withdrawal approved successfully');
-        toast.success('Withdrawal request approved successfully!');
-        setShowDetailsModal(false);
-        setSelectedAction("");
-        setTransactionId("");
-        setComments("");
-        fetchWithdrawals(); // Refresh the list
-      } else {
-        console.error('❌ Approve failed:', response.message);
-        toast.error(response.message || 'Failed to approve withdrawal');
-      }
-    } catch (error) {
-      console.error('❌ Error approving withdrawal:', error);
-      console.error('❌ Error details:', error.message);
-      toast.error(error.message || 'Failed to approve withdrawal');
-    } finally {
-      setProcessing(false);
-      console.log('✅ Approve process complete');
-    }
+    setWithdrawals(withdrawals.map(w => 
+      w.leadId === selectedWithdrawal.leadId 
+        ? { ...w, status: "Approved", details: `TXN: ${transactionId}${comments ? ` - ${comments}` : ''}` }
+        : w
+    ));
+    
+    setShowDetailsModal(false);
+    setTransactionId("");
+    setComments("");
   };
 
-  const handleReject = async () => {
+  const handleReject = () => {
     if (!rejectReason.trim()) {
-      toast.error("Please enter rejection reason");
+      alert("Please enter rejection reason");
       return;
     }
     
-    try {
-      console.log('🌐 withdrawalService.rejectWithdrawal called for:', selectedWithdrawal.withdrawalId);
-      console.log('📤 Reject data:', { reason: rejectReason.trim(), adminNotes: comments.trim() });
-      setProcessing(true);
-      
-      const response = await withdrawalService.rejectWithdrawal(selectedWithdrawal.withdrawalId, {
-        reason: rejectReason.trim(),
-        adminNotes: comments.trim()
-      });
-      
-      console.log('📥 Reject withdrawal response:', response);
-      
-      if (response.success) {
-        console.log('✅ Withdrawal rejected successfully');
-        toast.success('Withdrawal request rejected successfully!');
-        setShowDetailsModal(false);
-        setSelectedAction("");
-        setRejectReason("");
-        setComments("");
-        fetchWithdrawals(); // Refresh the list
-      } else {
-        console.error('❌ Reject failed:', response.message);
-        toast.error(response.message || 'Failed to reject withdrawal');
-      }
-    } catch (error) {
-      console.error('❌ Error rejecting withdrawal:', error);
-      console.error('❌ Error details:', error.message);
-      toast.error(error.message || 'Failed to reject withdrawal');
-    } finally {
-      setProcessing(false);
-      console.log('✅ Reject process complete');
+    setWithdrawals(withdrawals.map(w => 
+      w.leadId === selectedWithdrawal.leadId 
+        ? { ...w, status: "Rejected", details: `${rejectReason}${comments ? ` - ${comments}` : ''}` }
+        : w
+    ));
+    
+    setShowDetailsModal(false);
+    setRejectReason("");
+    setComments("");
+  };
+
+  const confirmAction = () => {
+    if (actionType === "approve") {
+      setWithdrawals(withdrawals.map(w => 
+        w.leadId === selectedWithdrawal.leadId ? {...w, status: "Approved"} : w
+      ));
+    } else {
+      setWithdrawals(withdrawals.map(w => 
+        w.leadId === selectedWithdrawal.leadId ? {...w, status: "Rejected"} : w
+      ));
     }
+    setShowModal(false);
+    setSelectedWithdrawal(null);
   };
 
   // Calculate statistics
   const totalRequests = withdrawals.length;
-  const approvedRequests = withdrawals.filter(w => w.status === 'approved').length;
-  const pendingRequests = withdrawals.filter(w => w.status === 'pending').length;
-  const rejectedRequests = withdrawals.filter(w => w.status === 'rejected').length;
-
-  // Filter withdrawals by search and status
-  const filteredWithdrawals = withdrawals.filter(withdrawal => {
-    const matchesSearch = searchTerm === "" || 
-      withdrawal.withdrawalId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      withdrawal.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      withdrawal.userId?.email?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = filterStatus === "All Statuses" || withdrawal.status === filterStatus;
-    
-    return matchesSearch && matchesStatus;
-  });
+  const approvedRequests = withdrawals.filter(w => w.status === 'Approved').length;
+  const pendingRequests = withdrawals.filter(w => w.status === 'Pending').length;
+  const rejectedRequests = withdrawals.filter(w => w.status === 'Rejected').length;
 
   const handleExport = () => {
     console.log("Exporting withdrawal data...");
@@ -262,10 +483,9 @@ export default function PaymentWithdrawalTable() {
               className="appearance-none bg-background border border-border rounded-lg px-4 py-2 pr-8 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               <option value="All Statuses">All Statuses</option>
-              <option value="approved">Approved</option>
-              <option value="pending">Pending</option>
-              <option value="rejected">Rejected</option>
-              <option value="processing">Processing</option>
+              <option value="Approved">Approved</option>
+              <option value="Pending">Pending</option>
+              <option value="Rejected">Rejected</option>
             </select>
             <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           </div>
@@ -278,30 +498,30 @@ export default function PaymentWithdrawalTable() {
           <table className="w-full">
             <thead className="bg-muted/50 border-b border-border">
               <tr>
-                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">WITHDRAWAL ID</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">USER NAME</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">EMAIL</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">REQUEST DATE</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">LEAD ID</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">LEAD NAME</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">CATEGORY</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">DATE REQUESTED</th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">AMOUNT</th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">STATUS</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">ACCOUNT NUMBER</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">DETAILS</th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">ACTIONS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-background">
-              {filteredWithdrawals.map((withdrawal) => (
-                <tr key={withdrawal.withdrawalId} className="hover:bg-muted/20">
-                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{withdrawal.withdrawalId}</td>
-                  <td className="px-4 py-3 text-sm font-medium text-foreground whitespace-nowrap">{withdrawal.userId?.name || 'N/A'}</td>
-                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{withdrawal.userId?.email || 'N/A'}</td>
-                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{new Date(withdrawal.requestDate).toLocaleDateString()}</td>
-                  <td className="px-4 py-3 text-sm font-semibold text-foreground whitespace-nowrap">₹{withdrawal.amount?.toFixed(2) || '0.00'}</td>
+              {withdrawals.map((withdrawal) => (
+                <tr key={withdrawal.leadId} className="hover:bg-muted/20">
+                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{withdrawal.leadId}</td>
+                  <td className="px-4 py-3 text-sm font-medium text-foreground whitespace-nowrap">{withdrawal.leadName}</td>
+                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{withdrawal.category}</td>
+                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{withdrawal.dateRequested}</td>
+                  <td className="px-4 py-3 text-sm font-semibold text-foreground whitespace-nowrap">${withdrawal.amount.toFixed(2)}</td>
                   <td className="px-4 py-3 text-sm whitespace-nowrap">
                     <span className={`px-2 py-1 rounded text-xs font-medium border ${statusColors[withdrawal.status]}`}>
                       {withdrawal.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{withdrawal.bankDetails?.accountNumber || 'N/A'}</td>
+                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{withdrawal.details}</td>
                   <td className="px-4 py-3 text-sm whitespace-nowrap">
                     <button
                       onClick={() => handleViewDetails(withdrawal)}
@@ -328,22 +548,6 @@ export default function PaymentWithdrawalTable() {
                   </td>
                 </tr>
               ))}
-              {loading && (
-                <tr>
-                  <td colSpan={8} className="text-center py-8 text-muted-foreground">
-                    Loading withdrawal requests...
-                  </td>
-                </tr>
-              )}
-              {!loading && filteredWithdrawals.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="text-center py-8 text-muted-foreground">
-                    {searchTerm || filterStatus !== "All Statuses" 
-                      ? "No withdrawal requests match your filters" 
-                      : "No withdrawal requests found"}
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>
@@ -378,18 +582,18 @@ export default function PaymentWithdrawalTable() {
               </button>
             </div>
             <p className="text-sm text-foreground mb-6 break-words">
-              Are you sure you want to {actionType} withdrawal request for <strong>{selectedWithdrawal?.userId?.name || 'N/A'}</strong> with amount <strong>₹{selectedWithdrawal?.amount || 0}</strong>?
+              Are you sure you want to {actionType} withdrawal request for <strong>{selectedWithdrawal?.leadName}</strong> with amount <strong>${selectedWithdrawal?.amount}</strong>?
             </p>
             <div className="flex gap-3">
               <button 
-                onClick={() => setShowModal(false)} 
+                onClick={confirmAction} 
                 className={`flex-1 px-4 py-2 text-sm rounded-lg whitespace-nowrap ${
                   actionType === "approve" 
                     ? "bg-green-600 text-white hover:bg-green-700" 
                     : "bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 }`}
               >
-                OK
+                {actionType === "approve" ? "Approve" : "Reject"}
               </button>
               <button onClick={() => setShowModal(false)} className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-lg hover:bg-destructive/80 whitespace-nowrap">
                 Cancel
@@ -420,24 +624,24 @@ export default function PaymentWithdrawalTable() {
                 <h4 className="font-semibold text-foreground mb-3">Withdrawal Information</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-muted-foreground">Withdrawal ID:</span>
-                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.withdrawalId}</span>
+                    <span className="text-muted-foreground">Lead ID:</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.leadId}</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">User Name:</span>
-                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.userId?.name || 'N/A'}</span>
+                    <span className="text-muted-foreground">Lead Name:</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.leadName}</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Email:</span>
-                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.userId?.email || 'N/A'}</span>
+                    <span className="text-muted-foreground">Category:</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.category}</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Request Date:</span>
-                    <span className="ml-2 font-medium text-foreground">{new Date(selectedWithdrawal.requestDate).toLocaleDateString()}</span>
+                    <span className="text-muted-foreground">Date Requested:</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.dateRequested}</span>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Amount:</span>
-                    <span className="ml-2 font-semibold text-foreground text-lg">₹{selectedWithdrawal.amount?.toFixed(2) || '0.00'}</span>
+                    <span className="ml-2 font-semibold text-foreground text-lg">${selectedWithdrawal.amount.toFixed(2)}</span>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Status:</span>
@@ -454,23 +658,23 @@ export default function PaymentWithdrawalTable() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-muted-foreground">Account Holder:</span>
-                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.bankDetails?.accountHolderName || 'N/A'}</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.bankDetails.accountHolderName}</span>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Account Number:</span>
-                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.bankDetails?.accountNumber || 'N/A'}</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.bankDetails.accountNumber}</span>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Bank Name:</span>
-                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.bankDetails?.bankName || 'N/A'}</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.bankDetails.bankName}</span>
                   </div>
                   <div>
                     <span className="text-muted-foreground">IFSC Code:</span>
-                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.bankDetails?.ifscCode || 'N/A'}</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.bankDetails.ifscCode}</span>
                   </div>
                   <div className="md:col-span-2">
                     <span className="text-muted-foreground">Branch Name:</span>
-                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.bankDetails?.branchName || 'N/A'}</span>
+                    <span className="ml-2 font-medium text-foreground">{selectedWithdrawal.bankDetails.branchName}</span>
                   </div>
                 </div>
               </div>
@@ -482,12 +686,7 @@ export default function PaymentWithdrawalTable() {
                 {/* Action Buttons */}
                 <div className="flex gap-3 mb-4">
                   <button
-                    onClick={() => {
-                      setSelectedAction("approve");
-                      setRejectReason("");
-                      setTransactionId("");
-                      setComments("");
-                    }}
+                    onClick={() => setSelectedAction("approve")}
                     className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors flex items-center gap-2 ${
                       selectedAction === "approve" 
                         ? "bg-green-600 text-white" 
@@ -499,12 +698,7 @@ export default function PaymentWithdrawalTable() {
                   </button>
                   
                   <button
-                    onClick={() => {
-                      setSelectedAction("reject");
-                      setRejectReason("");
-                      setTransactionId("");
-                      setComments("");
-                    }}
+                    onClick={() => setSelectedAction("reject")}
                     className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors flex items-center gap-2 ${
                       selectedAction === "reject" 
                         ? "bg-red-600 text-white" 
@@ -536,27 +730,13 @@ export default function PaymentWithdrawalTable() {
                           placeholder="Enter transaction ID (e.g., TXN123456)"
                         />
                       </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          Additional Comments (Optional)
-                        </label>
-                        <textarea
-                          value={comments}
-                          onChange={(e) => setComments(e.target.value)}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
-                          rows={2}
-                          placeholder="Add any additional notes..."
-                        />
-                      </div>
                       
                       <button
                         onClick={handleApprove}
-                        disabled={processing}
-                        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
                       >
                         <CheckCircle className="w-4 h-4" />
-                        {processing ? 'Processing...' : 'Confirm Approval'}
+                        Confirm Approval
                       </button>
                     </div>
                   </div>
@@ -582,27 +762,13 @@ export default function PaymentWithdrawalTable() {
                           placeholder="Enter reason for rejection..."
                         />
                       </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          Additional Comments (Optional)
-                        </label>
-                        <textarea
-                          value={comments}
-                          onChange={(e) => setComments(e.target.value)}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
-                          rows={2}
-                          placeholder="Add any additional notes..."
-                        />
-                      </div>
                       
                       <button
                         onClick={handleReject}
-                        disabled={processing}
-                        className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center justify-center gap-2"
                       >
                         <XCircle className="w-4 h-4" />
-                        {processing ? 'Processing...' : 'Confirm Rejection'}
+                        Confirm Rejection
                       </button>
                     </div>
                   </div>

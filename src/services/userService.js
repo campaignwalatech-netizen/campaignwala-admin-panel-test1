@@ -252,6 +252,111 @@ class UserService {
     }
   }
 
+  // ==================== KYC Methods ====================
+
+  /**
+   * Get user's KYC details
+   * @returns {Promise<Object>} - KYC details
+   */
+  async getKYCDetails() {
+    try {
+      console.log('🌐 userService.getKYCDetails called');
+      const response = await api.get('/users/kyc');
+      console.log('✅ userService.getKYCDetails response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ userService.getKYCDetails error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Update KYC details (Personal + Documents + Bank)
+   * @param {Object} data - KYC data
+   * @returns {Promise<Object>} - Updated KYC details
+   */
+  async updateKYCDetails(data) {
+    try {
+      console.log('🌐 userService.updateKYCDetails called with:', data);
+      const response = await api.put('/users/kyc', data);
+      console.log('✅ userService.updateKYCDetails response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ userService.updateKYCDetails error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Get all pending KYC requests (Admin only)
+   * @param {Object} params - Query parameters
+   * @returns {Promise<Object>} - Pending KYC requests
+   */
+  async getPendingKYCRequests(params = {}) {
+    try {
+      console.log('🌐 userService.getPendingKYCRequests called with:', params);
+      const response = await api.get('/users/admin/kyc/pending', { params });
+      console.log('✅ userService.getPendingKYCRequests response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ userService.getPendingKYCRequests error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Get KYC details by user ID (Admin only)
+   * @param {string} userId - User ID
+   * @returns {Promise<Object>} - User's KYC details
+   */
+  async getKYCDetailsByUserId(userId) {
+    try {
+      console.log('🌐 userService.getKYCDetailsByUserId called with:', userId);
+      const response = await api.get(`/users/admin/kyc/${userId}`);
+      console.log('✅ userService.getKYCDetailsByUserId response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ userService.getKYCDetailsByUserId error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Approve KYC (Admin only)
+   * @param {string} userId - User ID
+   * @param {Object} data - Approval data (optional remarks)
+   * @returns {Promise<Object>} - Approval confirmation
+   */
+  async approveKYC(userId, data = {}) {
+    try {
+      console.log('🌐 userService.approveKYC called with:', userId, data);
+      const response = await api.put(`/users/admin/kyc/${userId}/approve`, data);
+      console.log('✅ userService.approveKYC response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ userService.approveKYC error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Reject KYC (Admin only)
+   * @param {string} userId - User ID
+   * @param {Object} data - Rejection data (reason required)
+   * @returns {Promise<Object>} - Rejection confirmation
+   */
+  async rejectKYC(userId, data) {
+    try {
+      console.log('🌐 userService.rejectKYC called with:', userId, data);
+      const response = await api.put(`/users/admin/kyc/${userId}/reject`, data);
+      console.log('✅ userService.rejectKYC response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ userService.rejectKYC error:', error);
+      throw this.handleError(error);
+    }
+  }
+
   /**
    * Handle API errors
    * @private
