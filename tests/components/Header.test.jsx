@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import Header from '../../../src/components/Header';
+import Header from '../../src/components/Header';
 
 // Mock the ProfileMenu component
 vi.mock('../../../src/components/profile', () => ({

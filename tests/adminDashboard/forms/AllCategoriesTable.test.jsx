@@ -2,11 +2,11 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import AllCategoriesTable from '../../../../src/adminDashboard/forms/AllCategoriesTable';
-import { getAllCategories, deleteCategory } from '../../../../src/services/categoryService';
+import AllCategoriesTable from '../../../src/adminDashboard/forms/AllCategoriesTable';
+import { getAllCategories, deleteCategory } from '../../../src/services/categoryService';
 
 // Mock services and router hooks
-vi.mock('../../../../src/services/categoryService');
+vi.mock('../../../src/services/categoryService');
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {

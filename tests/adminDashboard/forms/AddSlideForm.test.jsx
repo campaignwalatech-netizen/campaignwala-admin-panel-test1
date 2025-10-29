@@ -2,15 +2,15 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import AddSlideForm from '../../../../src/adminDashboard/forms/AddSlideForm';
-import slideService from '../../../../src/services/slideService';
-import categoryService from '../../../../src/services/categoryService';
-import { getOffersByCategory } from '../../../../src/services/offerService';
+import AddSlideForm from '../../../src/adminDashboard/forms/AddSlideForm';
+import slideService from '../../../src/services/slideService';
+import categoryService from '../../../src/services/categoryService';
+import { getOffersByCategory } from '../../../src/services/offerService';
 
 // Mock services and router hooks
-vi.mock('../../../../src/services/slideService');
-vi.mock('../../../../src/services/categoryService');
-vi.mock('../../../../src/services/offerService');
+vi.mock('../../../src/services/slideService');
+vi.mock('../../../src/services/categoryService');
+vi.mock('../../../src/services/offerService');
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {

@@ -1,16 +1,31 @@
-
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import AdminHeader from '../../../../src/adminDashboard/components/AdminHeader';
-import { useTheme } from '../../../../src/context-api/ThemeContext';
+import AdminHeader from '../../../src/adminDashboard/components/AdminHeader';
+import { useTheme } from '../../../src/context-api/ThemeContext';
 
 // Mock the useTheme hook
-vi.mock('../../../../src/context-api/ThemeContext', () => ({
+vi.mock('../../../src/context-api/ThemeContext', () => ({
   useTheme: vi.fn(),
 }));
 
+// Mock lucide-react icons
+vi.mock('lucide-react', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    Menu: () => <div data-testid="menu-icon" />,
+    Sun: () => <div data-testid="sun-icon" />,
+    Moon: () => <div data-testid="moon-icon" />,
+  };
+});
+
 describe('AdminHeader Component', () => {
   const setSidebarOpen = vi.fn();
+
+  // Clear mocks after each test
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('should render the header with the title', () => {
     useTheme.mockReturnValue({ theme: 'light', toggleTheme: () => {} });
@@ -38,14 +53,14 @@ describe('AdminHeader Component', () => {
   it('should display the Moon icon in light mode', () => {
     useTheme.mockReturnValue({ theme: 'light', toggleTheme: () => {} });
     render(<AdminHeader setSidebarOpen={setSidebarOpen} />);
-    // We can't easily test for the icon directly, but we can test the button exists
-    expect(screen.getByLabelText('Toggle theme')).toBeInTheDocument();
+    expect(screen.getByTestId('moon-icon')).toBeInTheDocument();
+    expect(screen.queryByTestId('sun-icon')).not.toBeInTheDocument();
   });
 
   it('should display the Sun icon in dark mode', () => {
     useTheme.mockReturnValue({ theme: 'dark', toggleTheme: () => {} });
     render(<AdminHeader setSidebarOpen={setSidebarOpen} />);
-    // We can't easily test for the icon directly, but we can test the button exists
-    expect(screen.getByLabelText('Toggle theme')).toBeInTheDocument();
+    expect(screen.getByTestId('sun-icon')).toBeInTheDocument();
+    expect(screen.queryByTestId('moon-icon')).not.toBeInTheDocument();
   });
 });

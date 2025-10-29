@@ -1,63 +1,96 @@
+# Manual Test Cases for AllOffersTable Component
 
-# Test Cases for AllOffersTable Component
+**Component:** `AllProductsTable.jsx` (Note: Component name is `AllOffersTable`)
 
-**Component:** `src/adminDashboard/forms/AllProductsTable.jsx`
+## Objective
+To ensure the `AllOffersTable` component correctly fetches, displays, searches, filters, and manages offers, including edit and delete functionality.
 
----
+## Pre-requisites
+-   Backend API for offers (`/api/offers`) and categories (`/api/categories`) should be running and accessible.
+-   Mock data should be available in the database to test various states (e.g., approved offers, pending offers).
 
-### 1. Basic Rendering and Data Fetching
-
-| Test Case ID | Description | Steps to Reproduce | Expected Result |
-| :--- | :--- | :--- | :--- |
-| AOT-001 | It should display a loading state initially. | 1. Render the `AllOffersTable` component. <br> 2. Mock the `getAllOffers` service to have a delay. | A loading spinner with the text "Loading offers..." should be visible. |
-| AOT-002 | It should fetch and display a table of offers. | 1. Mock a successful response from `getAllOffers`. <br> 2. Render the component. | A table of offers should be displayed with correct data in rows. |
-| AOT-003 | It should display an error message if fetching fails. | 1. Mock a failed response from `getAllOffers`. <br> 2. Render the component. | An error message with a "Try Again" button should be displayed. |
-| AOT-004 | It should display a message when no offers are found. | 1. Mock a successful response with an empty array of offers. <br> 2. Render the component. | A message "No offers found" should be displayed. |
-
----
-
-### 2. Filtering and Searching
-
-| Test Case ID | Description | Steps to Reproduce | Expected Result |
-| :--- | :--- | :--- | :--- |
-| AOT-005 | It should filter offers by search term. | 1. Render with a list of offers. <br> 2. Type a search term into the search input. | The `fetchOffers` function should be called with the search term, and the table should update. |
-| AOT-006 | It should filter offers by approval status. | 1. Render with offers having different approval statuses. <br> 2. Select "Approved" from the status filter dropdown. | The `fetchOffers` function should be called with `isApproved: 'true'`, and only approved offers should be displayed. |
+## Test Environment
+-   **Browser:** Chrome, Firefox, Edge (Latest Versions)
+-   **Device:** Desktop
 
 ---
 
-### 3. Offer Actions (Edit, Delete, Copy)
+### Test Case 1: Initial Load and Data Display
 
-| Test Case ID | Description | Steps to Reproduce | Expected Result |
-| :--- | :--- | :--- | :--- |
-| AOT-007 | The "Edit" button should open the edit modal with form data. | 1. Render the component. <br> 2. Click the "Edit" icon on an offer row. | The edit modal should appear, pre-filled with the data of the selected offer. |
-| AOT-008 | The "Delete" button should open the confirmation modal. | 1. Render the component. <br> 2. Click the "Delete" icon on an offer row. | The delete confirmation modal should appear. |
-| AOT-009 | The "Copy Link" button should copy the link to the clipboard. | 1. Render with an offer that has a `link`. <br> 2. Mock `navigator.clipboard.writeText`. <br> 3. Click the `LinkIcon` button. | `navigator.clipboard.writeText` should be called with the offer's link. A success alert "Link copied to clipboard!" should appear. |
-
----
-
-### 4. Deletion Process
-
-| Test Case ID | Description | Steps to Reproduce | Expected Result |
-| :--- | :--- | :--- | :--- |
-| AOT-010 | It should call `deleteOffer` and remove the row on confirmed deletion. | 1. Mock `deleteOffer` to be successful. <br> 2. Open the delete modal and confirm. | The `deleteOffer` service should be called. The corresponding row should be removed from the table, and a success alert should appear. |
-| AOT-011 | It should show an alert on failed deletion. | 1. Mock `deleteOffer` to fail. <br> 2. Confirm deletion. | An alert with an error message should be displayed. |
+| Test Case ID | TC_AOT_01                                                              |
+| :----------- | :--------------------------------------------------------------------- |
+| **Description**  | Verify the component shows a loading state and then displays the fetched offers correctly. |
+| **Steps**        | 1. Navigate to the page containing the `AllOffersTable`.<br>2. Observe the initial state.<br>3. Wait for the data to load. |
+| **Expected Result** | - A loading indicator ("Loading offers...") is shown initially.<br>- Once loaded, the table is populated with a list of offers.<br>- Each row displays the correct offer data (Image, Date, Name, Category, etc.).<br>- If the fetch fails, an error message with a "Try Again" button is displayed. |
 
 ---
 
-### 5. Editing Process
+### Test Case 2: Empty State
 
-| Test Case ID | Description | Steps to Reproduce | Expected Result |
-| :--- | :--- | :--- | :--- |
-| AOT-012 | It should update the form state inside the edit modal. | 1. Open the edit modal for an offer. <br> 2. Change the value of the "Offer Name" input. | The `editForm` state within the component should be updated. |
-| AOT-013 | It should call `updateOffer` on submitting the edit modal. | 1. Mock `updateOffer` to be successful. <br> 2. Open the edit modal, change data, and click "Update Offer". | The `updateOffer` service should be called with the offer ID and the modified data. |
-| AOT-014 | It should update the row in the table on successful edit. | 1. Mock a successful `updateOffer` response. <br> 2. Submit the edit modal. | The modal should close, a success alert should appear, and the data in the corresponding table row should be updated. |
+| Test Case ID | TC_AOT_02                                                              |
+| :----------- | :--------------------------------------------------------------------- |
+| **Description**  | Verify the component shows a "No offers found" message when no offers are available. |
+| **Steps**        | 1. Ensure the backend returns an empty array of offers.<br>2. Load the component. |
+| **Expected Result** | - A message like "No offers found" is displayed instead of the table. |
 
 ---
 
-### 6. Other Functionality
+### Test Case 3: Search Functionality
 
-| Test Case ID | Description | Steps to Reproduce | Expected Result |
-| :--- | :--- | :--- | :--- |
-| AOT-015 | The "Export" button should trigger a CSV download. | 1. Render with a list of offers. <br> 2. Click the "Export" button. | A CSV file containing the offer data should be downloaded, and a success alert should appear. |
+| Test Case ID | TC_AOT_03                                                              |
+| :----------- | :--------------------------------------------------------------------- |
+| **Description**  | Verify that searching for an offer filters the table results.        |
+| **Steps**        | 1. Type a known offer name into the search input field.<br>2. Press Enter or wait for the search to trigger. |
+| **Expected Result** | - The table updates to show only the offers that match the search term. |
+
+---
+
+### Test Case 4: Filter by Status
+
+| Test Case ID | TC_AOT_04                                                              |
+| :----------- | :--------------------------------------------------------------------- |
+| **Description**  | Verify that filtering by status (All, Approved, Pending) works correctly. |
+| **Steps**        | 1. Click the filter dropdown.<br>2. Select "Approved".<br>3. Select "Pending Approval".<br>4. Select "All Offers". |
+| **Expected Result** | - When "Approved" is selected, only approved offers are shown.<br>- When "Pending Approval" is selected, only pending offers are shown.<br>- When "All Offers" is selected, all offers are displayed again. |
+
+---
+
+### Test Case 5: Delete Offer
+
+| Test Case ID | TC_AOT_05                                                              |
+| :----------- | :--------------------------------------------------------------------- |
+| **Description**  | Verify the delete functionality, including the confirmation modal.   |
+| **Steps**        | 1. Click the `Trash2` icon on an offer row.<br>2. A confirmation modal should appear.<br>3. Click the "Cancel" button.<br>4. Click the `Trash2` icon again.<br>5. Click the "Delete" button. |
+| **Expected Result** | - The modal appears with the offer's name.<br>- Clicking "Cancel" closes the modal with no change.<br>- Clicking "Delete" removes the offer from the table and shows a success alert. |
+
+---
+
+### Test Case 6: Edit Offer
+
+| Test Case ID | TC_AOT_06                                                              |
+| :----------- | :--------------------------------------------------------------------- |
+| **Description**  | Verify the edit functionality, including the edit modal and form submission. |
+| **Steps**        | 1. Click the `Edit2` icon on an offer row.<br>2. An edit modal should appear with a form pre-filled with the offer's data.<br>3. Change a value in the form (e.g., the offer name).<br>4. Click the "Update Offer" button. |
+| **Expected Result** | - The modal appears with the correct data.<br>- After updating, the modal closes.<br>- The table displays the updated information for that offer.<br>- A success alert is shown. |
+
+---
+
+### Test Case 7: Export to CSV
+
+| Test Case ID | TC_AOT_07                                                              |
+| :----------- | :--------------------------------------------------------------------- |
+| **Description**  | Verify that the "Export" button downloads a CSV file of the current offers. |
+| **Steps**        | 1. Click the "Export" button.                                        |
+| **Expected Result** | - A file named `offers_YYYY-MM-DD.csv` is downloaded by the browser.<br>- The file contains the correct headers and data for the offers visible in the table. |
+
+---
+
+### Test Case 8: Copy Link
+
+| Test Case ID | TC_AOT_08                                                              |
+| :----------- | :--------------------------------------------------------------------- |
+| **Description**  | Verify that clicking the copy link button copies the link to the clipboard. |
+| **Steps**        | 1. Find an offer with a link and click the `LinkIcon` button.<br>2. Try pasting the content into a text editor. |
+| **Expected Result** | - A success alert "Link copied to clipboard!" appears.<br>- The correct offer link is pasted from the clipboard. |
 
 ---

@@ -1,11 +1,11 @@
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import LeadsTable from '../../../../src/adminDashboard/forms/LeadsTable';
-import leadService from '../../../../src/services/leadService';
+import LeadsTable from '../../../src/adminDashboard/forms/LeadsTable';
+import leadService from '../../../src/services/leadService';
 
 // Mock services
-vi.mock('../../../../src/services/leadService');
+vi.mock('../../../src/services/leadService');
 
 describe('LeadsTable Component', () => {
   const mockLeads = [
@@ -69,6 +69,15 @@ describe('LeadsTable Component', () => {
     await waitFor(() => {
       expect(leadService.getAllLeads).toHaveBeenCalledTimes(2);
       expect(leadService.getAllLeads).toHaveBeenCalledWith(expect.objectContaining({ search: 'LD001' }));
+    });
+  });
+
+  it('should display an error message if fetching leads fails', async () => {
+    leadService.getAllLeads.mockResolvedValue({ success: false, message: 'Failed to fetch leads' });
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to fetch leads')).toBeInTheDocument();
     });
   });
 });

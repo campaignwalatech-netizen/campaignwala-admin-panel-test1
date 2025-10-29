@@ -1,6 +1,6 @@
 # Test Cases for Modal Component
 
-**Component:** `src/components/Modal.jsx`
+**Component:** `../src/components/Modal.jsx`
 
 ---
 

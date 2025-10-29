@@ -1,11 +1,11 @@
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import ApproveOffersTable from '../../../../src/adminDashboard/forms/ApproveProjectTable';
-import { getAllOffers, approveOffer, rejectOffer } from '../../../../src/services/offerService';
+import ApproveOffersTable from '../../../src/adminDashboard/forms/ApproveProjectTable';
+import { getAllOffers, approveOffer, rejectOffer } from '../../../src/services/offerService';
 
 // Mock services
-vi.mock('../../../../src/services/offerService');
+vi.mock('../../../src/services/offerService');
 
 describe('ApproveOffersTable Component', () => {
   const mockOffers = [

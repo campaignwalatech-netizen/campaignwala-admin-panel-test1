@@ -2,12 +2,12 @@
 import { render, screen, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import Header from '../../../../src/adminDashboard/components/Header';
-import userService from '../../../../src/services/userService';
+import Header from '../../../src/adminDashboard/components/Header.jsx';
+import userService from '../../../src/services/userService';
 
 // Mock dependencies
-vi.mock('../../../../src/services/userService');
-vi.mock('../../../../src/adminDashboard/components/ProfileMenu', () => ({
+vi.mock('../../../src/services/userService');
+vi.mock('../../../src/adminDashboard/components/ProfileMenu', () => ({
   default: () => <div data-testid="profile-menu">Profile Menu</div>,
 }));
 
