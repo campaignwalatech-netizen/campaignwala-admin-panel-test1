@@ -1,7 +1,7 @@
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import ProfileMenu from '../../../src/components/profile';
+import ProfileMenu from '../../src/components/profile';
 
 describe('ProfileMenu Component', () => {
   it('should render the profile button', () => {

@@ -1,7 +1,7 @@
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import AdminLogsTable from '../../../../src/adminDashboard/forms/AdminLogsTable';
+import AdminLogsTable from '../../../src/adminDashboard/forms/AdminLogsTable';
 
 describe('AdminLogsTable Component', () => {
   it('should render the table with a title and logs', () => {

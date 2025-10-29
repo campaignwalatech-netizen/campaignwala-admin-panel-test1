@@ -1,7 +1,7 @@
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import PaymentWithdrawalTable from '../../../../src/adminDashboard/forms/PaymentWithdrawalTable';
+import PaymentWithdrawalTable from '../../../src/adminDashboard/forms/PaymentWithdrawalTable';
 
 describe('PaymentWithdrawalTable Component', () => {
   it('should render the table with title and statistics', () => {

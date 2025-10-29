@@ -1,7 +1,7 @@
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import OffersTable from '../../../../src/adminDashboard/components/ProductsTable';
+import OffersTable from '../../../src/adminDashboard/components/ProductsTable';
 
 describe('OffersTable Component', () => {
   it('should render the table with a header and data rows', () => {

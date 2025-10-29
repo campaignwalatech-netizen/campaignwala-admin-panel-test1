@@ -1,7 +1,7 @@
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import AnalyticsDashboard from '../../../../src/adminDashboard/forms/ABCAnalytics';
+import AnalyticsDashboard from '../../../src/adminDashboard/forms/ABCAnalytics';
 
 // Mock the recharts library
 vi.mock('recharts', () => ({

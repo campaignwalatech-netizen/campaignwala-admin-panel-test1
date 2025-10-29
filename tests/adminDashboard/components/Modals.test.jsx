@@ -5,7 +5,7 @@ import {
   DeleteModal,
   EditModal,
   ConfirmModal,
-} from '../../../../src/adminDashboard/components/Modals';
+} from '../../../src/adminDashboard/components/Modals';
 
 describe('Modal Components', () => {
   describe('DeleteModal', () => {

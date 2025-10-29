@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import DebugCredentials from '../../../src/components/DebugCredentials';
+import DebugCredentials from '../../src/components/DebugCredentials.jsx';
 
 describe('DebugCredentials Component', () => {
   let consoleSpy;

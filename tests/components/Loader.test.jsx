@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import Loader from '../../../src/components/Loader';
+import Loader from '../../src/components/Loader';
 
 describe('Loader Component', () => {
   it('should render with default props', () => {

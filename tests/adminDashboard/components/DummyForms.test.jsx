@@ -7,7 +7,7 @@ import {
   ApproveAccountForm,
   AddAccountForm,
   DefaultView,
-} from '../../../../src/adminDashboard/components/DummyForms';
+} from '../../../src/adminDashboard/components/DummyForms';
 
 describe('DummyForms Components', () => {
   describe('DistributeLeadsForm', () => {

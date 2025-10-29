@@ -2,11 +2,11 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import AddCategoryForm from '../../../../src/adminDashboard/forms/AddCategoryForm';
-import { createCategory, updateCategory } from '../../../../src/services/categoryService';
+import AddCategoryForm from '../../../src/adminDashboard/forms/AddCategoryForm';
+import { createCategory, updateCategory } from '../../../src/services/categoryService';
 
 // Mock services and router hooks
-vi.mock('../../../../src/services/categoryService');
+vi.mock('../../../src/services/categoryService');
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {

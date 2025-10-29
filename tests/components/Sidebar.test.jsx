@@ -1,7 +1,7 @@
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import Sidebar from '../../../src/components/Sidebar';
+import Sidebar from '../../src/components/Sidebar';
 
 describe('Sidebar Component', () => {
   it('should render the sidebar with a logo and menu items', () => {

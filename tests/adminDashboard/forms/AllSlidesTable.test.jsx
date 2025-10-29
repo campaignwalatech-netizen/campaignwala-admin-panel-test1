@@ -2,11 +2,11 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import AllSlidesTable from '../../../../src/adminDashboard/forms/AllSlidesTable';
-import slideService from '../../../../src/services/slideService';
+import AllSlidesTable from '../../../src/adminDashboard/forms/AllSlidesTable';
+import slideService from '../../../src/services/slideService';
 
 // Mock services and router hooks
-vi.mock('../../../../src/services/slideService');
+vi.mock('../../../src/services/slideService');
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {

@@ -1,13 +1,13 @@
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import AddOffersForm from '../../../../src/adminDashboard/forms/AddProjectForm';
-import { createOffer } from '../../../../src/services/offerService';
-import { getAllCategories } from '../../../../src/services/categoryService';
+import AddOffersForm from '../../../src/adminDashboard/forms/AddProjectForm';
+import { createOffer } from '../../../src/services/offerService';
+import { getAllCategories } from '../../../src/services/categoryService';
 
 // Mock services
-vi.mock('../../../../src/services/offerService');
-vi.mock('../../../../src/services/categoryService');
+vi.mock('../../../src/services/offerService');
+vi.mock('../../../src/services/categoryService');
 
 describe('AddOffersForm Component', () => {
   beforeEach(() => {

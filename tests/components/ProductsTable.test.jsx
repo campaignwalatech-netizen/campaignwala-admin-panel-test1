@@ -1,7 +1,7 @@
 
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import OffersTable from '../../../src/components/ProductsTable';
+import OffersTable from '../../src/components/ProductsTable';
 
 describe('OffersTable Component', () => {
   it('should render the table with headers and data', () => {

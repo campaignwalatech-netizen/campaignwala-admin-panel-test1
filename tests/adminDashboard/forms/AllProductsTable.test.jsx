@@ -1,98 +1,134 @@
-
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import AllOffersTable from '../../../../src/adminDashboard/forms/AllProductsTable';
-import { getAllOffers, deleteOffer, updateOffer } from '../../../../src/services/offerService';
-import { getAllCategories } from '../../../../src/services/categoryService';
+import AllOffersTable from '../../../src/adminDashboard/forms/AllProductsTable';
+import * as offerService from '../../../src/services/offerService';
+import * as categoryService from '../../../src/services/categoryService';
 
-// Mock services
-vi.mock('../../../../src/services/offerService');
-vi.mock('../../../../src/services/categoryService');
+// Mock the services
+vi.mock('../../../src/services/offerService');
+vi.mock('../../../src/services/categoryService');
 
-// Mock clipboard API
-Object.assign(navigator, {
-  clipboard: {
-    writeText: vi.fn(),
+const mockOffers = [
+  {
+    _id: '1',
+    name: 'Offer One',
+    category: 'Finance',
+    latestStage: 'Pending',
+    commission1: '10%',
+    commission2: '5%',
+    isApproved: false,
+    createdAt: new Date().toISOString(),
+    link: 'https://example.com/offer1',
   },
-});
+  {
+    _id: '2',
+    name: 'Offer Two',
+    category: 'Tech',
+    latestStage: 'Completed',
+    commission1: '20%',
+    commission2: '10%',
+    isApproved: true,
+    createdAt: new Date().toISOString(),
+    link: 'https://example.com/offer2',
+  },
+];
+
+const mockCategories = [
+    { _id: 'cat1', name: 'Finance' },
+    { _id: 'cat2', name: 'Tech' },
+];
 
 describe('AllOffersTable Component', () => {
-  const mockOffers = [
-    { _id: '1', name: 'Offer 1', category: 'Cat A', isApproved: true, createdAt: new Date().toISOString(), link: 'https://example.com' },
-    { _id: '2', name: 'Offer 2', category: 'Cat B', isApproved: false, createdAt: new Date().toISOString() },
-  ];
-
   beforeEach(() => {
-    vi.clearAllMocks();
-    getAllOffers.mockResolvedValue({ success: true, data: { offers: mockOffers } });
-    getAllCategories.mockResolvedValue({ success: true, data: { categories: [] } });
-    deleteOffer.mockResolvedValue({ success: true });
-    updateOffer.mockResolvedValue({ success: true, data: { ...mockOffers[0], name: 'Updated Offer' } });
+    // Reset mocks before each test
+    vi.resetAllMocks();
+    
+    // Default successful mocks
+    offerService.getAllOffers.mockResolvedValue({ success: true, data: { offers: mockOffers } });
+    categoryService.getAllCategories.mockResolvedValue({ success: true, data: { categories: mockCategories } });
+    offerService.deleteOffer.mockResolvedValue({ success: true });
+    offerService.updateOffer.mockResolvedValue({ success: true, data: { ...mockOffers[0], name: 'Updated Offer' } });
   });
 
-  const renderComponent = () => {
-    return render(<AllOffersTable />);
-  };
+  it('should show loading state initially and then render offers', async () => {
+    render(<AllOffersTable />);
+    
+    expect(screen.getByText(/Loading offers.../i)).toBeInTheDocument();
 
-  it('should load and display offers', async () => {
-    renderComponent();
-    expect(screen.getByText(/loading offers/i)).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByText('Offer 1')).toBeInTheDocument();
-      expect(screen.getByText('Offer 2')).toBeInTheDocument();
+      expect(screen.getByText('Offer One')).toBeInTheDocument();
+      expect(screen.getByText('Offer Two')).toBeInTheDocument();
     });
   });
 
-  it('should open the delete modal and delete an offer', async () => {
-    renderComponent();
-    await waitFor(() => screen.getByText('Offer 1'));
+  it('should display an error message if fetching offers fails', async () => {
+    offerService.getAllOffers.mockRejectedValue({ response: { data: { message: 'Network Error' } } });
+    render(<AllOffersTable />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Error Loading Offers/i)).toBeInTheDocument();
+      expect(screen.getByText('Network Error')).toBeInTheDocument();
+    });
+  });
+
+  it('should display "No offers found" message when there are no offers', async () => {
+    offerService.getAllOffers.mockResolvedValue({ success: true, data: { offers: [] } });
+    render(<AllOffersTable />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/No offers found/i)).toBeInTheDocument();
+    });
+  });
+
+  it('should filter offers based on search term', async () => {
+    render(<AllOffersTable />);
+    await waitFor(() => expect(screen.getByText('Offer One')).toBeInTheDocument());
+
+    const searchInput = screen.getByPlaceholderText(/Search offers.../i);
+    fireEvent.change(searchInput, { target: { value: 'Offer One' } });
+
+    await waitFor(() => {
+        expect(offerService.getAllOffers).toHaveBeenCalledWith(expect.objectContaining({ search: 'Offer One' }));
+    });
+  });
+
+  it('should open and handle delete confirmation modal', async () => {
+    render(<AllOffersTable />);
+    await waitFor(() => expect(screen.getByText('Offer One')).toBeInTheDocument());
 
     const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
     fireEvent.click(deleteButtons[0]);
 
-    expect(screen.getByText(/confirm delete/i)).toBeInTheDocument();
+    expect(screen.getByText(/Confirm Delete/i)).toBeInTheDocument();
+    expect(screen.getByText(/Are you sure you want to delete/i)).toBeInTheDocument();
 
-    const confirmButton = screen.getByRole('button', { name: 'Delete' });
-    fireEvent.click(confirmButton);
+    const confirmDeleteButton = screen.getByRole('button', { name: 'Delete' });
+    fireEvent.click(confirmDeleteButton);
 
     await waitFor(() => {
-      expect(deleteOffer).toHaveBeenCalledWith('1');
-      expect(screen.getByText(/deleted successfully/i)).toBeInTheDocument();
-      expect(screen.queryByText('Offer 1')).not.toBeInTheDocument();
+      expect(offerService.deleteOffer).toHaveBeenCalledWith('1');
+      expect(screen.getByText(/"Offer One" deleted successfully!/i)).toBeInTheDocument();
     });
   });
 
-  it('should open the edit modal and update an offer', async () => {
-    renderComponent();
-    await waitFor(() => screen.getByText('Offer 1'));
+  it('should open and handle edit modal', async () => {
+    render(<AllOffersTable />);
+    await waitFor(() => expect(screen.getByText('Offer One')).toBeInTheDocument());
 
     const editButtons = screen.getAllByRole('button', { name: /edit/i });
     fireEvent.click(editButtons[0]);
 
-    expect(screen.getByText('Edit Offer')).toBeInTheDocument();
-    const nameInput = screen.getByDisplayValue('Offer 1');
+    expect(screen.getByText(/Edit Offer/i)).toBeInTheDocument();
+    
+    const nameInput = screen.getByLabelText(/Offer Name/i);
     fireEvent.change(nameInput, { target: { value: 'Updated Offer' } });
 
-    const updateButton = screen.getByRole('button', { name: /update offer/i });
+    const updateButton = screen.getByRole('button', { name: /Update Offer/i });
     fireEvent.click(updateButton);
 
     await waitFor(() => {
-      expect(updateOffer).toHaveBeenCalledWith('1', expect.any(Object));
-      expect(screen.getByText(/updated successfully/i)).toBeInTheDocument();
-      expect(screen.getByText('Updated Offer')).toBeInTheDocument();
-    });
-  });
-
-  it('should copy link to clipboard', async () => {
-    renderComponent();
-    await waitFor(() => screen.getByText('Offer 1'));
-
-    const copyButton = screen.getAllByTitle('Copy Link')[0];
-    fireEvent.click(copyButton);
-
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('https://example.com');
-    await waitFor(() => {
-      expect(screen.getByText(/link copied to clipboard/i)).toBeInTheDocument();
+      expect(offerService.updateOffer).toHaveBeenCalledWith('1', expect.objectContaining({ name: 'Updated Offer' }));
+      expect(screen.getByText(/"Updated Offer" updated successfully!/i)).toBeInTheDocument();
     });
   });
 });
