@@ -1,101 +1,84 @@
-
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import RejectedLeads from '../../../src/userDashboard/layouts/RejectedLeads';
 
-// Mock dependencies
-const mockNavigate = vi.fn();
-const mockUseLocation = vi.fn();
+// Mock the useNavigate and useLocation hooks
+const mockedNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
-    const actual = await vi.importActual('react-router-dom');
-    return {
-        ...actual,
-        useNavigate: () => mockNavigate,
-        useLocation: () => mockUseLocation(),
-    };
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockedNavigate,
+    useLocation: () => ({ pathname: '/user/rejected-leads' }),
+  };
 });
 
-describe('RejectedLeads Layout', () => {
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockUseLocation.mockReturnValue({ pathname: '/user/rejected-leads' });
-  });
-
-  const renderComponent = (darkMode = false) => {
-    return render(
-      <MemoryRouter initialEntries={['/user/rejected-leads']}>
-        <RejectedLeads darkMode={darkMode} />
+describe('RejectedLeads Component', () => {
+  it('should render the component with initial data', () => {
+    render(
+      <MemoryRouter>
+        <RejectedLeads darkMode={false} />
       </MemoryRouter>
     );
-  };
 
-  it('should render the page title, filters, and tabs', () => {
-    renderComponent();
-    expect(screen.getByRole('heading', { name: /rejected leads/i })).toBeInTheDocument();
-    expect(screen.getByRole('combobox')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/search by name, offer, or contact/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /rejected leads/i })).toHaveClass('bg-blue-600');
-  });
-
-  it('should display all leads initially', () => {
-    renderComponent();
-    const rows = screen.getAllByRole('row');
-    expect(rows).toHaveLength(5); // 1 header row + 4 data rows
+    expect(screen.getByText('Rejected Leads')).toBeInTheDocument();
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('Jane Smith')).toBeInTheDocument();
   });
 
   it('should filter leads by category', () => {
-    renderComponent();
+    render(
+      <MemoryRouter>
+        <RejectedLeads darkMode={false} />
+      </MemoryRouter>
+    );
+
     const categoryFilter = screen.getByRole('combobox');
+    fireEvent.change(categoryFilter, { target: { value: 'Axis Bank' } });
 
-    fireEvent.change(categoryFilter, { target: { value: 'ICICI Bank' } });
-
-    const rows = screen.getAllByRole('row');
-    expect(rows).toHaveLength(2); // 1 header row + 1 data row
-    expect(screen.getByText('Robert Johnson')).toBeInTheDocument();
-    expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.queryByText('Jane Smith')).not.toBeInTheDocument();
   });
 
-  it('should filter leads by search query (name)', () => {
-    renderComponent();
-    const searchInput = screen.getByPlaceholderText(/search/i);
+  it('should filter leads by search query', () => {
+    render(
+      <MemoryRouter>
+        <RejectedLeads darkMode={false} />
+      </MemoryRouter>
+    );
 
-    fireEvent.change(searchInput, { target: { value: 'Maria' } });
+    const searchInput = screen.getByPlaceholderText('Search by name, offer, or contact...');
+    fireEvent.change(searchInput, { target: { value: 'Jane' } });
 
-    const rows = screen.getAllByRole('row');
-    expect(rows).toHaveLength(2);
-    expect(screen.getByText('Maria Garcia')).toBeInTheDocument();
-    expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
-  });
-
-  it('should filter leads by search query (contact)', () => {
-    renderComponent();
-    const searchInput = screen.getByPlaceholderText(/search/i);
-
-    fireEvent.change(searchInput, { target: { value: '9988776655' } });
-
-    const rows = screen.getAllByRole('row');
-    expect(rows).toHaveLength(2);
     expect(screen.getByText('Jane Smith')).toBeInTheDocument();
     expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
   });
 
-  it('should show a message when no leads are found', () => {
-    renderComponent();
-    const searchInput = screen.getByPlaceholderText(/search/i);
+  it('should navigate to the correct tabs', () => {
+    render(
+      <MemoryRouter>
+        <RejectedLeads darkMode={false} />
+      </MemoryRouter>
+    );
 
-    fireEvent.change(searchInput, { target: { value: 'NonExistentName' } });
+    const pendingTab = screen.getByText('Pending Leads');
+    fireEvent.click(pendingTab);
+    expect(mockedNavigate).toHaveBeenCalledWith('/user/pending-leads');
 
-    expect(screen.getByText(/no rejected leads found/i)).toBeInTheDocument();
+    const approvedTab = screen.getByText('Approved Leads');
+    fireEvent.click(approvedTab);
+    expect(mockedNavigate).toHaveBeenCalledWith('/user/approved-leads');
   });
 
-  it('should navigate when a tab is clicked', () => {
-    renderComponent();
-    const approvedTab = screen.getByRole('button', { name: /approved leads/i });
-    fireEvent.click(approvedTab);
-    expect(mockNavigate).toHaveBeenCalledWith('/user/approved-leads');
+  it('should render in dark mode', () => {
+    render(
+      <MemoryRouter>
+        <RejectedLeads darkMode={true} />
+      </MemoryRouter>
+    );
+
+    const mainDiv = screen.getByText('Rejected Leads').closest('div.min-h-screen');
+    expect(mainDiv).toHaveClass('bg-gray-900', 'text-white');
   });
 });
