@@ -4,7 +4,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import PrivateRoute from '../../src/routes/PrivateRoute';
-import { selectHasPermission } from '../../src/redux/slices/authSlice';
+import Loader from '../../src/components/Loader';
+import { selectIsAuthenticated, selectIsLoading } from '../../src/redux/slices/authSlice';
 
 // Mock dependencies
 vi.mock('react-redux', () => ({
