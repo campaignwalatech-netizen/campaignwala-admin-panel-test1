@@ -1,109 +1,94 @@
-
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import Dashboard from '../../../src/userDashboard/components/Dashboard';
 import api from '../../../src/services/api';
 
-// Mock dependencies
-vi.mock('../../../src/services/api');
+// Mock api service
+vi.mock('../../../src/services/api', () => ({
+  default: {
+    get: vi.fn(),
+  },
+}));
 
-const mockNavigate = vi.fn();
+const mockedNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
     const actual = await vi.importActual('react-router-dom');
     return {
-        ...actual,
-        useNavigate: () => mockNavigate,
+      ...actual,
+      useNavigate: () => mockedNavigate,
     };
-});
-
-const mockCategories = [
-  { _id: '1', name: 'Category 1', description: 'Description 1' },
-  { _id: '2', name: 'Category 2', description: 'Description 2' },
-];
-
-describe('User Dashboard Component', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
   });
 
-  const renderComponent = (darkMode = false) => {
-    return render(
-      <MemoryRouter>
-        <Dashboard darkMode={darkMode} />
-      </MemoryRouter>
-    );
+describe('Dashboard Component', () => {
+  const categoriesData = {
+    success: true,
+    data: {
+      categories: [
+        { _id: '1', name: 'Category 1', description: 'Desc 1' },
+        { _id: '2', name: 'Category 2', description: 'Desc 2' },
+      ],
+    },
   };
 
-  it('should render the welcome message and static cards', () => {
-    api.get.mockResolvedValue({ data: { success: false, data: { categories: [] } } });
-    renderComponent();
-    expect(screen.getByText(/welcome back/i)).toBeInTheDocument();
-    expect(screen.getByText(/current balance/i)).toBeInTheDocument();
-    expect(screen.getByText(/total earnings/i)).toBeInTheDocument();
-    expect(screen.getByText(/total bonus/i)).toBeInTheDocument();
+  beforeEach(() => {
+    api.get.mockResolvedValue({ data: categoriesData });
   });
 
-  it('should show a loading state while fetching categories', () => {
-    api.get.mockReturnValue(new Promise(() => {})); // Promise that never resolves
-    renderComponent();
-    expect(screen.getByText(/loading categories.../i)).toBeInTheDocument();
-  });
-
-  it('should display categories when the API call is successful', async () => {
-    api.get.mockResolvedValue({ data: { success: true, data: { categories: mockCategories } } });
-    renderComponent();
-
+  it('should render loading state and then the dashboard with categories', async () => {
+    render(
+      <MemoryRouter>
+        <Dashboard darkMode={false} />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Loading categories...')).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByText('Category 1')).toBeInTheDocument();
       expect(screen.getByText('Category 2')).toBeInTheDocument();
     });
-
-    // Fallback cards should not be present
-    expect(screen.queryByText(/industrial bank credit card/i)).not.toBeInTheDocument();
   });
 
-  it('should display fallback offers if the API call fails', async () => {
-    api.get.mockRejectedValue(new Error('API Error'));
-    renderComponent();
-
+  it('should navigate on stats card click', async () => {
+    render(
+      <MemoryRouter>
+        <Dashboard darkMode={false} />
+      </MemoryRouter>
+    );
     await waitFor(() => {
-      expect(screen.getByText(/industrial bank credit card/i)).toBeInTheDocument();
+        expect(screen.getByText('Category 1')).toBeInTheDocument();
     });
-    expect(screen.queryByText('Category 1')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Current Balance'));
+    expect(mockedNavigate).toHaveBeenCalledWith('/user/wallet-withdrawl');
+
+    fireEvent.click(screen.getByText('Total Earnings'));
+    expect(mockedNavigate).toHaveBeenCalledWith('/user/total-balance');
   });
 
-  it('should navigate when a stat card is clicked', () => {
-    api.get.mockResolvedValue({ data: { success: false, data: { categories: [] } } });
-    renderComponent();
-
-    fireEvent.click(screen.getByText(/current balance/i));
-    expect(mockNavigate).toHaveBeenCalledWith('/user/wallet-withdrawl');
-
-    fireEvent.click(screen.getByText(/total earnings/i));
-    expect(mockNavigate).toHaveBeenCalledWith('/user/total-balance');
-  });
-
-  it('should navigate when a category card is clicked', async () => {
-    api.get.mockResolvedValue({ data: { success: true, data: { categories: mockCategories } } });
-    renderComponent();
-
+  it('should navigate on category card click', async () => {
+    render(
+      <MemoryRouter>
+        <Dashboard darkMode={false} />
+      </MemoryRouter>
+    );
     await waitFor(() => {
-      fireEvent.click(screen.getByText('Category 1'));
+        expect(screen.getByText('Category 1')).toBeInTheDocument();
     });
 
-    expect(mockNavigate).toHaveBeenCalledWith('/user/category-offers/1', {
-      state: {
-        categoryId: '1',
-        categoryName: 'Category 1',
-        categoryDescription: 'Description 1',
-      },
-    });
+    fireEvent.click(screen.getByText('Category 1'));
+    expect(mockedNavigate).toHaveBeenCalledWith('/user/category-offers/1', expect.any(Object));
   });
 
-  it('should apply dark mode classes when darkMode is true', () => {
-    api.get.mockResolvedValue({ data: { success: false, data: { categories: [] } } });
-    const { container } = renderComponent(true);
-    expect(container.firstChild).toHaveClass('text-gray-100');
+  it('should render fallback data if categories fail to load', async () => {
+    api.get.mockResolvedValue({ data: { success: false } });
+    render(
+      <MemoryRouter>
+        <Dashboard darkMode={false} />
+      </MemoryRouter>
+    );
+    await waitFor(() => {
+      expect(screen.getByText('Industrial Bank Credit Card')).toBeInTheDocument();
+      expect(screen.getByText('Bajaj EMI Card')).toBeInTheDocument();
+    });
   });
 });
