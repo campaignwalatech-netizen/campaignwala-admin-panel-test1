@@ -1,93 +1,106 @@
-
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import App from '../../../src/App';
+import { updateLastActivity } from '../../../src/redux/slices/authSlice';
 
-// Mock child components and hooks
+// Mock child components
 vi.mock('../../../src/adminDashboard/components/Sidebar', () => ({
-  default: () => <div>Sidebar</div>,
+  default: () => <aside>Sidebar</aside>,
 }));
 
 vi.mock('../../../src/adminDashboard/components/Header', () => ({
   default: ({ onThemeToggle }) => (
-    <div>
-      <span>Header</span>
+    <header>
       <button onClick={onThemeToggle}>Toggle Theme</button>
-    </div>
+    </header>
   ),
 }));
 
+// Mock react-router-dom Outlet
 vi.mock('react-router-dom', async () => {
     const actual = await vi.importActual('react-router-dom');
     return {
-      ...actual,
-      Outlet: () => <div>Outlet</div>,
+        ...actual,
+        Outlet: () => <div>Outlet Content</div>,
     };
-  });
+});
 
 const mockStore = configureStore([]);
 
-describe('App Component', () => {
+describe('App.jsx', () => {
   let store;
 
   beforeEach(() => {
     store = mockStore({
       auth: {
         isAuthenticated: true,
-        userRole: 'admin',
+        user: { role: 'admin' },
       },
     });
     store.dispatch = vi.fn();
+    localStorage.clear();
+    document.documentElement.classList.remove('dark');
   });
 
-  it('should render the main layout with Sidebar, Header, and Outlet', () => {
+  const renderComponent = () =>
     render(
       <Provider store={store}>
-        <App />
+        <MemoryRouter>
+          <App />
+        </MemoryRouter>
       </Provider>
     );
 
+  it('renders the main layout with Sidebar, Header, and Outlet', () => {
+    renderComponent();
     expect(screen.getByText('Sidebar')).toBeInTheDocument();
-    expect(screen.getByText('Header')).toBeInTheDocument();
-    expect(screen.getByText('Outlet')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Toggle Theme' })).toBeInTheDocument();
+    expect(screen.getByText('Outlet Content')).toBeInTheDocument();
   });
 
-  it('should toggle the theme when the theme toggle button is clicked', () => {
-    render(
-      <Provider store={store}>
-        <App />
-      </Provider>
-    );
-
-    const themeToggleButton = screen.getByText('Toggle Theme');
-
-    // Initially, theme is dark
+  it('initializes theme from localStorage', () => {
+    localStorage.setItem('theme', 'dark');
+    renderComponent();
     expect(document.documentElement.classList.contains('dark')).toBe(true);
+  });
 
-    // Toggle to light
-    fireEvent.click(themeToggleButton);
+  it('toggles theme when header button is clicked', () => {
+    renderComponent();
+    // Initially light mode
     expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(localStorage.getItem('theme')).toBe('light');
 
-    // Toggle back to dark
-    fireEvent.click(themeToggleButton);
+    // Toggle to dark
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle Theme' }));
     expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(localStorage.getItem('theme')).toBe('dark');
+
+    // Toggle back to light
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle Theme' }));
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(localStorage.getItem('theme')).toBe('light');
   });
 
-  it('should dispatch updateLastActivity on user activity', () => {
-    render(
-      <Provider store={store}>
-        <App />
-      </Provider>
-    );
+  it('dispatches updateLastActivity on user interaction', () => {
+    renderComponent();
+    
+    // Simulate a user click event on the main container
+    fireEvent.mouseDown(screen.getByText('Outlet Content'));
 
-    fireEvent.mouseMove(document);
+    expect(store.dispatch).toHaveBeenCalledWith(updateLastActivity());
+  });
 
-    // Check if the mocked dispatch was called with an action of the correct type
-    const dispatchedAction = store.dispatch.mock.calls.find(
-        (call) => call[0].type === 'auth/updateLastActivity'
-      );
-      expect(dispatchedAction).not.toBeUndefined();
+  it('cleans up event listeners on unmount', () => {
+    const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
+    const { unmount } = renderComponent();
+
+    unmount();
+
+    // Check if removeEventListener was called for the events
+    expect(removeEventListenerSpy).toHaveBeenCalledWith('mousedown', expect.any(Function), true);
+    expect(removeEventListenerSpy).toHaveBeenCalledWith('mousemove', expect.any(Function), true);
   });
 });
