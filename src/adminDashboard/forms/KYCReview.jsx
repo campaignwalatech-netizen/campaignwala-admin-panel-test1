@@ -1,83 +1,74 @@
-import { useState } from "react";
-import { Search, User, CreditCard, MapPin, Building, CheckCircle, XCircle, ArrowLeft, Eye } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, User, CreditCard, Building, CheckCircle, XCircle, ArrowLeft, Eye } from "lucide-react";
+import userService from "../../services/userService";
+import { toast } from "react-hot-toast";
 
 export default function KYCReview() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [currentView, setCurrentView] = useState("table"); // "table" or "details"
   const [actionType, setActionType] = useState(""); // "approve" or "reject"
+  const [kycUsers, setKycUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
 
-  // Mock KYC users data
-  const [kycUsers] = useState([
-    {
-      userId: "USER00123",
-      fullName: "Aarav Sharma",
-      email: "aarav.sharma@example.com",
-      phone: "+91 98765 43210",
-      gender: "Male",
-      address: "921 Broadway",
-      zipCode: "79901",
-      panNumber: "ABCDE1234F",
-      aadhaarNumber: "1234 5678 9012",
-      accountNumber: "XXXXXXXXXX7890",
-      ifscCode: "HDFC0001234",
-      bankName: "HDFC Bank",
-      branchAddress: "HDFC Bank, Jasola Vihar, New Delhi",
-      submittedDate: "2024-10-20",
-      status: "Pending"
-    },
-    {
-      userId: "USER00124", 
-      fullName: "Priya Patel",
-      email: "priya.patel@example.com",
-      phone: "+91 87654 32109",
-      gender: "Female",
-      address: "456 MG Road",
-      zipCode: "400001",
-      panNumber: "FGHIJ5678K",
-      aadhaarNumber: "9876 5432 1098",
-      accountNumber: "XXXXXXXXXX1234",
-      ifscCode: "SBIN0001234",
-      bankName: "State Bank of India",
-      branchAddress: "SBI Main Branch, Mumbai",
-      submittedDate: "2024-10-18",
-      status: "Pending"
-    },
-    {
-      userId: "USER00125",
-      fullName: "Rohit Kumar", 
-      email: "rohit.kumar@example.com",
-      phone: "+91 76543 21098",
-      gender: "Male",
-      address: "789 Park Street",
-      zipCode: "560001",
-      panNumber: "KLMNO9012P",
-      aadhaarNumber: "5678 9012 3456",
-      accountNumber: "XXXXXXXXXX5678",
-      ifscCode: "ICIC0001234",
-      bankName: "ICICI Bank",
-      branchAddress: "ICICI Bank, Brigade Road, Bangalore",
-      submittedDate: "2024-10-22",
-      status: "Pending"
-    },
-    {
-      userId: "USER00126",
-      fullName: "Sneha Gupta",
-      email: "sneha.gupta@example.com", 
-      phone: "+91 65432 10987",
-      gender: "Female",
-      address: "321 Civil Lines",
-      zipCode: "110001",
-      panNumber: "QRSTU3456V",
-      aadhaarNumber: "2345 6789 0123",
-      accountNumber: "XXXXXXXXXX9012",
-      ifscCode: "AXIS0001234", 
-      bankName: "Axis Bank",
-      branchAddress: "Axis Bank, Connaught Place, Delhi",
-      submittedDate: "2024-10-19",
-      status: "Pending"
+  // Fetch pending KYC requests on mount
+  useEffect(() => {
+    console.log('🔄 KYCReview: Component mounted, fetching pending KYC requests...');
+    fetchPendingKYC();
+  }, []);
+
+  const fetchPendingKYC = async () => {
+    try {
+      console.log('🌐 userService.getPendingKYCRequests called');
+      setLoading(true);
+      const response = await userService.getPendingKYCRequests({
+        page: 1,
+        limit: 100,
+        sortBy: 'kycDetails.kycSubmittedAt',
+        order: 'desc'
+      });
+      console.log('📥 getPendingKYCRequests response:', response);
+      
+      if (response.success) {
+        console.log('✅ Pending KYC requests:', response.data.users);
+        console.log('📊 Total pending KYC:', response.data.users.length);
+        
+        // Transform data to match UI structure
+        const transformedUsers = response.data.users.map(user => ({
+          userId: user._id,
+          fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.name || 'N/A',
+          email: user.email || 'N/A',
+          phone: user.phoneNumber || 'N/A',
+          gender: user.gender || 'N/A',
+          address: user.address1 || 'N/A',
+          zipCode: user.zip || 'N/A',
+          panNumber: user.kycDetails?.panNumber || 'N/A',
+          aadhaarNumber: user.kycDetails?.aadhaarNumber || 'N/A',
+          accountNumber: user.bankDetails?.accountNumber || 'N/A',
+          ifscCode: user.bankDetails?.ifscCode || 'N/A',
+          bankName: user.bankDetails?.bankName || 'N/A',
+          branchAddress: user.bankDetails?.branchAddress || 'N/A',
+          submittedDate: user.kycDetails?.kycSubmittedAt ? new Date(user.kycDetails.kycSubmittedAt).toISOString().split('T')[0] : 'N/A',
+          status: 'Pending',
+          // Store original user data
+          originalData: user
+        }));
+        
+        setKycUsers(transformedUsers);
+      } else {
+        console.error('❌ API returned success: false');
+        toast.error('Failed to fetch KYC requests');
+      }
+    } catch (error) {
+      console.error('❌ Error fetching KYC requests:', error);
+      console.error('❌ Error details:', error.message);
+      toast.error(error.message || 'Failed to fetch KYC requests');
+    } finally {
+      setLoading(false);
+      console.log('✅ Loading complete');
     }
-  ]);
+  };
 
   // Filter users based on search
   const filteredUsers = kycUsers.filter(user =>
@@ -87,6 +78,7 @@ export default function KYCReview() {
   );
 
   const handleViewDetails = (user, action) => {
+    console.log('📋 View Details clicked for:', user.userId);
     setSelectedUser(user);
     setActionType(action);
     setCurrentView("details");
@@ -98,18 +90,70 @@ export default function KYCReview() {
     setActionType("");
   };
 
-  const handleApprove = () => {
-    console.log("KYC Approved for:", selectedUser.fullName);
-    alert(`KYC approved for ${selectedUser.fullName}`);
-    handleBackToTable();
+  const handleApprove = async () => {
+    try {
+      console.log('🌐 userService.approveKYC called for:', selectedUser.userId);
+      setProcessing(true);
+      
+      const response = await userService.approveKYC(selectedUser.userId, {
+        remarks: 'KYC approved by admin'
+      });
+      
+      console.log('📥 Approve KYC response:', response);
+      
+      if (response.success) {
+        console.log('✅ KYC approved successfully');
+        toast.success(`KYC approved for ${selectedUser.fullName}`);
+        handleBackToTable();
+        fetchPendingKYC(); // Refresh the list
+      } else {
+        console.error('❌ Approve failed:', response.message);
+        toast.error(response.message || 'Failed to approve KYC');
+      }
+    } catch (error) {
+      console.error('❌ Error approving KYC:', error);
+      console.error('❌ Error details:', error.message);
+      toast.error(error.message || 'Failed to approve KYC');
+    } finally {
+      setProcessing(false);
+      console.log('✅ Approve process complete');
+    }
   };
 
-  const handleReject = () => {
+  const handleReject = async () => {
     const reason = prompt("Please enter reason for rejection:");
-    if (reason) {
-      console.log("KYC Rejected for:", selectedUser.fullName, "Reason:", reason);
-      alert(`KYC rejected for ${selectedUser.fullName}`);
-      handleBackToTable();
+    if (!reason || reason.trim() === '') {
+      toast.error('Rejection reason is required');
+      return;
+    }
+    
+    try {
+      console.log('🌐 userService.rejectKYC called for:', selectedUser.userId);
+      console.log('📤 Reject reason:', reason);
+      setProcessing(true);
+      
+      const response = await userService.rejectKYC(selectedUser.userId, {
+        reason: reason.trim()
+      });
+      
+      console.log('📥 Reject KYC response:', response);
+      
+      if (response.success) {
+        console.log('✅ KYC rejected successfully');
+        toast.success(`KYC rejected for ${selectedUser.fullName}`);
+        handleBackToTable();
+        fetchPendingKYC(); // Refresh the list
+      } else {
+        console.error('❌ Reject failed:', response.message);
+        toast.error(response.message || 'Failed to reject KYC');
+      }
+    } catch (error) {
+      console.error('❌ Error rejecting KYC:', error);
+      console.error('❌ Error details:', error.message);
+      toast.error(error.message || 'Failed to reject KYC');
+    } finally {
+      setProcessing(false);
+      console.log('✅ Reject process complete');
     }
   };
 
@@ -239,12 +283,19 @@ export default function KYCReview() {
                       </td>
                     </tr>
                   ))}
+                  {loading && (
+                    <tr>
+                      <td colSpan={7} className="text-center py-8 text-muted-foreground">
+                        Loading KYC requests...
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
               
-              {filteredUsers.length === 0 && (
+              {!loading && filteredUsers.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
-                  No KYC applications found matching your search.
+                  {searchTerm ? 'No KYC applications found matching your search.' : 'No pending KYC applications found.'}
                 </div>
               )}
             </div>
@@ -368,23 +419,26 @@ export default function KYCReview() {
             <div className="mt-8 flex justify-center space-x-4">
               <button
                 onClick={handleBackToTable}
-                className="px-6 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
+                disabled={processing}
+                className="px-6 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Back to List
               </button>
               <button
                 onClick={handleReject}
-                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2"
+                disabled={processing}
+                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <XCircle className="w-4 h-4" />
-                <span>Reject KYC</span>
+                <span>{processing ? 'Processing...' : 'Reject KYC'}</span>
               </button>
               <button
                 onClick={handleApprove}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                disabled={processing}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <CheckCircle className="w-4 h-4" />
-                <span>Approve KYC</span>
+                <span>{processing ? 'Processing...' : 'Approve KYC'}</span>
               </button>
             </div>
           </div>
