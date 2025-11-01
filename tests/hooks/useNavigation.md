@@ -1,90 +1,37 @@
+# Manual Test Scenarios for useNavigation.js
 
-# Manual Test Cases for Navigation Hooks
+*These tests would be performed within a component that uses the `useNavigation` hook.*
 
-## Test Suite: useNavigation Hook
+## 1. Initialization and Menu Loading
 
-**Objective:** To ensure the useNavigation hook provides correct navigation and routing information.
+| Test Case ID | Description | Steps to Reproduce | Expected Result |
+| :--- | :--- | :--- | :--- |
+| NAV-001 | Verify initial state | 1. Render a component that uses `useNavigation()`. | The hook's `activeKey` should default to 'dashboard'. `breadcrumbs` and `navigationHistory` should be initialized correctly. |
+| NAV-002 | Load admin menu | 1. Render the hook with `userType` set to 'admin'. | The `menu` variable in the hook should be populated with `NAVIGATION_MENU.ADMIN`. |
+| NAV-003 | Load user menu | 1. Render the hook with `userType` set to 'user'. | The `menu` variable should be populated with `NAVIGATION_MENU.USER`. |
+| NAV-004 | Fallback to empty menu | 1. Render the hook with an unknown `userType`. | The `menu` should be an empty array. |
 
----
+## 2. Permission Filtering
 
-### **Test Case 1: Verify Initial State**
+| Test Case ID | Description | Steps to Reproduce | Expected Result |
+| :--- | :--- | :--- | :--- |
+| NAV-005 | Filter menu with sufficient permissions | 1. Set user permissions to include `['read:users', 'write:products']`. <br> 2. Render the hook. | The returned `menu` should include items that require `'read:users'` or `'write:products'`, as well as items with no permission requirements. |
+| NAV-006 | Filter menu with insufficient permissions | 1. Set user permissions to `[]`. <br> 2. Render the hook. | The returned `menu` should only include items that do not have a `permissions` property. Items requiring permissions should be filtered out. |
 
--   **Test ID:** NAV-01
--   **Description:** Ensure the hook returns the correct initial state.
--   **Steps:**
-    1.  Render a component that uses the `useNavigation` hook on a specific route (e.g., `/dashboard`).
--   **Expected Result:**
-    -   `currentPath` should be `/dashboard`.
-    -   `breadcrumb` should be an array representing the breadcrumb for the current path.
-    -   `navigationHistory` should contain the initial path.
+## 3. Navigation Actions
 
----
+| Test Case ID | Description | Steps to Reproduce | Expected Result |
+| :--- | :--- | :--- | :--- |
+| NAV-007 | `navigateToItem` functionality | 1. Call `navigateToItem('products', { key: 'products', label: 'Products' })`. | `activeKey` should become 'products'. `navigationHistory` should contain the new item. `breadcrumbs` should be updated to show "Products". |
+| NAV-008 | `navigateToItem` with a child item | 1. Call `navigateToItem('all-products', { key: 'all-products', label: 'All Products' })` (assuming it's a child of 'Products'). | `activeKey` should be 'all-products'. `breadcrumbs` should show "Products / All Products". |
+| NAV-009 | `goBack` functionality | 1. Navigate to 'dashboard', then to 'products'. <br> 2. Call `goBack()`. | `activeKey` should revert to 'dashboard'. `navigationHistory` should be updated. |
+| NAV-010 | `goBack` with no history | 1. On initial load, call `goBack()`. | The state should not change. `activeKey` should remain 'dashboard'. |
+| NAV-011 | `resetNavigation` functionality | 1. Navigate to several different items. <br> 2. Call `resetNavigation()`. | `activeKey` should be reset to 'dashboard'. `breadcrumbs` and `navigationHistory` should be reset to their initial state. |
 
-### **Test Case 2: navigateTo Function**
+## 4. Context and Data Retrieval
 
--   **Test ID:** NAV-02
--   **Description:** Verify the `navigateTo` function navigates to the specified path.
--   **Steps:**
-    1.  Call `navigateTo('/some-page')`.
--   **Expected Result:**
-    -   The user should be navigated to `/some-page`.
-    -   The `navigationHistory` should be updated with the new path.
-
----
-
-### **Test Case 3: goBack Function**
-
--   **Test ID:** NAV-03
--   **Description:** Verify the `goBack` function navigates to the previous page.
--   **Steps:**
-    1.  Navigate to a few pages.
-    2.  Call the `goBack()` function.
--   **Expected Result:**
-    -   The user should be navigated to the previously visited page.
-
----
-
-## Test Suite: useRouteParams Hook
-
-**Objective:** To ensure the useRouteParams hook correctly parses and manipulates URL query parameters.
-
----
-
-### **Test Case 1: Get Parameter**
-
--   **Test ID:** RP-01
--   **Description:** Verify the `getParam` function retrieves a query parameter from the URL.
--   **Steps:**
-    1.  Navigate to a URL with a query parameter (e.g., `/search?q=testing`).
-    2.  Call `getParam('q')`.
--   **Expected Result:**
-    -   The function should return `testing`.
-
----
-
-### **Test Case 2: Set Parameter**
-
--   **Test ID:** RP-02
--   **Description:** Verify the `setParam` function adds or updates a query parameter.
--   **Steps:**
-    1.  Call `setParam('sort', 'asc')`.
--   **Expected Result:**
-    -   The function should return a new URL string with `?sort=asc` appended.
-
----
-
-## Test Suite: usePageMeta Hook
-
-**Objective:** To ensure the usePageMeta hook correctly updates the page title and meta description.
-
----
-
-### **Test Case 1: Set Title and Description**
-
--   **Test ID:** PM-01
--   **Description:** Verify the hook sets the document title and meta description.
--   **Steps:**
-    1.  Render a component that uses the `usePageMeta` hook with a title and description.
--   **Expected Result:**
-    -   The document's title should be updated.
-    -   The `content` of the meta description tag should be updated.
+| Test Case ID | Description | Steps to Reproduce | Expected Result |
+| :--- | :--- | :--- | :--- |
+| NAV-012 | `getCurrentMenuItem` | 1. Call `navigateToItem('products', ...)`. <br> 2. Inspect the value of `currentMenuItem`. | It should return the full menu item object for the 'products' key. |
+| NAV-013 | `getNavigationContext` | 1. Navigate to a few items. <br> 2. Inspect the value of `navigationContext`. | It should return an object containing the correct `currentItem`, `menu`, `breadcrumbs`, `canGoBack` status, and the `previousItem`. |
+| NAV-014 | `canGoBack` status | 1. On initial load, check `navigationContext.canGoBack`. <br> 2. Navigate to a new item. <br> 3. Check `navigationContext.canGoBack` again. | It should be `false` initially, and `true` after the second navigation. |

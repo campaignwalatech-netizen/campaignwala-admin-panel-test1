@@ -1,89 +1,39 @@
-# Manual Test Cases for RegisterPage
+# Manual Test Scenarios for Register.jsx
 
-**Component:** `RegisterPage.jsx`
+## 1. Phone Number Step
 
-**Objective:** To verify the functionality of the user registration flow, which includes phone number submission, OTP verification, and user details submission.
+| Test Case ID | Description | Steps to Reproduce | Expected Result |
+| :--- | :--- | :--- | :--- |
+| REG-001 | Submit a valid 10-digit phone number | 1. Enter a valid 10-digit phone number. <br> 2. Click "SEND OTP". | The form should transition to the OTP verification step. A success message should be displayed. |
+| REG-002 | Submit an invalid phone number (less than 10 digits) | 1. Enter a 9-digit phone number. <br> 2. Click "SEND OTP". | An error message "Please enter a valid 10-digit phone number" should be displayed. The form should not transition. |
+| REG-003 | Submit an invalid phone number (more than 10 digits) | 1. Enter an 11-digit phone number. <br> 2. Click "SEND OTP". | The input should not accept more than 10 digits. |
+| REG-004 | Submit a non-numeric phone number | 1. Enter "abcdefghij". <br> 2. Click "SEND OTP". | An error message "Please enter a valid 10-digit phone number" should be displayed. The form should not transition. |
+| REG-005 | Submit an empty phone number | 1. Leave the phone number field empty. <br> 2. Click "SEND OTP". | An error message "Please enter a valid 10-digit phone number" should be displayed. The form should not transition. |
+| REG-006 | API error when sending OTP | 1. Enter a valid 10-digit phone number. <br> 2. Click "SEND OTP". (Simulate API failure) | An error message "Failed to send OTP" should be displayed. The form should not transition. |
 
----
+## 2. OTP Verification Step
 
-### Test Case 1: Render Initial Registration Page (Phone Number Step)
+| Test Case ID | Description | Steps to Reproduce | Expected Result |
+| :--- | :--- | :--- | :--- |
+| REG-007 | Submit a valid OTP | 1. After entering a valid phone number, enter the correct 4-digit OTP. <br> 2. Click "VERIFY OTP". | The form should transition to the user details step. A success message "OTP verified!" should be displayed. |
+| REG-008 | Submit an invalid OTP | 1. After entering a valid phone number, enter an incorrect 4-digit OTP. <br> 2. Click "VERIFY OTP". | An error message "Invalid OTP. Please try again." should be displayed. The form should not transition. |
+| REG-009 | Submit an empty OTP | 1. After entering a valid phone number, leave the OTP field empty. <br> 2. Click "VERIFY OTP". | An error message "Please enter the 4-digit OTP" should be displayed. The form should not transition. |
+| REG-010 | "Try Again" button functionality | 1. After entering a valid phone number, click the "Try Again" button on the OTP screen. | The form should transition back to the phone number step. The OTP field should be cleared. |
 
-| Test Case ID | TC_REGISTER_01                                     |
-|--------------|----------------------------------------------------|
-| **Description**  | Verify that the initial registration page renders correctly. |
-| **Steps**      | 1. Navigate to the registration page (`/register`).<br>2. Observe the rendered components. |
-| **Expected Result** | The page should display:<br>- A "Phone Number" input field.<br>- A "SEND OTP" button.<br>- A link to the "Login" page. |
+## 3. User Details Step
 
----
+| Test Case ID | Description | Steps to Reproduce | Expected Result |
+| :--- | :--- | :--- | :--- |
+| REG-011 | Submit valid user details | 1. After OTP verification, fill in all fields (Full Name, Email, Password) with valid data. <br> 2. Click "COMPLETE REGISTRATION". | The user should be successfully registered and redirected to the dashboard. |
+| REG-012 | Submit with missing required fields | 1. After OTP verification, leave one or more fields empty. <br> 2. Click "COMPLETE REGISTRATION". | An error message "All fields are required" should be displayed. Registration should not proceed. |
+| REG-013 | Submit with an invalid email format | 1. After OTP verification, enter an invalid email (e.g., "test@test"). <br> 2. Click "COMPLETE REGISTRATION". | An error message "Please enter a valid email address" should be displayed. Registration should not proceed. |
+| REG-014 | Submit with a short password | 1. After OTP verification, enter a password with less than 6 characters. <br> 2. Click "COMPLETE REGISTRATION". | An error message "Password must be at least 6 characters long" should be displayed. Registration should not proceed. |
+| REG-015 | Password visibility toggle | 1. In the password field, click the "show password" icon. | The password should become visible. Clicking it again should hide the password. |
+| REG-016 | API error during registration | 1. After OTP verification, fill in all fields with valid data. <br> 2. Click "COMPLETE REGISTRATION". (Simulate API failure) | An error message "Registration failed. Please try again." should be displayed. |
+| REG-017 | "Back to OTP" button functionality | 1. On the user details screen, click the "← Back to OTP" button. | The form should transition back to the OTP verification step. |
 
-### Test Case 2: Phone Number Submission - Valid Number
+## 4. General
 
-| Test Case ID | TC_REGISTER_02                                     |
-|--------------|----------------------------------------------------|
-| **Description**  | Verify that a user can submit a valid phone number to receive an OTP. |
-| **Steps**      | 1. Navigate to `/register`.<br>2. Enter a valid 10-digit phone number.<br>3. Click the "SEND OTP" button. |
-| **Expected Result** | The user should be advanced to the OTP verification step.<br>An informational message indicating that an OTP has been sent should be displayed. |
-
----
-
-### Test Case 3: Phone Number Submission - Invalid Number
-
-| Test Case ID | TC_REGISTER_03                                     |
-|--------------|----------------------------------------------------|
-| **Description**  | Verify that an error is shown for an invalid phone number. |
-| **Steps**      | 1. Navigate to `/register`.<br>2. Enter an invalid phone number (e.g., "123").<br>3. Click the "SEND OTP" button. |
-| **Expected Result** | An error message (e.g., "Please enter a valid 10-digit phone number") should be displayed.<br>The user should remain on the phone number step. |
-
----
-
-### Test Case 4: OTP Verification - Valid OTP
-
-| Test Case ID | TC_REGISTER_04                                     |
-|--------------|----------------------------------------------------|
-| **Description**  | Verify that the user can proceed by entering a valid OTP. |
-| **Prerequisites** | The user has already submitted a phone number and is on the OTP step. |
-| **Steps**      | 1. Enter the correct 4-digit OTP in the input fields.<br>2. Click the "VERIFY OTP" button. |
-| **Expected Result** | The user should be advanced to the final registration step (user details).<br>An informational message (e.g., "OTP verified!") should be displayed. |
-
----
-
-### Test Case 5: OTP Verification - Invalid OTP
-
-| Test Case ID | TC_REGISTER_05                                     |
-|--------------|----------------------------------------------------|
-| **Description**  | Verify that an error is shown for an invalid OTP. |
-| **Prerequisites** | The user is on the OTP step. |
-| **Steps**      | 1. Enter an incorrect 4-digit OTP.<br>2. Click the "VERIFY OTP" button. |
-| **Expected Result** | An error message (e.g., "Invalid OTP") should be displayed.<br>The user should remain on the OTP verification step. |
-
----
-
-### Test Case 6: Final Registration - Valid Details
-
-| Test Case ID | TC_REGISTER_06                                     |
-|--------------|----------------------------------------------------|
-| **Description**  | Verify that a user can complete registration with valid details. |
-| **Prerequisites** | The user has successfully verified their OTP and is on the user details step. |
-| **Steps**      | 1. Fill in the "Full Name", "Email Address", and "Password" fields with valid data.<br>2. Click the "COMPLETE REGISTRATION" button. |
-| **Expected Result** | The user account is created, and the user is redirected to the appropriate dashboard. |
-
----
-
-### Test Case 7: Final Registration - Invalid Details
-
-| Test Case ID | TC_REGISTER_07                                     |
-|--------------|----------------------------------------------------|
-| **Description**  | Verify validation on the final registration form. |
-| **Prerequisites** | The user is on the user details step. |
-| **Steps**      | 1. Leave one or more fields blank.<br>2. Click "COMPLETE REGISTRATION".<br>3. Enter a password shorter than 6 characters.<br>4. Click "COMPLETE REGISTRATION".<br>5. Enter an invalid email format.<br>6. Click "COMPLETE REGISTRATION". |
-| **Expected Result** | An appropriate error message should be displayed for each invalid submission scenario.<br>The form should not be submitted. |
-
----
-
-### Test Case 8: Navigation - Back and Login Links
-
-| Test Case ID | TC_REGISTER_08                                     |
-|--------------|----------------------------------------------------|
-| **Description**  | Verify that all navigation links work as expected across all steps. |
-| **Steps**      | 1. On the phone step, click the "Login" link.<br>2. Go back. Proceed to the OTP step.<br>3. Click the "Try Again" button.<br>4. Go back. Proceed to the details step.<br>5. Click the "Back to OTP" link.<br>6. Go back. Proceed to the details step.<br>7. Click the "Login" link. |
-| **Expected Result** | - The "Login" link should always navigate to `/`.<br>- The "Try Again" button on the OTP step should return the user to the phone number step.<br>- The "Back to OTP" link on the details step should return the user to the OTP step. |
+| Test Case ID | Description | Steps to Reproduce | Expected Result |
+| :--- | :--- | :--- | :--- |
+| REG-018 | "Already have an account? Login" link | 1. On any step of the registration form, click the "Login" link. | The user should be redirected to the login page. |
