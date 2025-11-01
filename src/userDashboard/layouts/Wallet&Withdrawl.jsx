@@ -2,23 +2,23 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../redux/slices/authSlice";
 import walletService from "../../services/walletService";
+import withdrawalService from "../../services/withdrawalService";
+import jsPDF from "jspdf";
+import { toast } from "react-hot-toast";
 
 const WalletAndWithdrawl = ({ darkMode }) => {
   const user = useSelector(selectUser);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [wallet, setWallet] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [withdrawals, setWithdrawals] = useState([
-    { id: "WDR-001", amount: 500, date: "2024-07-20", status: "Approved", reason: "Processed successfully" },
-    { id: "WDR-002", amount: 120, date: "2024-07-18", status: "Pending", reason: "Awaiting admin approval" },
-    { id: "WDR-003", amount: 75.5, date: "2024-07-15", status: "Rejected", reason: "Bank details mismatch" },
-    { id: "WDR-004", amount: 300, date: "2024-07-12", status: "Approved", reason: "Processed successfully" },
-    { id: "WDR-005", amount: 80, date: "2024-07-10", status: "Pending", reason: "Awaiting admin approval" },
-  ]);
+  const [withdrawals, setWithdrawals] = useState([]);
+  const [loadingWithdrawals, setLoadingWithdrawals] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (user?._id) {
       fetchWallet();
+      fetchWithdrawals();
     }
   }, [user]);
 
@@ -31,8 +31,27 @@ const WalletAndWithdrawl = ({ darkMode }) => {
       }
     } catch (error) {
       console.error('Error fetching wallet:', error);
+      toast.error(error.message || "Failed to fetch wallet");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchWithdrawals = async () => {
+    try {
+      setLoadingWithdrawals(true);
+      const response = await withdrawalService.getWithdrawalsByUserId(user._id, {
+        sortBy: 'requestDate',
+        order: 'desc'
+      });
+      if (response.success) {
+        setWithdrawals(response.data.withdrawals);
+      }
+    } catch (error) {
+      console.error('Error fetching withdrawals:', error);
+      toast.error(error.message || "Failed to fetch withdrawals");
+    } finally {
+      setLoadingWithdrawals(false);
     }
   };
 
@@ -60,12 +79,13 @@ const WalletAndWithdrawl = ({ darkMode }) => {
     ctx.fillStyle = '#1e293b';
     ctx.font = 'bold 24px Arial';
     ctx.textAlign = 'left';
-    ctx.fillText(`Receipt ID: ${withdrawal.id}`, 60, 180);
+    ctx.fillText(`Receipt ID: ${withdrawal.withdrawalId}`, 60, 180);
 
     // Date
     ctx.font = '18px Arial';
     ctx.fillStyle = '#64748b';
-    ctx.fillText(`Date: ${withdrawal.date}`, 60, 220);
+    const formattedDate = new Date(withdrawal.requestDate).toLocaleDateString('en-IN');
+    ctx.fillText(`Date: ${formattedDate}`, 60, 220);
 
     // Divider
     ctx.strokeStyle = '#e2e8f0';
@@ -93,14 +113,14 @@ const WalletAndWithdrawl = ({ darkMode }) => {
     ctx.fillText('Status:', 60, 450);
     
     // Status badge
-    const statusColor = withdrawal.status === 'Approved' ? '#22c55e' : 
-                       withdrawal.status === 'Pending' ? '#eab308' : '#ef4444';
+    const statusColor = withdrawal.status === 'approved' ? '#22c55e' : 
+                       withdrawal.status === 'pending' ? '#eab308' : '#ef4444';
     ctx.fillStyle = statusColor;
     ctx.fillRect(60, 465, 150, 35);
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(withdrawal.status, 135, 488);
+    ctx.fillText(withdrawal.status.toUpperCase(), 135, 488);
     ctx.textAlign = 'left';
 
     ctx.font = '18px Arial';
@@ -138,28 +158,48 @@ const WalletAndWithdrawl = ({ darkMode }) => {
   const downloadReceipt = (withdrawal) => {
     const dataUrl = generateReceipt(withdrawal);
     const link = document.createElement('a');
-    link.download = `withdrawal-receipt-${withdrawal.id}.png`;
+    link.download = `withdrawal-receipt-${withdrawal.withdrawalId}.png`;
     link.href = dataUrl;
     link.click();
   };
 
-  const handleWithdraw = () => {
-    if (!withdrawAmount || isNaN(withdrawAmount))
-      return alert("Enter a valid amount!");
-    const newRequest = {
-      id: `WDR-00${withdrawals.length + 1}`,
-      amount: parseFloat(withdrawAmount),
-      date: new Date().toISOString().split("T")[0],
-      status: "Pending",
-      reason: "Awaiting admin approval",
-    };
-    setWithdrawals([newRequest, ...withdrawals]);
-    setWithdrawAmount("");
-    
-    // Auto-download receipt
-    setTimeout(() => downloadReceipt(newRequest), 100);
-    
-    alert("Withdrawal request submitted! Receipt downloaded.");
+  const handleWithdraw = async () => {
+    const amount = parseFloat(withdrawAmount);
+
+    // Validation
+    if (!amount || amount <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+
+    if (!wallet || wallet.balance < amount) {
+      toast.error("Insufficient balance");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const response = await withdrawalService.createWithdrawalRequest({
+        userId: user._id,
+        amount: amount,
+        bankDetails: {
+          // You can add bank details from user profile here if needed
+        }
+      });
+
+      if (response.success) {
+        toast.success("Withdrawal request submitted successfully!");
+        setWithdrawAmount("");
+        // Refresh data
+        fetchWithdrawals();
+        // Note: Wallet balance won't change until admin approves
+      }
+    } catch (error) {
+      console.error("Error creating withdrawal:", error);
+      toast.error(error.message || "Failed to submit withdrawal request");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -207,17 +247,19 @@ const WalletAndWithdrawl = ({ darkMode }) => {
               value={withdrawAmount}
               onChange={(e) => setWithdrawAmount(e.target.value)}
               placeholder="e.g., 500.00"
+              disabled={submitting}
               className={`w-full p-3 border rounded-md mb-4 text-sm outline-none ${
                 darkMode
                   ? "bg-gray-900 border-gray-700 text-white placeholder-gray-400"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-              }`}
+              } ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
             />
             <button
               onClick={handleWithdraw}
-              className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium transition"
+              disabled={submitting || !wallet || wallet.balance <= 0}
+              className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              REQUEST WITHDRAWAL
+              {submitting ? 'SUBMITTING...' : 'REQUEST WITHDRAWAL'}
             </button>
           </div>
 
@@ -246,6 +288,11 @@ const WalletAndWithdrawl = ({ darkMode }) => {
         >
           <h3 className="text-lg font-semibold mb-4">Withdrawal History</h3>
 
+          {loadingWithdrawals ? (
+            <p className="text-center py-4 text-gray-500">Loading withdrawals...</p>
+          ) : withdrawals.length === 0 ? (
+            <p className="text-center py-4 text-gray-500">No withdrawal history found</p>
+          ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm border-collapse">
               <thead>
@@ -265,32 +312,32 @@ const WalletAndWithdrawl = ({ darkMode }) => {
               <tbody>
                 {withdrawals.map((w) => (
                   <tr
-                    key={w.id}
+                    key={w._id}
                     className={`border-t hover:bg-gray-50 transition ${
                       darkMode
                         ? "border-gray-700 hover:bg-gray-700/40"
                         : "border-gray-200"
                     }`}
                     >
-                    <td className="py-3 px-4">{w.id}</td>
+                    <td className="py-3 px-4">{w.withdrawalId}</td>
                     <td className="py-3 px-4">₹{w.amount.toFixed(2)}</td>
-                    <td className="py-3 px-4">{w.date}</td>
+                    <td className="py-3 px-4">{new Date(w.requestDate).toLocaleDateString('en-IN')}</td>
                     <td className="py-3 px-4">
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          w.status === "Approved"
+                          w.status === "approved"
                             ? "bg-green-100 text-green-700"
-                            : w.status === "Pending"
+                            : w.status === "pending"
                             ? "bg-yellow-100 text-yellow-700"
                             : "bg-red-100 text-red-700"
                         }`}
                       >
-                        {w.status}
+                        {w.status.toUpperCase()}
                       </span>
                     </td>
                     <td className="py-3 px-4">
-                      {w.status === "Rejected" ? (
-                        <span className="text-red-500">{w.reason}</span>
+                      {w.status === "rejected" ? (
+                        <span className="text-red-500">{w.rejectionReason || w.reason}</span>
                       ) : (
                         <span className="text-gray-500">{w.reason}</span>
                       )}
@@ -308,6 +355,7 @@ const WalletAndWithdrawl = ({ darkMode }) => {
               </tbody>
             </table>
           </div>
+          )}
         </div>
       </div>
     </div>
